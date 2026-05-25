@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Sitio oficial de la Agrupación Folclórica Alma y Corazón Cuequera de La Ligua. Difundiendo la pasión de la cueca chilena, talleres, eventos y comunidad.">
+    <title>Alma y Corazón Cuequera - La Ligua</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="dark-theme">
+    <!-- Background Elements -->
+    <div class="glow-bg-1"></div>
+    <div class="glow-bg-2"></div>
+
+    <!-- Header / Navigation -->
+    <header class="main-header" id="main-header">
+        <div class="header-container">
+            <a href="#" class="logo-area" id="nav-logo">
+                <img src="img/logo.jpg" alt="Logo Alma y Corazón Cuequera" class="header-logo-img">
+                <div class="logo-text">
+                    <span class="logo-title">Alma y Corazón Cuequera</span>
+                    <span class="logo-subtitle">de La Ligua</span>
+                </div>
+            </a>
+
+            <!-- Desktop Menu -->
+            <nav class="desktop-nav" id="desktop-nav">
+                <ul>
+                    <li><a href="#" class="nav-link active" data-target="hero-tab"><i class="fa-solid fa-house"></i>
+                            Inicio</a></li>
+                    <li><a href="#" class="nav-link" data-target="nosotros-tab"><i class="fa-solid fa-users"></i>
+                            Nosotros</a></li>
+                    <li><a href="#" class="nav-link" data-target="talleres-tab"><i
+                                class="fa-solid fa-graduation-cap"></i> Talleres</a></li>
+                    <li><a href="#" class="nav-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
+                            Eventos</a></li>
+                    <li>
+                        <button class="btn-portal nav-portal-btn" id="portal-trigger">
+                            <i class="fa-solid fa-key"></i> Portal Socios
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Settings & Mobile Menu Button -->
+            <div class="header-actions">
+                <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Tema" aria-label="Cambiar Tema">
+                    <i class="fa-solid fa-sun icon-sun"></i>
+                    <i class="fa-solid fa-moon icon-moon"></i>
+                </button>
+                <button class="mobile-menu-toggle" id="menu-toggle" aria-label="Abrir Menú">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Nav Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-nav">
+        <ul class="mobile-nav-links">
+            <li><a href="#" class="mob-link active" data-target="hero-tab"><i class="fa-solid fa-house"></i> Inicio</a>
+            </li>
+            <li><a href="#" class="mob-link" data-target="nosotros-tab"><i class="fa-solid fa-users"></i> Nosotros</a>
+            </li>
+            <li><a href="#" class="mob-link" data-target="talleres-tab"><i class="fa-solid fa-graduation-cap"></i>
+                    Talleres</a></li>
+            <li><a href="#" class="mob-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
+                    Eventos</a></li>
+            <li>
+                <button class="btn-portal mobile-portal-btn w-full" id="mobile-portal-trigger">
+                    <i class="fa-solid fa-key"></i> Portal Socios
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="content-container">
+
+        <!-- 1. HERO SECTION -->
+        <section id="hero-tab" class="app-section active">
+            <div class="hero-wrapper">
+                <div class="hero-content">
+                    <div class="badge-cuequero">
+                        <i class="fa-solid fa-star text-gold spin-slow"></i> Orgullo Folclórico de La Ligua
+                    </div>
+                    <h1 class="hero-title">Tradición, Pasión y <br><span class="gradient-text">Alma Cuequera</span></h1>
+                    <p class="hero-subtitle">
+                        Llevamos el ritmo de la espuela, el ondular del pañuelo y el orgullo de nuestra patria en el
+                        corazón. Únete a la agrupación más vibrante de La Ligua y vive el folklore chileno.
+                    </p>
+                    <div class="hero-cta-group">
+                        <button class="btn btn-primary" onclick="switchSection('talleres-tab')">
+                            <i class="fa-solid fa-circle-play"></i> Ver Talleres
+                        </button>
+                        <button class="btn btn-outline" id="hero-portal-btn">
+                            <i class="fa-solid fa-address-card"></i> Portal Socios
+                        </button>
+                    </div>
+                    <!-- Quick stats / Highlights -->
+                    <div class="hero-stats">
+                        <div class="stat-card">
+                            <span class="stat-num">50+</span>
+                            <span class="stat-label">Socios Activos</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-num">8+</span>
+                            <span class="stat-label">Años de Historia</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-num">120+</span>
+                            <span class="stat-label">Presentaciones</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Hero visual elements -->
+                <div class="hero-visual">
+                    <div class="artistic-ring"></div>
+                    <div class="visual-card">
+                        <img src="img/639604519_1131572059696157_6852663303250377074_n.jpg" alt="Agrupación Folclórica Alma y Corazón Cuequera" class="hero-group-img">
+                        <!-- Dynamic caption -->
+                        <div class="visual-badge">
+                            <span class="pulse-indicator"></span>
+                            <span>Ensayos Martes y Jueves · Centro La Ligua</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. NOSOTROS SECTION -->
+        <section id="nosotros-tab" class="app-section">
+            <div class="section-header">
+                <span class="section-tag">Trayectoria & Alma</span>
+                <h2 class="section-title">Quiénes Somos</h2>
+                <div class="section-underline"></div>
+            </div>
+
+            <div class="nosotros-grid">
+                <div class="nosotros-text-panel">
+                    <h3 class="highlight-heading">Pasión por la cueca en la Provincia de Petorca</h3>
+                    <p>
+                        Fundada con el ferviente anhelo de mantener viva la llama de nuestras tradiciones nacionales en
+                        el corazón de <strong>La Ligua</strong>, la Agrupación Folclórica <strong>"Alma y Corazón
+                            Cuequera"</strong> se ha consolidado como un referente indiscutido en la enseñanza y
+                        difusión de nuestra danza nacional.
+                    </p>
+                    <p>
+                        No solo enseñamos los pasos, paseos y vueltas; transmitimos la emoción, la picardía, la fuerza y
+                        la prestancia que caracterizan a los distintos estilos de la cueca. A través de talleres
+                        mayores en un lazo fraternal inquebrantable en torno al folklore.
+                    </p>
+
+                    <div class="nosotros-banner">
+                        <img src="img/640302143_1131572123029484_5355877768243442583_n.jpg" alt="Agrupación Alma y Corazón Cuequera" class="nosotros-banner-img">
+                    </div>
+
+                    <div class="pillars-container">
+                        <div class="pillar-item">
+                            <div class="pillar-icon"><i class="fa-solid fa-heart"></i></div>
+                            <div class="pillar-content">
+                                <h4>Misión</h4>
+                                <p>Preservar, enseñar y difundir la danza nacional, integrando a toda la comunidad de La
+                                    Ligua en un entorno de aprendizaje dinámico y acogedor.</p>
+                            </div>
+                        </div>
+                        <div class="pillar-item">
+                            <div class="pillar-icon"><i class="fa-solid fa-eye"></i></div>
+                            <div class="pillar-content">
+                                <h4>Visión</h4>
+                                <p>Ser reconocidos a nivel regional y nacional como embajadores folclóricos del valle de
+                                    Petorca por nuestra alta calidad artística y cohesión comunitaria.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nosotros-team-panel">
+                    <h3 class="panel-subtitle">Nuestra Directiva</h3>
+                    <div class="team-grid">
+                        <div class="team-card">
+                            <div class="team-img-wrapper">
+                                <div class="avatar-placeholder"><i class="fa-solid fa-user-tie"></i></div>
+                            </div>
+                            <div class="team-info">
+                                <h4>Claudio Tapia</h4>
+                                <span class="role">Presidente & Fundador</span>
+                                <p class="bio">Bailarín folclórico con más de 15 años de trayectoria en cueca
+                                    tradicional y urbana.</p>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-img-wrapper">
+                                <div class="avatar-placeholder"><i class="fa-solid fa-user-ninja"></i></div>
+                            </div>
+                            <div class="team-info">
+                                <h4>Margarita Toro</h4>
+                                <span class="role">Secretaria & Coreógrafa</span>
+                                <p class="bio">Encargada de las piezas escénicas y el diseño del vestuario de las
+                                    presentaciones.</p>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-img-wrapper">
+                                <div class="avatar-placeholder"><i class="fa-solid fa-calculator"></i></div>
+                            </div>
+                            <div class="team-info">
+                                <h4>José Luis Ponce</h4>
+                                <span class="role">Tesorero Agrupación</span>
+                                <p class="bio">Responsable de velar por la transparencia y optimización de los fondos de
+                                    la agrupación.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. TALLERES SECTION -->
+        <section id="talleres-tab" class="app-section">
+            <div class="section-header">
+                <span class="section-tag">Aprende con Nosotros</span>
+                <h2 class="section-title">Nuestros Talleres 2026</h2>
+                <div class="section-underline"></div>
+            </div>
+
+            <div class="talleres-intro">
+                <p class="lead-text">
+                    Ofrecemos programas adaptados para todas las edades y niveles. Desde la primera vez que tomas el
+                    pañuelo hasta preparaciones avanzadas para campeonatos comunales y regionales. ¡Únete hoy mismo!
+                </p>
+            </div>
+
+            <!-- Workshop Cards Grid -->
+            <div class="workshops-grid">
+                <!-- Taller 1 -->
+                <div class="workshop-card">
+                    <div class="card-glow"></div>
+                    <div class="workshop-level badge-basic">Iniciación</div>
+                    <div class="workshop-icon"><i class="fa-solid fa-shoe-prints"></i></div>
+                    <h3>Cueca Inicial & Tradicional</h3>
+                    <p>Aprende las bases esenciales: estructura de la cueca (la medialuna, las vueltas, el escobillado y
+                        el zapateo). Ideal para principiantes absolutos.</p>
+                    <ul class="workshop-details">
+                        <li><i class="fa-solid fa-calendar"></i> Martes y Jueves 18:30</li>
+                        <li><i class="fa-solid fa-location-dot"></i> Centro Comunitario La Ligua</li>
+                        <li><i class="fa-solid fa-user"></i> Prof: Claudio Tapia</li>
+                    </ul>
+                    <button class="btn btn-card"
+                        onclick="openEnrollmentModal('Cueca Inicial & Tradicional')">Inscribirme <i
+                            class="fa-solid fa-arrow-right"></i></button>
+                </div>
+
+                <!-- Taller 2 -->
+                <div class="workshop-card">
+                    <div class="card-glow"></div>
+                    <div class="workshop-level badge-medium">Intermedio</div>
+                    <div class="workshop-icon"><i class="fa-solid fa-person-running"></i></div>
+                    <h3>Técnica y Prestancia (Estilo Huaso)</h3>
+                    <p>Enfocado en perfeccionar la postura corporal, la sincronización de la pareja y la elegancia
+                        folclórica. Introducción al floreo y cueca de competencia.</p>
+                    <ul class="workshop-details">
+                        <li><i class="fa-solid fa-calendar"></i> Miércoles 19:30</li>
+                        <li><i class="fa-solid fa-location-dot"></i> Sede Vecinal El Carmen</li>
+                        <li><i class="fa-solid fa-user"></i> Prof: Margarita Toro</li>
+                    </ul>
+                    <button class="btn btn-card"
+                        onclick="openEnrollmentModal('Técnica y Prestancia (Estilo Huaso)')">Inscribirme <i
+                            class="fa-solid fa-arrow-right"></i></button>
+                </div>
+
+                <!-- Taller 3 -->
+                <div class="workshop-card">
+                    <div class="card-glow"></div>
+                    <div class="workshop-level badge-advanced">Especialización</div>
+                    <div class="workshop-icon"><i class="fa-solid fa-fire"></i></div>
+                    <h3>Cueca Brava y Cueca Chora</h3>
+                    <p>Conéctate con la cueca urbana nacida en los puertos y tabernas. Mucho ritmo, picardía y
+                        expresiones corporales llenas de energía, libertad y fuerza escénica.</p>
+                    <ul class="workshop-details">
+                        <li><i class="fa-solid fa-calendar"></i> Viernes 20:00</li>
+                        <li><i class="fa-solid fa-location-dot"></i> Casa de la Cultura, La Ligua</li>
+                        <li><i class="fa-solid fa-user"></i> Profs: Directiva A&C</li>
+                    </ul>
+                    <button class="btn btn-card" onclick="openEnrollmentModal('Cueca Brava y Cueca Chora')">Inscribirme
+                        <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Schedule summary table -->
+            <div class="schedule-panel">
+                <h3>Resumen Semanal de Clases</h3>
+                <div class="table-responsive">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Día</th>
+                                <th>Horario</th>
+                                <th>Taller</th>
+                                <th>Lugar</th>
+                                <th>Nivel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Martes</td>
+                                <td>18:30 - 20:00</td>
+                                <td>Cueca Inicial</td>
+                                <td>Centro Comunitario La Ligua</td>
+                                <td><span class="level-lbl basic">Principiantes</span></td>
+                            </tr>
+                            <tr>
+                                <td>Miércoles</td>
+                                <td>19:30 - 21:00</td>
+                                <td>Técnica y Prestancia</td>
+                                <td>Sede Vecinal El Carmen</td>
+                                <td><span class="level-lbl medium">Intermedio</span></td>
+                            </tr>
+                            <tr>
+                                <td>Jueves</td>
+                                <td>18:30 - 20:00</td>
+                                <td>Cueca Inicial</td>
+                                <td>Centro Comunitario La Ligua</td>
+                                <td><span class="level-lbl basic">Principiantes</span></td>
+                            </tr>
+                            <tr>
+                                <td>Viernes</td>
+                                <td>20:00 - 22:00</td>
+                                <td>Cueca Brava y Chora</td>
+                                <td>Casa de la Cultura, La Ligua</td>
+                                <td><span class="level-lbl advanced">Avanzado / Libre</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. EVENTOS Y GALERIA SECTION -->
+        <section id="eventos-tab" class="app-section">
+            <div class="section-header">
+                <span class="section-tag">Nuestras Memorias</span>
+                <h2 class="section-title">Eventos y Galería</h2>
+                <div class="section-underline"></div>
+            </div>
+
+            <!-- Interactive category filters -->
+            <div class="gallery-filters" id="gallery-filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="presentaciones">Presentaciones</button>
+                <button class="filter-btn" data-filter="talleres-fotos">Talleres</button>
+                <button class="filter-btn" data-filter="comunidad">Comunidad</button>
+            </div>
+
+            <!-- Responsive Dynamic Gallery -->
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Gallery Item 1 -->
+                <div class="gallery-item" data-category="presentaciones">
+                    <div class="gallery-visual-wrapper">
+                        <img src="img/639604519_1131572059696157_6852663303250377074_n.jpg" alt="Gala Folclórica Fiestas Patrias" class="gallery-img">
+                        <div class="gallery-overlay">
+                            <span class="zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                            <div class="overlay-details">
+                                <span class="gallery-date">18 Sep, 2025</span>
+                                <h4>Gala Folclórica Fiestas Patrias</h4>
+                                <p>Presentación estelar en la Plaza de Armas de La Ligua con más de 20 parejas en
+                                    escena.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 2 -->
+                <div class="gallery-item" data-category="talleres-fotos">
+                    <div class="gallery-visual-wrapper">
+                        <div class="gallery-visual-bg bg-blue-grad">
+                            <i class="fa-solid fa-graduation-cap visual-icon"></i>
+                        </div>
+                        <div class="gallery-overlay">
+                            <span class="zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                            <div class="overlay-details">
+                                <span class="gallery-date">10 Nov, 2025</span>
+                                <h4>Clausura de Talleres de Primavera</h4>
+                                <p>Nuestros alumnos iniciales muestran con orgullo sus avances zapateando al son de la
+                                    cueca.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 3 -->
+                <div class="gallery-item" data-category="comunidad">
+                    <div class="gallery-visual-wrapper">
+                        <div class="gallery-visual-bg bg-gold-grad">
+                            <i class="fa-solid fa-mug-hot visual-icon"></i>
+                        </div>
+                        <div class="gallery-overlay">
+                            <span class="zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                            <div class="overlay-details">
+                                <span class="gallery-date">14 Dic, 2025</span>
+                                <h4>Peña Folclórica Solidaria</h4>
+                                <p>Tarde recreativa familiar y cuequera para reunir fondos comunales de apoyo social.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 4 -->
+                <div class="gallery-item" data-category="presentaciones">
+                    <div class="gallery-visual-wrapper">
+                        <img src="img/640302143_1131572123029484_5355877768243442583_n.jpg" alt="Campeonato Provincial de Cueca" class="gallery-img">
+                        <div class="gallery-overlay">
+                            <span class="zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                            <div class="overlay-details">
+                                <span class="gallery-date">24 Ene, 2026</span>
+                                <h4>Campeonato Provincial de Cueca</h4>
+                                <p>Nuestros representantes de Alma y Corazón obtienen el 2° lugar en categoría juvenil.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 5 -->
+                <div class="gallery-item" data-category="comunidad">
+                    <div class="gallery-visual-wrapper">
+                        <div class="gallery-visual-bg bg-dark-grad">
+                            <i class="fa-solid fa-tree visual-icon"></i>
+                        </div>
+                        <div class="gallery-overlay">
+                            <span class="zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                            <div class="overlay-details">
+                                <span class="gallery-date">08 Mar, 2026</span>
+                                <h4>Paseo Anual de la Agrupación</h4>
+                                <p>Celebración campestre del Día de la Mujer en el sector de Valle Hermoso.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 6 -->
+                <div class="gallery-item" data-category="talleres-fotos">
+                    <div class="gallery-visual-wrapper">
+                        <div class="gallery-visual-bg bg-warm-grad">
+                            <i class="fa-solid fa-hands-holding-child visual-icon"></i>
+                        </div>
+                        <div class="gallery-overlay">
+                            <span class="zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                            <div class="overlay-details">
+                                <span class="gallery-date">12 May, 2026</span>
+                                <h4>Taller Infantil "Semillitas Cuequeras"</h4>
+                                <p>Inculcando el amor por el folklore y el movimiento del pañuelo a las nuevas
+                                    generaciones.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Future Events Calendar Timeline -->
+            <div class="upcoming-events-panel">
+                <h3>Próximas Actividades en Agenda</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">15 Jun</div>
+                        <div class="timeline-content">
+                            <h4>Asamblea General de Planificación 2026</h4>
+                            <p class="time-loc"><i class="fa-solid fa-clock"></i> 19:30 | <i
+                                    class="fa-solid fa-location-dot"></i> Centro Comunitario La Ligua</p>
+                            <p>Reunión clave para socios con el fin de coordinar las actividades invernales y cuotas de
+                                vestuarios.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">04 Jul</div>
+                        <div class="timeline-content">
+                            <h4>Peña Criolla Invernal "Alma y Corazón"</h4>
+                            <p class="time-loc"><i class="fa-solid fa-clock"></i> 20:00 | <i
+                                    class="fa-solid fa-location-dot"></i> Gimnasio Municipal de La Ligua</p>
+                            <p>Gran evento bailable con la participación de cantores locales, empanadas y excelente
+                                ambiente familiar.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">18 Sep</div>
+                        <div class="timeline-content">
+                            <h4>Gran Gala Folclórica Comunal Fiestas Patrias</h4>
+                            <p class="time-loc"><i class="fa-solid fa-clock"></i> 18:00 | <i
+                                    class="fa-solid fa-location-dot"></i> Plaza de Armas de La Ligua</p>
+                            <p>Nuestro máximo show del año. Espectáculo de zapateo masivo e interpretaciones de grandes
+                                cuecas chilenas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. PORTAL PRIVADO DE SOCIOS SECTION -->
+        <section id="portal-tab" class="app-section">
+
+            <!-- A. LOGIN STATE (RENDERED WHEN NOT LOGGED IN) -->
+            <div id="portal-login-view" class="portal-login-card">
+                <div class="login-decor">
+                    <i class="fa-solid fa-lock-open lock-glow-icon"></i>
+                </div>
+                <h2>Acceso Privado de Socios</h2>
+                <p class="login-desc">Ingresa a tu portal de socio para revisar acuerdos de asambleas, actas de
+                    reuniones, estados de cuotas anuales y la transparencia financiera del club.</p>
+
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="username"><i class="fa-solid fa-user"></i> Nombre de Usuario o RUT</label>
+                        <input type="text" id="username" placeholder="Ej: socio2026" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password"><i class="fa-solid fa-key"></i> Contraseña</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" placeholder="••••••••" required
+                                autocomplete="current-password">
+                            <button type="button" class="btn-toggle-pwd" id="toggle-pwd-btn"><i
+                                    class="fa-solid fa-eye"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="login-error-msg" class="alert alert-danger hidden">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Usuario o contraseña incorrectos. Intenta con:
+                        <strong>socio2026</strong> / <strong>cueca123</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-submit-login">
+                        <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+                    </button>
+                </form>
+
+                <!-- Demo helper -->
+                <div class="demo-credentials-box">
+                    <h5><i class="fa-solid fa-circle-info text-gold"></i> Accesos de Demostración Rápidos</h5>
+                    <p>Evalúa los distintos perfiles de socios y directivos del club:</p>
+                    <div class="cred-table" style="gap: 10px;">
+                        <div>
+                            <span class="text-gold font-bold">1. Socio Activo (Consulta):</span><br>
+                            <span>Usuario: <code>socio2026</code> / Clave: <code>cueca123</code></span>
+                        </div>
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 8px;">
+                            <span class="text-blue font-bold">2. Directiva (Edición total):</span><br>
+                            <span>Usuario: <code>directiva2026</code> / Clave: <code>patria123</code></span>
+                        </div>
+                    </div>
+                    <div class="demo-btn-group">
+                        <button type="button" class="btn-demo-quick" id="btn-quick-login">
+                            <i class="fa-solid fa-user"></i> Socio Express
+                        </button>
+                        <button type="button" class="btn-demo-quick btn-demo-blue" id="btn-quick-login-admin">
+                            <i class="fa-solid fa-user-gear"></i> Directiva Express
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B. DASHBOARD STATE (RENDERED WHEN LOGGED IN) -->
+            <div id="portal-dashboard-view" class="portal-dashboard hidden">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <div class="db-welcome">
+                        <h2>¡Hola de nuevo, <span id="db-user-name" class="text-gold">Patricia Araya</span>!</h2>
+                        <p class="current-date-lbl"><i class="fa-solid fa-clock"></i> Sesión iniciada como <strong
+                                id="db-user-role">Socio Activo</strong> · <span id="current-date">Lunes, 25 de Mayo
+                                2026</span></p>
+                    </div>
+                    <button class="btn btn-logout" id="btn-dashboard-logout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                    </button>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+
+                    <!-- CARD 0. PANEL DE CONTROL DE LA DIRECTIVA (Editable) -->
+                    <div class="db-card card-span-2 shadow-premium hidden" id="directiva-admin-panel"
+                        style="border-color: var(--accent);">
+                        <div class="admin-card-header">
+                            <h3><i class="fa-solid fa-screwdriver-wrench text-gold"></i> Panel de Administración de
+                                Directiva</h3>
+                            <p class="small-meta">Control exclusivo para modificar cuotas de socios, bitácoras de
+                                asambleas y agenda pública</p>
+                        </div>
+
+                        <!-- Tabs de Administración -->
+                        <div class="admin-control-tabs">
+                            <button class="admin-tab-btn active" data-tab="admin-tab-cuotas"><i
+                                    class="fa-solid fa-wallet"></i> Control de Cuotas</button>
+                            <button class="admin-tab-btn" data-tab="admin-tab-bitacora"><i
+                                    class="fa-solid fa-file-signature"></i> Publicar Acuerdo/Noticia</button>
+                            <button class="admin-tab-btn" data-tab="admin-tab-eventos"><i
+                                    class="fa-solid fa-calendar-plus"></i> Añadir Evento Público</button>
+                            <button class="admin-tab-btn" data-tab="admin-tab-crear-socio"><i
+                                    class="fa-solid fa-user-plus"></i> Registrar Socio</button>
+                        </div>
+
+                        <!-- Subsección 1: Editor de Cuotas Interactivo -->
+                        <div class="admin-sub-content active" id="admin-tab-cuotas">
+                            <div class="admin-quota-section">
+                                <div class="form-group">
+                                    <label for="admin-member-select"><i class="fa-solid fa-users"></i> Seleccionar
+                                        Miembro</label>
+                                    <select id="admin-member-select">
+                                        <option value="patricia">Patricia Araya (Socio Activo)</option>
+                                        <option value="juan">Juan Pérez Muñoz (Socio Inicial)</option>
+                                        <option value="camila">Camila Toro Rojas (Bailarina Elenco)</option>
+                                    </select>
+                                    <div class="admin-help-box" style="margin-top: 15px;">
+                                        <p><i class="fa-solid fa-circle-info text-gold"></i> Haz clic en los meses para
+                                            alternar el estado: <br><strong>Pagado ✔️</strong> ➔ <strong>Pendiente
+                                                ⏳</strong> ➔ <strong>Atrasado ❌</strong>. <br>Los totales y balances
+                                            generales se recalcularán en tiempo real.</p>
+                                    </div>
+                                </div>
+                                <div class="admin-quota-grid-wrapper">
+                                    <h4 style="margin-bottom: 12px; font-size: 0.95rem;"><i
+                                            class="fa-solid fa-clipboard-list text-gold"></i> Estado de Cuotas 2026 de
+                                        <span id="admin-active-member-name" class="text-gold">Patricia Araya</span></h4>
+                                    <div class="admin-interactive-quota-grid" id="admin-quota-grid">
+                                        <!-- Se rellena dinámicamente con JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subsección 2: Agregar Actas y Acuerdos de Asamblea -->
+                        <div class="admin-sub-content" id="admin-tab-bitacora">
+                            <form id="admin-add-news-form" class="admin-form-inline">
+                                <div class="admin-form-grid">
+                                    <div class="form-group">
+                                        <label for="admin-news-title">Título del Acta / Noticia</label>
+                                        <input type="text" id="admin-news-title" required
+                                            placeholder="Ej: Acuerdo de Compra: Trajes Folclóricos">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="admin-news-type">Categoría</label>
+                                        <select id="admin-news-type">
+                                            <option value="acuerdo">Acuerdo de Directiva</option>
+                                            <option value="noticia">Noticia / Boletín</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-news-content">Contenido de la Publicación</label>
+                                    <textarea id="admin-news-content" rows="3" required
+                                        placeholder="Escribe el desarrollo de la reunión, temas conversados o actas oficiales..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-news-decisions">Acuerdos y Resoluciones Aprobados</label>
+                                    <input type="text" id="admin-news-decisions" required
+                                        placeholder="Ej: Se aprueba presupuesto de $450.000 para mantas de telar típicas de La Ligua.">
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
+                                    <i class="fa-solid fa-circle-check"></i> Publicar en la Bitácora de Socios
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Subsección 3: Agregar Evento Público -->
+                        <div class="admin-sub-content" id="admin-tab-eventos">
+                            <form id="admin-add-event-form" class="admin-form-inline">
+                                <div class="admin-form-grid">
+                                    <div class="form-group">
+                                        <label for="admin-event-title">Nombre de la Actividad</label>
+                                        <input type="text" id="admin-event-title" required
+                                            placeholder="Ej: Peña Folclórica Solidaria 'Alma y Corazón'">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="admin-event-date">Fecha (Día y Mes)</label>
+                                        <input type="text" id="admin-event-date" required
+                                            placeholder="Ej: 15 Ago o 18 Sep">
+                                    </div>
+                                </div>
+                                <div class="admin-form-grid">
+                                    <div class="form-group">
+                                        <label for="admin-event-time">Horario y Lugar</label>
+                                        <input type="text" id="admin-event-time" required
+                                            placeholder="Ej: 20:00 | Gimnasio Municipal de La Ligua">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="admin-event-desc">Breve Descripción Pública</label>
+                                        <input type="text" id="admin-event-desc" required
+                                            placeholder="Ej: Venta de empanadas, cuecas en vivo y grandes grupos de Petorca.">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
+                                    <i class="fa-solid fa-calendar-plus"></i> Publicar en Agenda Pública
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Subsección 4: Registrar Nuevo Socio -->
+                        <div class="admin-sub-content" id="admin-tab-crear-socio">
+                            <form id="admin-create-member-form" class="admin-form-inline">
+                                <div class="admin-form-grid">
+                                    <div class="form-group">
+                                        <label for="admin-new-member-name">Nombre Completo</label>
+                                        <input type="text" id="admin-new-member-name" required
+                                            placeholder="Ej: Carlos Fuentes Silva">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="admin-new-member-username">Nombre de Usuario (RUT o Apodo)</label>
+                                        <input type="text" id="admin-new-member-username" required
+                                            placeholder="Ej: carlos2026">
+                                    </div>
+                                </div>
+                                <div class="admin-form-grid">
+                                    <div class="form-group">
+                                        <label for="admin-new-member-role">Rol / Categoría</label>
+                                        <select id="admin-new-member-role">
+                                            <option value="Socio Activo">Socio Activo</option>
+                                            <option value="Socio Inicial">Socio Inicial</option>
+                                            <option value="Bailarín Elenco">Bailarín Elenco</option>
+                                            <option value="Directiva Administrador">Directiva Administrador</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="admin-new-member-pwd">Contraseña de Acceso</label>
+                                        <input type="text" id="admin-new-member-pwd" required value="cueca123"
+                                            placeholder="Ej: claveSegura123">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
+                                    <i class="fa-solid fa-user-check"></i> Registrar Socio y Generar Cuotas 2026
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+
+                    <!-- 1. Socio Profile & Quotas Status Card -->
+                    <div class="db-card card-span-2 shadow-premium" id="quota-status-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-wallet text-gold"></i> Control Personal de Cuotas Anuales</h3>
+                            <span class="badge badge-active"><i class="fa-solid fa-circle-check"></i> Al Día
+                                (Mayo)</span>
+                        </div>
+                        <div class="quota-summary-info">
+                            <div class="quota-stat-box">
+                                <span class="quota-val" id="quota-paid-count">5 / 12</span>
+                                <span class="quota-lbl">Meses Pagados</span>
+                            </div>
+                            <div class="quota-stat-box">
+                                <span class="quota-val text-gold" id="quota-total-amount">$25.000</span>
+                                <span class="quota-lbl">Monto Aportado 2026</span>
+                            </div>
+                            <div class="quota-stat-box">
+                                <span class="quota-val text-green" id="quota-rem-amount">$35.000</span>
+                                <span class="quota-lbl">Saldo Anual Pendiente</span>
+                            </div>
+                        </div>
+
+                        <!-- 12 Months Quota Grid Indicator -->
+                        <div class="months-quota-grid" id="months-grid">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                        <div class="quota-legend">
+                            <span class="legend-item"><span class="legend-dot status-paid"></span> Pagado
+                                ($5.000)</span>
+                            <span class="legend-item"><span class="legend-dot status-pending"></span> Por Pagar</span>
+                            <span class="legend-item"><span class="legend-dot status-overdue"></span> Atrasado</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Financial Metrics Widgets -->
+                    <div class="db-card shadow-premium" id="finances-overview-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-chart-line text-gold"></i> Resumen de Caja General 2026</h3>
+                            <span class="small-meta">Actualizado a Mayo</span>
+                        </div>
+
+                        <div class="finance-metrics-list">
+                            <!-- Saldo Actual (Balance) -->
+                            <div class="fin-widget widget-balance">
+                                <div class="fin-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                                <div class="fin-info">
+                                    <span class="fin-lbl">Saldo Neto Actual</span>
+                                    <h4 class="fin-val text-green" id="fin-net-balance">$1.120.000</h4>
+                                </div>
+                            </div>
+                            <!-- Total Ingresos -->
+                            <div class="fin-widget widget-ingresos">
+                                <div class="fin-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                                <div class="fin-info">
+                                    <span class="fin-lbl">Total Ingresos Acumulados</span>
+                                    <h4 class="fin-val" id="fin-total-ingresos">$2.350.000</h4>
+                                </div>
+                            </div>
+                            <!-- Total Egresos -->
+                            <div class="fin-widget widget-egresos">
+                                <div class="fin-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                                <div class="fin-info">
+                                    <span class="fin-lbl">Total Egresos Acumulados</span>
+                                    <h4 class="fin-val" id="fin-total-egresos">$1.230.000</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Financial Statistics Graphic (SVG Double-Line Interactive Chart) -->
+                    <div class="db-card card-span-2 shadow-premium" id="financial-charts-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-money-bill-transfer text-gold"></i> Estadísticas de Ingresos vs
+                                Egresos (Últimos 5 Meses)</h3>
+                            <div class="chart-legend-top">
+                                <span class="chart-dot-lbl dot-ingreso">Ingresos</span>
+                                <span class="chart-dot-lbl dot-egreso">Egresos</span>
+                            </div>
+                        </div>
+                        <!-- Responsive SVG interactive chart box -->
+                        <div class="svg-chart-container" id="svg-chart-container">
+                            <!-- Responsive SVG will be dynamically generated and inserted here by app.js -->
+                        </div>
+                        <div class="chart-caption">
+                            <p><i class="fa-solid fa-circle-info"></i> Pasa el cursor sobre los nodos del gráfico para
+                                ver los balances detallados de cada mes.</p>
+                        </div>
+                    </div>
+
+                    <!-- 4. Internal News & Meeting Agreements (Noticias y Acuerdos) -->
+                    <div class="db-card card-span-2 shadow-premium" id="news-agreements-card">
+                        <div class="db-card-header flex-header">
+                            <div>
+                                <h3><i class="fa-solid fa-file-signature text-gold"></i> Bitácora de Asambleas, Acuerdos
+                                    y Noticias</h3>
+                                <p class="small-meta">Actas oficiales y acuerdos de la directiva de Alma y Corazón
+                                    Cuequera</p>
+                            </div>
+                            <!-- Search filter within news -->
+                            <div class="search-box-news">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="news-search-input" placeholder="Buscar acuerdo, tema, fecha...">
+                            </div>
+                        </div>
+
+                        <!-- Dynamic news / agreements list -->
+                        <div class="agreements-list" id="agreements-list">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo-container">
+                    <img src="img/logo.jpg" alt="Logo Alma y Corazón Cuequera" class="footer-logo-img">
+                    <h4>Alma y Corazón Cuequera</h4>
+                </div>
+                <p>Preservando el folklore y la danza nacional desde el corazón de La Ligua, Provincia de Petorca,
+                    Chile.</p>
+                <div class="footer-socials">
+                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h5>Enlaces Rápidos</h5>
+                <ul>
+                    <li><a href="#" onclick="switchSection('hero-tab')">Inicio</a></li>
+                    <li><a href="#" onclick="switchSection('nosotros-tab')">Quiénes Somos</a></li>
+                    <li><a href="#" onclick="switchSection('talleres-tab')">Nuestros Talleres</a></li>
+                    <li><a href="#" onclick="switchSection('eventos-tab')">Galería de Eventos</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h5>Contacto</h5>
+                <p><i class="fa-solid fa-location-dot"></i> La Ligua, Región de Valparaíso, Chile</p>
+                <p><i class="fa-solid fa-envelope"></i> contacto@almaycorazon.cl</p>
+                <p><i class="fa-solid fa-phone"></i> +56 9 8765 4321</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Agrupación Folclórica Alma y Corazón Cuequera. Todos los derechos reservados. Desarrollado
+                con pasión cuequera.</p>
+        </div>
+    </footer>
+
+    <!-- LIGHTBOX / PHOTO VIEW DIALOG MODAL -->
+    <div id="gallery-lightbox" class="lightbox-modal">
+        <span class="close-lightbox" id="close-lightbox-btn">&times;</span>
+        <div class="lightbox-content">
+            <div class="lightbox-photo-bg" id="lightbox-bg-element">
+                <i id="lightbox-icon" class="fa-solid fa-guitar"></i>
+            </div>
+            <div class="lightbox-caption" id="lightbox-caption">
+                <h4 id="lightbox-title">Gala de Fiestas Patrias</h4>
+                <p id="lightbox-desc">Descripción del evento</p>
+                <span class="lightbox-tag" id="lightbox-tag">Presentaciones</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TALLER ENROLLMENT MODAL -->
+    <div id="enrollment-modal" class="enrollment-modal">
+        <div class="modal-card">
+            <span class="close-modal" id="close-enrollment-btn">&times;</span>
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-pen text-gold"></i> Ficha de Inscripción Taller</h3>
+                <h4 id="enrollment-workshop-title">Nombre del Taller</h4>
+            </div>
+            <form id="enrollment-form" class="enrollment-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="student-name">Nombre Completo</label>
+                        <input type="text" id="student-name" required placeholder="Ej: Juan Pérez Muñoz">
+                    </div>
+                    <div class="form-group">
+                        <label for="student-rut">RUT</label>
+                        <input type="text" id="student-rut" required placeholder="Ej: 12.345.678-9">
+                    </div>
+                    <div class="form-group">
+                        <label for="student-phone">Teléfono / WhatsApp</label>
+                        <input type="tel" id="student-phone" required placeholder="Ej: +56 9 1234 5678">
+                    </div>
+                    <div class="form-group">
+                        <label for="student-email">Correo Electrónico</label>
+                        <input type="email" id="student-email" required placeholder="Ej: juan.perez@email.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="student-notes">¿Tienes experiencia previa en Cueca? (Opcional)</label>
+                    <textarea id="student-notes" rows="3"
+                        placeholder="Cuéntanos brevemente si has bailado antes y qué te motiva a unirte..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">
+                    <i class="fa-solid fa-paper-plane"></i> Enviar Inscripción
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUCCESS NOTIFICATION TOAST -->
+    <div id="toast-success" class="toast hidden">
+        <div class="toast-content">
+            <i class="fa-solid fa-circle-check text-green"></i>
+            <div class="toast-msg">
+                <h5 id="toast-title">¡Inscripción Enviada!</h5>
+                <p id="toast-body">Nos contactaremos contigo a la brevedad.</p>
+            </div>
+        </div>
+        <button class="toast-close" onclick="closeToast()">&times;</button>
+    </div>
+
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Interactive script loader -->
+    <script src="app.js"></script>
+</body>
+
+</html>
