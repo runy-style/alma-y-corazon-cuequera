@@ -1567,11 +1567,11 @@ function closeToast() {
 /* ==========================================================================
    8. FEATURED EVENT CAROUSEL CONTROLLER
    ========================================================================== */
-function initCarousel() {
-    const prevBtn = document.getElementById('expo-carousel-prev');
-    const nextBtn = document.getElementById('expo-carousel-next');
-    const slides = document.querySelectorAll('#expo-carousel .carousel-slide');
-    const dotsContainer = document.getElementById('expo-carousel-dots');
+function setupCarousel(containerId, prevBtnId, nextBtnId, dotsContainerId) {
+    const prevBtn = document.getElementById(prevBtnId);
+    const nextBtn = document.getElementById(nextBtnId);
+    const slides = document.querySelectorAll(`#${containerId} .carousel-slide`);
+    const dotsContainer = document.getElementById(dotsContainerId);
     
     if (!prevBtn || !nextBtn || slides.length === 0 || !dotsContainer) return;
     
@@ -1590,7 +1590,7 @@ function initCarousel() {
         dotsContainer.appendChild(dot);
     }
     
-    const dots = document.querySelectorAll('#expo-carousel .carousel-dot');
+    const dots = document.querySelectorAll(`#${containerId} .carousel-dot`);
     
     function goToSlide(index) {
         slides[currentSlide].classList.remove('active');
@@ -1617,7 +1617,7 @@ function initCarousel() {
     }, 6000);
     
     // Pause autoplay on user interaction
-    const container = document.getElementById('expo-carousel');
+    const container = document.getElementById(containerId);
     if (container) {
         container.addEventListener('mouseenter', () => {
             clearInterval(autoPlayInterval);
@@ -1629,6 +1629,11 @@ function initCarousel() {
             }, 6000);
         });
     }
+}
+
+function initCarousel() {
+    setupCarousel('expo-carousel', 'expo-carousel-prev', 'expo-carousel-next', 'expo-carousel-dots');
+    setupCarousel('championship-carousel', 'championship-carousel-prev', 'championship-carousel-next', 'championship-carousel-dots');
 }
 
 /* ==========================================================================
