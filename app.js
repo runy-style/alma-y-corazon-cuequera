@@ -428,7 +428,7 @@ let MEMBERS_DATABASE = {
         ]
     },
     "directiva2026": {
-        name: "Claudio Tapia (Presidente)",
+        name: "Pablina Oyarzún (Presidenta)",
         role: "Directiva Administrador",
         password: "patria123",
         quotas: [
@@ -1046,7 +1046,7 @@ async function loginSuccess(role, memberKey = null) {
     // Set user profile
     if (role === 'directiva') {
         const key = memberKey || "directiva2026";
-        const member = MEMBERS_DATABASE[key] || { name: "Claudio Tapia (Presidente)", role: "Directiva Administrador" };
+        const member = MEMBERS_DATABASE[key] || { name: "Pablina Oyarzún (Presidenta)", role: "Directiva Administrador" };
         activeUser = {
             username: key,
             role: "directiva",
