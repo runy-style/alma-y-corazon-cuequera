@@ -614,8 +614,8 @@ async function syncFromSupabase() {
                     const items = timelineElement.querySelectorAll('.timeline-item');
                     for (let item of items) {
                         const dateText = item.querySelector('.timeline-date')?.textContent || '';
-                        // Si la fecha contiene "Sep", "Oct", "Nov", "Dic" (meses después de Julio)
-                        if (dateText.includes('Sep') || dateText.includes('Oct') || dateText.includes('Nov') || dateText.includes('Dic')) {
+                        // Si la fecha contiene "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" (meses después de Mayo)
+                        if (dateText.includes('Jun') || dateText.includes('Jul') || dateText.includes('Ago') || dateText.includes('Sep') || dateText.includes('Oct') || dateText.includes('Nov') || dateText.includes('Dic')) {
                             item.insertAdjacentHTML('beforebegin', championshipHtml);
                             inserted = true;
                             break;
