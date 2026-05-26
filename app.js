@@ -776,15 +776,16 @@ function initPortal() {
         memberSelect.addEventListener('change', () => {
             activeUser.activeMemberKey = memberSelect.value;
             const activeMemberNameLabel = document.getElementById('admin-active-member-name');
-            if (activeMemberNameLabel) {
-                activeMemberNameLabel.textContent = MEMBERS_DATABASE[activeUser.activeMemberKey].name;
+            const member = MEMBERS_DATABASE[activeUser.activeMemberKey];
+            if (activeMemberNameLabel && member) {
+                activeMemberNameLabel.textContent = member.name;
             }
             
             // If logged in as socio, this changes their personal card instantly
-            if (activeUser.role === 'socio') {
+            if (activeUser.role === 'socio' && member) {
                 // Not standard (Socio has only one profile), but great for evaluating database in demo mode!
-                document.getElementById('db-user-name').textContent = MEMBERS_DATABASE[activeUser.activeMemberKey].name;
-                document.getElementById('db-user-role').textContent = MEMBERS_DATABASE[activeUser.activeMemberKey].role;
+                document.getElementById('db-user-name').textContent = member.name;
+                document.getElementById('db-user-role').textContent = member.role;
             }
 
             populateQuotasGrid();
@@ -968,15 +969,21 @@ async function loginSuccess(role, memberKey = null) {
         if (select) {
             select.innerHTML = '';
             Object.keys(MEMBERS_DATABASE).forEach(key => {
-                if (key !== 'directiva2026') {
+                if (key !== 'directiva2026' && MEMBERS_DATABASE[key]) {
                     const opt = document.createElement('option');
                     opt.value = key;
-                    opt.textContent = `${MEMBERS_DATABASE[key].name} (${MEMBERS_DATABASE[key].role})`;
+                    opt.textContent = `${MEMBERS_DATABASE[key].name || key} (${MEMBERS_DATABASE[key].role || ''})`;
                     select.appendChild(opt);
                 }
             });
-            select.value = "patricia";
-            document.getElementById('admin-active-member-name').textContent = MEMBERS_DATABASE["patricia"] ? MEMBERS_DATABASE["patricia"].name : "Patricia Araya";
+            
+            const keys = Object.keys(MEMBERS_DATABASE).filter(k => k !== 'directiva2026');
+            if (keys.length > 0) {
+                const defaultKey = keys.includes('patricia') ? 'patricia' : keys[0];
+                select.value = defaultKey;
+                activeUser.activeMemberKey = defaultKey;
+                document.getElementById('admin-active-member-name').textContent = MEMBERS_DATABASE[defaultKey] ? MEMBERS_DATABASE[defaultKey].name : defaultKey;
+            }
         }
     } else {
         const key = memberKey || "patricia";
@@ -1036,8 +1043,9 @@ function populateQuotasGrid() {
     if (!grid) return;
     grid.innerHTML = ''; // clear grid
 
-    const activeMember = MEMBERS_DATABASE[activeUser.activeMemberKey];
-    activeMember.quotas.forEach(quota => {
+    const activeMember = MEMBERS_DATABASE[activeUser.activeMemberKey] || { name: "Socio", role: "Socio", quotas: [] };
+    const quotasToRender = activeMember.quotas || [];
+    quotasToRender.forEach(quota => {
         const card = document.createElement('div');
         
         let statusClass = 'pending';
@@ -1065,7 +1073,7 @@ function populateQuotasGrid() {
     });
 
     // Calculate sum statistics dynamically
-    const paidCount = activeMember.quotas.filter(q => q.status === 'paid').length;
+    const paidCount = quotasToRender.filter(q => q.status === 'paid').length;
     const totalAmount = paidCount * 5000;
     const remainingAmount = (12 - paidCount) * 5000;
 
@@ -1074,7 +1082,7 @@ function populateQuotasGrid() {
     document.getElementById('quota-rem-amount').textContent = `$${remainingAmount.toLocaleString('es-CL')}`;
 
     // Adjust badge status based on overdue or not
-    const hasOverdue = activeMember.quotas.some(q => q.status === 'overdue');
+    const hasOverdue = quotasToRender.some(q => q.status === 'overdue');
     const badge = document.querySelector('#quota-status-card .badge');
     if (badge) {
         if (hasOverdue) {
@@ -1082,7 +1090,7 @@ function populateQuotasGrid() {
             badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Con Retraso`;
         } else {
             badge.className = "badge badge-active";
-            badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Al Día (${activeMember.quotas[4].month})`;
+            badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Al Día (${quotasToRender[4] ? quotasToRender[4].month : 'May'})`;
         }
     }
 }
@@ -1093,8 +1101,9 @@ function populateAdminQuotaGrid() {
     if (!grid) return;
     grid.innerHTML = '';
 
-    const activeMember = MEMBERS_DATABASE[activeUser.activeMemberKey];
-    activeMember.quotas.forEach((quota, index) => {
+    const activeMember = MEMBERS_DATABASE[activeUser.activeMemberKey] || { name: "Socio", role: "Socio", quotas: [] };
+    const quotasToRender = activeMember.quotas || [];
+    quotasToRender.forEach((quota, index) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         
@@ -1156,8 +1165,11 @@ function updateFinancialSummaryAndChart() {
     
     // Explicit members
     Object.keys(MEMBERS_DATABASE).forEach(key => {
-        const paidCount = MEMBERS_DATABASE[key].quotas.filter(q => q.status === 'paid').length;
-        totalPaidQuotasSum += paidCount * 5000;
+        const member = MEMBERS_DATABASE[key];
+        if (member && member.quotas) {
+            const paidCount = member.quotas.filter(q => q.status === 'paid').length;
+            totalPaidQuotasSum += paidCount * 5000;
+        }
     });
 
     // Dynamic metrics
