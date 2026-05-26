@@ -485,12 +485,35 @@
                         <!-- Dots Indicators -->
                         <div class="carousel-dots" id="expo-carousel-dots">
                             <!-- Generated dynamically by JS -->
-                        </div>
-                    </div>
                 </div>
             </div>
 
-
+            <!-- Galería Dinámica de Fotos -->
+            <div class="public-gallery-section" style="margin-top: 50px; margin-bottom: 50px; border-top: 1px solid var(--border-color); padding-top: 40px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 25px; gap: 15px;">
+                    <h3 style="font-size: var(--size-lg); font-family: var(--font-header); font-weight: 700; color: var(--text-light); margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-images text-gold"></i> Galería de la Comunidad
+                    </h3>
+                    
+                    <!-- Filtros de la Galería -->
+                    <div class="gallery-filters" id="gallery-filters" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="filter-btn active" data-filter="all" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Todos</button>
+                        <button class="filter-btn" data-filter="presentaciones" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Presentaciones</button>
+                        <button class="filter-btn" data-filter="talleres" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Talleres</button>
+                        <button class="filter-btn" data-filter="comunidad" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Comunidad</button>
+                    </div>
+                </div>
+                
+                <!-- Grid de Fotos -->
+                <div class="gallery-grid" id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; min-height: 200px; transition: var(--transition);">
+                    <!-- Cargado dinámicamente con JS -->
+                    <div class="gallery-empty-placeholder" id="gallery-empty-placeholder" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.08); border-radius: var(--radius-md); text-align: center; color: var(--text-muted);">
+                        <i class="fa-solid fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                        <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Galería Digital en Proceso</h4>
+                        <p style="margin: 0; font-size: 0.9rem; max-width: 400px;">La directiva aún no ha subido imágenes a esta sección. Las fotos cargadas aparecerán aquí de forma inmediata en tiempo real.</p>
+                    </div>
+                </div>
+            </div>
 
             <!-- Future Events Calendar Timeline -->
             <div class="upcoming-events-panel">
@@ -630,6 +653,8 @@
                                     class="fa-solid fa-calendar-plus"></i> Añadir Evento Público</button>
                             <button class="admin-tab-btn" data-tab="admin-tab-crear-socio"><i
                                     class="fa-solid fa-user-plus"></i> Registrar Socio</button>
+                            <button class="admin-tab-btn" data-tab="admin-tab-subir-foto"><i
+                                    class="fa-solid fa-cloud-arrow-up"></i> Subir a Galería</button>
                         </div>
 
                         <!-- Subsección 1: Editor de Cuotas Interactivo -->
@@ -693,7 +718,15 @@
                                     <input type="text" id="admin-news-decisions" required
                                         placeholder="Ej: Se aprueba presupuesto de $450.000 para mantas de telar típicas de La Ligua.">
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
+                                <div class="form-group" style="margin-top: 15px; width: 100%;">
+                                    <label for="admin-news-image"><i class="fa-solid fa-image text-gold"></i> Foto de Apoyo (Opcional)</label>
+                                    <input type="file" id="admin-news-image" accept="image/*" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius-sm); color: var(--text); width: 100%; cursor: pointer;">
+                                    <div class="file-preview-container" id="admin-news-image-preview-container" style="display: none; margin-top: 10px; position: relative; max-width: max-content;">
+                                        <img id="admin-news-image-preview" src="" alt="Previsualización" style="max-width: 200px; max-height: 150px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                        <button type="button" id="btn-clear-news-image" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="align-self: flex-end; margin-top: 15px;">
                                     <i class="fa-solid fa-circle-check"></i> Publicar en la Bitácora de Socios
                                 </button>
                             </form>
@@ -726,7 +759,15 @@
                                             placeholder="Ej: Venta de empanadas, cuecas en vivo y grandes grupos de Petorca.">
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
+                                <div class="form-group" style="margin-top: 15px; width: 100%;">
+                                    <label for="admin-event-image"><i class="fa-solid fa-image text-gold"></i> Afiche / Imagen del Evento (Opcional)</label>
+                                    <input type="file" id="admin-event-image" accept="image/*" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius-sm); color: var(--text); width: 100%; cursor: pointer;">
+                                    <div class="file-preview-container" id="admin-event-image-preview-container" style="display: none; margin-top: 10px; position: relative; max-width: max-content;">
+                                        <img id="admin-event-image-preview" src="" alt="Previsualización" style="max-width: 200px; max-height: 150px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                        <button type="button" id="btn-clear-event-image" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="align-self: flex-end; margin-top: 15px;">
                                     <i class="fa-solid fa-calendar-plus"></i> Publicar en Agenda Pública
                                 </button>
                             </form>
@@ -765,6 +806,51 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
                                     <i class="fa-solid fa-user-check"></i> Registrar Socio y Generar Cuotas 2026
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Subsección 5: Subir Foto a Galería Pública -->
+                        <div class="admin-sub-content" id="admin-tab-subir-foto">
+                            <form id="admin-upload-photo-form" class="admin-form-inline" style="display: flex; flex-direction: column; gap: 15px;">
+                                <div class="admin-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div class="form-group">
+                                        <label for="admin-gallery-image"><i class="fa-solid fa-image text-gold"></i> Seleccionar Imagen</label>
+                                        <input type="file" id="admin-gallery-image" accept="image/*" required style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius-sm); color: var(--text); width: 100%; cursor: pointer;">
+                                        <div class="file-preview-container" id="admin-gallery-image-preview-container" style="display: none; margin-top: 10px; position: relative; max-width: max-content;">
+                                            <img id="admin-gallery-image-preview" src="" alt="Previsualización" style="max-width: 100%; max-height: 180px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); object-fit: contain;">
+                                            <button type="button" id="btn-clear-gallery-image" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="display: flex; flex-direction: column; gap: 15px;">
+                                        <div>
+                                            <label for="admin-gallery-caption">Pie de Foto / Descripción</label>
+                                            <input type="text" id="admin-gallery-caption" required placeholder="Ej: Presentación de cueca en la Plaza de Armas">
+                                        </div>
+                                        <div>
+                                            <label for="admin-gallery-category">Categoría de Galería</label>
+                                            <select id="admin-gallery-category" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                                                <option value="presentaciones">Presentaciones / Galas</option>
+                                                <option value="talleres">Talleres / Ensayos</option>
+                                                <option value="comunidad">Comunidad / Reuniones</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Indicador de progreso/carga animado -->
+                                <div id="upload-progress-container" style="display: none; width: 100%; margin-top: 15px; margin-bottom: 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; color: var(--text-muted);">
+                                        <span>Subiendo imagen a Supabase Storage...</span>
+                                        <span id="upload-percentage">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                                        <div id="upload-progress-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s ease;"></div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary" id="btn-submit-upload-gallery" style="align-self: flex-end; margin-top: 10px; min-width: 180px;">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Subir Foto a Galería
                                 </button>
                             </form>
                         </div>

@@ -252,6 +252,11 @@ function initGallery() {
 
             const categoryFilter = btn.getAttribute('data-filter');
 
+            // Si el grid dinámico de la galería existe, refrescar los elementos usando renderGalleryGrid
+            if (document.getElementById('gallery-grid')) {
+                renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+            }
+
             galleryItems.forEach(item => {
                 const itemCategory = item.getAttribute('data-category');
                 
@@ -313,6 +318,11 @@ function initGallery() {
                 lightbox.classList.remove('open');
             }
         });
+    }
+
+    // Renderizar galería inicial pública
+    if (document.getElementById('gallery-grid')) {
+        renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
     }
 }
 
@@ -509,13 +519,117 @@ const BASE_FINANCES = {
     monthlyEgresosBase: [250000, 300000, 320000, 180000, 180000]
 };
 
+// Base de datos local para la galería (Pre-cargada con fotos de demostración)
+let GALLERY_PHOTOS_DATABASE = [
+    {
+        id: 101,
+        url: "img/expo/640302143_1131572123029484_5355877768243442583_n.jpg",
+        caption: "Gran Elenco Alma y Corazón - Presentación Expo 2026",
+        category: "presentaciones",
+        created_at: "2026-01-15T12:00:00Z"
+    },
+    {
+        id: 102,
+        url: "img/expo/637485610_1131569206363109_2574869984867681992_n.jpg",
+        caption: "El Compás de la Cueca - Taller y Ensayo",
+        category: "talleres",
+        created_at: "2026-01-20T12:00:00Z"
+    }
+];
+
+// Helper to set up image selector previews in forms
+function setupImagePreview(inputId, previewImgId, containerId, clearBtnId) {
+    const fileInput = document.getElementById(inputId);
+    const previewImg = document.getElementById(previewImgId);
+    const container = document.getElementById(containerId);
+    const clearBtn = document.getElementById(clearBtnId);
+
+    if (!fileInput || !previewImg || !container || !clearBtn) return;
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                container.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewImg.src = '';
+            container.style.display = 'none';
+        }
+    });
+
+    clearBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.value = '';
+        previewImg.src = '';
+        container.style.display = 'none';
+    });
+}
+
+// Helper to upload a file to Supabase Storage and get its public URL
+async function uploadFileToSupabase(fileInputId, progressCallback = null) {
+    if (!isSupabaseActive) {
+        console.warn("🟡 Supabase no está activo. Retornando URL de demostración local.");
+        return "img/logo.jpg";
+    }
+
+    const fileInput = document.getElementById(fileInputId);
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        return null;
+    }
+
+    const file = fileInput.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `uploads/${fileName}`;
+
+    try {
+        console.log(`📤 Subiendo archivo ${file.name} a Supabase Storage bucket 'gallery'...`);
+        
+        if (progressCallback) progressCallback(20);
+
+        const { data, error } = await supabaseClient
+            .storage
+            .from('gallery')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (error) throw error;
+        
+        if (progressCallback) progressCallback(80);
+
+        // Get public URL
+        const { data: urlData } = supabaseClient
+            .storage
+            .from('gallery')
+            .getPublicUrl(filePath);
+
+        if (progressCallback) progressCallback(100);
+        
+        console.log("🟢 Archivo subido con éxito. URL Pública:", urlData.publicUrl);
+        return urlData.publicUrl;
+    } catch (err) {
+        console.error("🔴 Error subiendo archivo a Supabase Storage:", err);
+        showToast("Error de Subida", "No se pudo subir la imagen a la nube.");
+        throw err;
+    }
+}
+
 /* ==========================================================================
    SUPABASE DATA SYNCHRONIZATION ENGINE (ASYNC QUERIES)
    ========================================================================== */
 
 // 1. Sync all data from Supabase
 async function syncFromSupabase() {
-    if (!isSupabaseActive) return;
+    if (!isSupabaseActive) {
+        renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+        return;
+    }
 
     try {
         console.log("🔄 Sincronizando datos desde Supabase...");
@@ -547,6 +661,21 @@ async function syncFromSupabase() {
             .order('id', { ascending: false });
         if (tError) throw tError;
 
+        // E. Fetch gallery photos
+        let galleryPhotos = [];
+        try {
+            const { data: photos, error: pError } = await supabaseClient
+                .from('gallery_photos')
+                .select('*')
+                .order('id', { ascending: false });
+            if (pError) throw pError;
+            if (photos) {
+                galleryPhotos = photos;
+            }
+        } catch (photoErr) {
+            console.warn("⚠️ Advertencia: No se pudo cargar la tabla 'gallery_photos' en Supabase. Asegúrate de haber ejecutado la migración SQL.", photoErr);
+        }
+
         // Reconstruct MEMBERS_DATABASE from Supabase tables
         const newMembersDb = {};
         members.forEach(member => {
@@ -576,7 +705,8 @@ async function syncFromSupabase() {
                 type: item.type,
                 title: item.title,
                 content: item.content,
-                decisions: item.decisions
+                decisions: item.decisions,
+                image_url: item.image_url
             }));
         }
 
@@ -595,6 +725,16 @@ async function syncFromSupabase() {
                     if (evt.title.includes("2° Gran Campeonato") || evt.title.includes("2do Campeonato")) {
                         return;
                     }
+
+                    let eventMediaHtml = '';
+                    if (evt.image_url) {
+                        eventMediaHtml = `
+                            <div class="timeline-event-media" style="margin-top: 15px;">
+                                <img src="${evt.image_url}" class="timeline-event-img" alt="${evt.title}" style="max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); cursor: pointer;" onclick="openLightbox('${evt.title}', '${evt.description}', '${evt.date}', 'evento', '', '', '${evt.image_url}')">
+                            </div>
+                        `;
+                    }
+
                     const newItemHtml = `
                         <div class="timeline-item">
                             <div class="timeline-date">${evt.date}</div>
@@ -602,6 +742,7 @@ async function syncFromSupabase() {
                                 <h4>${evt.title}</h4>
                                 <p class="time-loc"><i class="fa-solid fa-clock"></i> ${evt.time}</p>
                                 <p>${evt.description}</p>
+                                ${eventMediaHtml}
                             </div>
                         </div>
                     `;
@@ -628,9 +769,14 @@ async function syncFromSupabase() {
             }
         }
 
+        // Update local gallery database and render
+        GALLERY_PHOTOS_DATABASE = galleryPhotos;
+        renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+
         console.log("🟢 Sincronización con Supabase completada con éxito.");
     } catch (err) {
         console.error("🔴 Error sincronizando con Supabase, usando modo local:", err);
+        renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
     }
 }
 
@@ -653,7 +799,7 @@ async function saveQuotaToSupabase(memberKey, month, status) {
 }
 
 // 3. Save new news/agreement to Supabase
-async function saveAgreementToSupabase(date, type, title, content, decisions) {
+async function saveAgreementToSupabase(date, type, title, content, decisions, imageUrl = null) {
     if (!isSupabaseActive) return;
 
     try {
@@ -664,7 +810,8 @@ async function saveAgreementToSupabase(date, type, title, content, decisions) {
                 type: type,
                 title: title,
                 content: content,
-                decisions: decisions
+                decisions: decisions,
+                image_url: imageUrl
             }]);
 
         if (error) throw error;
@@ -675,7 +822,7 @@ async function saveAgreementToSupabase(date, type, title, content, decisions) {
 }
 
 // 4. Save public event to Supabase
-async function saveEventToSupabase(date, time, title, description) {
+async function saveEventToSupabase(date, time, title, description, imageUrl = null) {
     if (!isSupabaseActive) return;
 
     try {
@@ -685,7 +832,8 @@ async function saveEventToSupabase(date, time, title, description) {
                 date: date,
                 time: time,
                 title: title,
-                description: description
+                description: description,
+                image_url: imageUrl
             }]);
 
         if (error) throw error;
@@ -857,13 +1005,24 @@ function initPortal() {
             const content = document.getElementById('admin-news-content').value;
             const decisions = document.getElementById('admin-news-decisions').value;
 
+            // Previsualización y carga del archivo de imagen
+            let imageUrl = null;
+            const fileInput = document.getElementById('admin-news-image');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                try {
+                    imageUrl = await uploadFileToSupabase('admin-news-image');
+                } catch (uploadErr) {
+                    console.error("🔴 Error subiendo imagen de noticia:", uploadErr);
+                }
+            }
+
             // Generate clean date string
             const options = { day: 'numeric', month: 'short', year: 'numeric' };
             const dateStr = new Date().toLocaleDateString('es-CL', options);
 
             // Guardar en Supabase si está activo
             if (isSupabaseActive) {
-                await saveAgreementToSupabase(dateStr, type, title, content, decisions);
+                await saveAgreementToSupabase(dateStr, type, title, content, decisions, imageUrl);
                 await syncFromSupabase();
             } else {
                 // Prepend new agreement object to the news feed localmente
@@ -873,13 +1032,16 @@ function initPortal() {
                     type: type,
                     title: title,
                     content: content,
-                    decisions: decisions
+                    decisions: decisions,
+                    image_url: imageUrl || "img/logo.jpg"
                 });
             }
 
             // Re-render
             renderAgreementsList();
             newsForm.reset();
+            const previewContainer = document.getElementById('admin-news-image-preview-container');
+            if (previewContainer) previewContainer.style.display = 'none';
             
             showToast("¡Publicado con éxito!", "El acta/boletín ha sido agregada a la bitácora privada de socios.");
         });
@@ -894,13 +1056,32 @@ function initPortal() {
             const time = document.getElementById('admin-event-time').value;
             const desc = document.getElementById('admin-event-desc').value;
 
+            // Previsualización y carga del afiche
+            let imageUrl = null;
+            const fileInput = document.getElementById('admin-event-image');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                try {
+                    imageUrl = await uploadFileToSupabase('admin-event-image');
+                } catch (uploadErr) {
+                    console.error("🔴 Error subiendo afiche del evento:", uploadErr);
+                }
+            }
+
             if (isSupabaseActive) {
-                await saveEventToSupabase(date, time, title, desc);
+                await saveEventToSupabase(date, time, title, desc, imageUrl);
                 await syncFromSupabase();
             } else {
                 // Add new timeline element to the public Timeline inside eventos-tab localmente
                 const timelineElement = document.querySelector('#eventos-tab .timeline');
                 if (timelineElement) {
+                    let eventMediaHtml = '';
+                    if (imageUrl) {
+                        eventMediaHtml = `
+                            <div class="timeline-event-media" style="margin-top: 15px;">
+                                <img src="${imageUrl}" class="timeline-event-img" alt="${title}" style="max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); cursor: pointer;" onclick="openLightbox('${title}', '${desc}', '${date}', 'evento', '', '', '${imageUrl}')">
+                            </div>
+                        `;
+                    }
                     const newItemHtml = `
                         <div class="timeline-item">
                             <div class="timeline-date">${date}</div>
@@ -908,6 +1089,7 @@ function initPortal() {
                                 <h4>${title}</h4>
                                 <p class="time-loc"><i class="fa-solid fa-clock"></i> ${time}</p>
                                 <p>${desc}</p>
+                                ${eventMediaHtml}
                             </div>
                         </div>
                     `;
@@ -916,6 +1098,9 @@ function initPortal() {
             }
 
             eventForm.reset();
+            const previewContainer = document.getElementById('admin-event-image-preview-container');
+            if (previewContainer) previewContainer.style.display = 'none';
+            
             showToast("¡Evento Creado!", "La actividad ha sido publicada en la agenda pública de eventos.");
         });
     }
@@ -1063,6 +1248,84 @@ function initPortal() {
             updateFinancialSummaryAndChart();
             
             showToast("Socio Eliminado", `El socio ${member.name} ha sido borrado del sistema.`);
+        });
+    }
+
+    // Inicializar previsualizadores de imágenes en los formularios de administración
+    setupImagePreview('admin-news-image', 'admin-news-image-preview', 'admin-news-image-preview-container', 'btn-clear-news-image');
+    setupImagePreview('admin-event-image', 'admin-event-image-preview', 'admin-event-image-preview-container', 'btn-clear-event-image');
+    setupImagePreview('admin-gallery-image', 'admin-gallery-image-preview', 'admin-gallery-image-preview-container', 'btn-clear-gallery-image');
+
+    // Handler de subida de fotos a la galería general
+    const uploadPhotoForm = document.getElementById('admin-upload-photo-form');
+    if (uploadPhotoForm) {
+        uploadPhotoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const caption = document.getElementById('admin-gallery-caption').value.trim();
+            const category = document.getElementById('admin-gallery-category').value;
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-progress-bar');
+            const progressPercentage = document.getElementById('upload-percentage');
+
+            if (progressContainer && progressBar && progressPercentage) {
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                progressPercentage.textContent = '0%';
+            }
+
+            try {
+                const imageUrl = await uploadFileToSupabase('admin-gallery-image', (progress) => {
+                    if (progressBar && progressPercentage) {
+                        progressBar.style.width = `${progress}%`;
+                        progressPercentage.textContent = `${progress}%`;
+                    }
+                });
+
+                if (!imageUrl) {
+                    showToast("Error de Selección", "Selecciona una imagen válida.");
+                    return;
+                }
+
+                if (isSupabaseActive) {
+                    const { error } = await supabaseClient
+                        .from('gallery_photos')
+                        .insert([{
+                            url: imageUrl,
+                            caption: caption,
+                            category: category
+                        }]);
+
+                    if (error) throw error;
+                    
+                    await syncFromSupabase();
+                } else {
+                    // Modo Demo Local
+                    const mockPhoto = {
+                        id: Date.now(),
+                        url: imageUrl,
+                        caption: caption,
+                        category: category,
+                        created_at: new Date().toISOString()
+                    };
+                    GALLERY_PHOTOS_DATABASE.unshift(mockPhoto);
+                    renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+                }
+
+                uploadPhotoForm.reset();
+                const previewContainer = document.getElementById('admin-gallery-image-preview-container');
+                if (previewContainer) previewContainer.style.display = 'none';
+
+                showToast("¡Foto Subida!", "La foto ha sido agregada a la galería de la comunidad con éxito.");
+            } catch (err) {
+                console.error("🔴 Error subiendo foto a la galería:", err);
+                showToast("Error de Servidor", "No se pudo completar la subida.");
+            } finally {
+                if (progressContainer) {
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                    }, 1000);
+                }
+            }
         });
     }
 }
@@ -1348,6 +1611,15 @@ function renderAgreementsList(filterQuery = '') {
             ? `<span class="agr-type-badge badge-acuerdo"><i class="fa-solid fa-file-contract"></i> Acuerdo</span>`
             : `<span class="agr-type-badge badge-noticia"><i class="fa-solid fa-bullhorn"></i> Noticia</span>`;
 
+        let imageHtml = '';
+        if (news.image_url) {
+            imageHtml = `
+                <div class="agreement-image-container" style="margin-top: 10px; margin-bottom: 10px;">
+                    <img src="${news.image_url}" alt="${news.title}" style="max-width: 100%; max-height: 250px; border-radius: var(--radius-sm); border: 1px solid rgba(212, 197, 163, 0.5); object-fit: cover; cursor: pointer;" onclick="openLightbox('${news.title}', '${news.content}', '${news.date}', '${news.type}', '', '', '${news.image_url}')">
+                </div>
+            `;
+        }
+
         card.innerHTML = `
             <div class="agreement-top-meta">
                 <span class="agr-date"><i class="fa-solid fa-calendar-day"></i> ${news.date}</span>
@@ -1355,6 +1627,7 @@ function renderAgreementsList(filterQuery = '') {
             </div>
             <h4>${news.title}</h4>
             <p>${news.content}</p>
+            ${imageHtml}
             <div class="agreement-footer-decisions">
                 <strong><i class="fa-solid fa-circle-check text-gold"></i> Acuerdo Consensuado:</strong>
                 <span>${news.decisions}</span>
@@ -1675,5 +1948,75 @@ function initPromoPopup() {
         if (e.target === promoOverlay) {
             closePromo();
         }
+    });
+}
+
+// 7. Dynamic Public Gallery Grid Renderer
+function renderGalleryGrid(photosList = []) {
+    const grid = document.getElementById('gallery-grid');
+    if (!grid) return;
+
+    // Filter active category
+    const activeFilterBtn = document.querySelector('.filter-btn.active');
+    const categoryFilter = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'all';
+
+    const filtered = photosList.filter(photo => {
+        return categoryFilter === 'all' || photo.category === categoryFilter;
+    });
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `
+            <div class="gallery-empty-placeholder" id="gallery-empty-placeholder" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.08); border-radius: var(--radius-md); text-align: center; color: var(--text-muted); width: 100%;">
+                <i class="fa-solid fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Galería vacía</h4>
+                <p style="margin: 0; font-size: 0.9rem; max-width: 400px;">La directiva aún no ha subido imágenes en la categoría seleccionada.</p>
+            </div>
+        `;
+        return;
+    }
+
+    grid.innerHTML = '';
+    filtered.forEach(photo => {
+        const formattedDate = photo.created_at ? new Date(photo.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        
+        const card = document.createElement('div');
+        card.className = 'gallery-item cursor-pointer';
+        card.setAttribute('data-category', photo.category);
+        card.style.position = 'relative';
+        card.style.overflow = 'hidden';
+        card.style.borderRadius = 'var(--radius-md)';
+        card.style.border = '1px solid var(--border-color)';
+        card.style.aspectRatio = '4/3';
+        card.style.background = 'rgba(0,0,0,0.4)';
+        card.style.cursor = 'pointer';
+        card.style.transition = 'var(--transition)';
+
+        card.innerHTML = `
+            <img src="${photo.url}" alt="${photo.caption}" class="gallery-img" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition);">
+            <div class="gallery-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 15px; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0.9; transition: var(--transition);">
+                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${photo.caption}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 0.75rem; color: var(--text-muted);">
+                    <span class="gallery-date"><i class="fa-solid fa-calendar-day"></i> ${formattedDate}</span>
+                    <span style="background: rgba(255,213,79,0.15); color: var(--accent); padding: 2px 8px; border-radius: var(--radius-full); text-transform: capitalize;">${photo.category}</span>
+                </div>
+            </div>
+        `;
+        
+        // Add zoom hover effect
+        card.addEventListener('mouseenter', () => {
+            const img = card.querySelector('.gallery-img');
+            if (img) img.style.transform = 'scale(1.05)';
+        });
+        card.addEventListener('mouseleave', () => {
+            const img = card.querySelector('.gallery-img');
+            if (img) img.style.transform = 'scale(1)';
+        });
+
+        // Click behavior (Lightbox modal opener)
+        card.addEventListener('click', () => {
+            openLightbox(photo.caption, photo.caption, formattedDate, photo.category, '', '', photo.url);
+        });
+
+        grid.appendChild(card);
     });
 }
