@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initEnrollment();
     initGallery();
     initPortal();
+    initCarousel();
 });
 
 /* ==========================================================================
@@ -1532,5 +1533,72 @@ function closeToast() {
     const toast = document.getElementById('toast-success');
     if (toast) {
         toast.classList.add('hidden');
+    }
+}
+
+/* ==========================================================================
+   8. FEATURED EVENT CAROUSEL CONTROLLER
+   ========================================================================== */
+function initCarousel() {
+    const prevBtn = document.getElementById('expo-carousel-prev');
+    const nextBtn = document.getElementById('expo-carousel-next');
+    const slides = document.querySelectorAll('#expo-carousel .carousel-slide');
+    const dotsContainer = document.getElementById('expo-carousel-dots');
+    
+    if (!prevBtn || !nextBtn || slides.length === 0 || !dotsContainer) return;
+    
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+    
+    // Create dots indicators dynamically
+    dotsContainer.innerHTML = '';
+    for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = `carousel-dot ${i === 0 ? 'active' : ''}`;
+        dot.setAttribute('aria-label', `Ir a slide ${i + 1}`);
+        dot.addEventListener('click', () => {
+            goToSlide(i);
+        });
+        dotsContainer.appendChild(dot);
+    }
+    
+    const dots = document.querySelectorAll('#expo-carousel .carousel-dot');
+    
+    function goToSlide(index) {
+        slides[currentSlide].classList.remove('active');
+        if (dots[currentSlide]) dots[currentSlide].classList.remove('active');
+        
+        currentSlide = (index + totalSlides) % totalSlides;
+        
+        slides[currentSlide].classList.add('active');
+        if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+    }
+    
+    // Event listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlide - 1);
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlide + 1);
+    });
+    
+    // Auto-advance slides every 6 seconds for interactive premium feel
+    let autoPlayInterval = setInterval(() => {
+        goToSlide(currentSlide + 1);
+    }, 6000);
+    
+    // Pause autoplay on user interaction
+    const container = document.getElementById('expo-carousel');
+    if (container) {
+        container.addEventListener('mouseenter', () => {
+            clearInterval(autoPlayInterval);
+        });
+        
+        container.addEventListener('mouseleave', () => {
+            autoPlayInterval = setInterval(() => {
+                goToSlide(currentSlide + 1);
+            }, 6000);
+        });
     }
 }
