@@ -2699,3 +2699,442 @@ body.light-theme .e-stat {
         padding: 20px 30px;
     }
 }
+
+/* ==========================================================================
+   PROMOTIONAL CHAMPIONSHIP POPUP & IMPORTANT TIMELINE EVENTS
+   ========================================================================== */
+
+/* 1. TIMELINE SPECIAL HIGHLIGHTS */
+.timeline-item.important-event {
+    background: linear-gradient(135deg, rgba(255, 213, 79, 0.03), rgba(211, 47, 47, 0.02));
+    border: 1px dashed rgba(255, 213, 79, 0.25);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 20px rgba(255, 213, 79, 0.03);
+    transition: var(--transition);
+}
+.timeline-item.important-event:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 25px rgba(255, 213, 79, 0.08);
+    transform: translateY(-2px);
+}
+.highlight-date {
+    background: var(--accent) !important;
+    color: var(--text-inv) !important;
+    box-shadow: 0 4px 12px var(--accent-glow) !important;
+    font-weight: 800 !important;
+}
+.badge-important-event {
+    background: rgba(255, 213, 79, 0.15) !important;
+    color: var(--accent) !important;
+    border: 1px solid rgba(255, 213, 79, 0.3);
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.timeline-event-media {
+    margin-top: 15px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    max-width: 450px;
+    border: 1px solid var(--border-color);
+}
+.timeline-event-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    max-height: 250px;
+}
+
+/* Timeline Fallback Card */
+.timeline-event-fallback {
+    background: linear-gradient(135deg, #1f140e, #2e1a12);
+    padding: 25px;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    position: relative;
+    overflow: hidden;
+}
+.timeline-event-fallback::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #1565c0 33%, #ffffff 33%, #ffffff 66%, #d32f2f 66%);
+}
+.fallback-gradient-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.fallback-icon {
+    font-size: 2.2rem;
+    color: var(--accent);
+    text-shadow: 0 0 15px var(--accent-glow);
+    margin-bottom: 5px;
+}
+.fallback-title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.fallback-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.fallback-placeholder-msg {
+    margin-top: 10px;
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(255, 213, 79, 0.08);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 2. PROMOTIONAL POP-UP OVERLAY & CARD */
+.promo-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding: 20px;
+}
+.promo-popup-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.promo-popup-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 820px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 30px rgba(255, 213, 79, 0.08);
+    transform: translateY(40px) scale(0.96);
+    transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.promo-popup-overlay.open .promo-popup-card {
+    transform: translateY(0) scale(1);
+}
+.promo-popup-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: var(--transition);
+}
+.promo-popup-close:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: rotate(90deg);
+}
+
+.promo-card-content {
+    display: grid;
+    grid-template-columns: 1.1fr 1.3fr;
+}
+
+/* Left Image Section */
+.promo-media-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 480px;
+    background: #000;
+}
+.promo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Left Fallback View (Chilean Flags Gradient) */
+.promo-fallback-bg {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #100b08, #22140e);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    overflow: hidden;
+}
+.promo-fallback-content {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.chilean-flag-stripes {
+    display: flex;
+    width: 100%;
+    max-width: 180px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 25px;
+}
+.chilean-flag-stripes span {
+    height: 100%;
+}
+.blue-stripe {
+    width: 35%;
+    background: #1565c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+.white-stripe {
+    width: 65%;
+    background: #ffffff;
+    border-bottom: 30px solid #d32f2f;
+    box-sizing: border-box;
+}
+.trophy-wrapper {
+    width: 76px;
+    height: 76px;
+    background: rgba(255, 213, 79, 0.08);
+    border: 1px solid rgba(255, 213, 79, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.fallback-trophy-icon {
+    font-size: 2.8rem;
+    text-shadow: 0 0 20px var(--accent-glow);
+}
+.fallback-title-text {
+    font-family: var(--font-heading);
+    color: var(--text);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.fallback-subtitle-text {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    font-size: 1.1rem;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+.fallback-info-tag {
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.glow-pulse {
+    animation: glowPulse 2s infinite ease-in-out;
+}
+@keyframes glowPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 213, 79, 0.4)); }
+    50% { transform: scale(1.06); filter: drop-shadow(0 0 15px rgba(255, 213, 79, 0.8)); }
+}
+
+/* Right Details Section */
+.promo-details-container {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.promo-badge {
+    align-self: flex-start;
+    background: rgba(255, 213, 79, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(255, 213, 79, 0.2);
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.promo-details-container h2 {
+    font-size: 2rem;
+    line-height: 1.25;
+    margin-bottom: 12px;
+}
+.promo-intro {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 25px;
+}
+.promo-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+.promo-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+.promo-info-item .icon-accent {
+    color: var(--accent);
+    font-size: 1.15rem;
+    background: var(--border-color);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.promo-info-item h5 {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+.promo-info-item p {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+}
+.promo-cta-group {
+    display: flex;
+    gap: 12px;
+}
+.btn-promo-cta {
+    flex-grow: 1;
+    background: #25d366 !important;
+    border-color: #25d366 !important;
+    color: #fff !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+}
+.btn-promo-cta:hover {
+    background: #20ba5a !important;
+    border-color: #20ba5a !important;
+    box-shadow: 0 0 15px rgba(37, 211, 102, 0.4) !important;
+}
+.btn-promo-close {
+    border-color: var(--border-color) !important;
+    color: var(--text-muted) !important;
+    transition: var(--transition);
+}
+.btn-promo-close:hover {
+    background: var(--border-color) !important;
+    color: var(--text) !important;
+}
+
+/* 3. MEDIA QUERY RESPONSIVENESS */
+@media (max-width: 768px) {
+    .promo-popup-card {
+        grid-template-columns: 1fr;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .promo-card-content {
+        grid-template-columns: 1fr;
+    }
+    .promo-media-container {
+        min-height: 200px;
+        height: 200px;
+    }
+    .promo-details-container {
+        padding: 25px;
+    }
+    .promo-details-container h2 {
+        font-size: 1.6rem;
+    }
+    .promo-info-grid {
+        margin-bottom: 20px;
+    }
+    .promo-cta-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .btn-promo-cta, .btn-promo-close {
+        width: 100%;
+        text-align: center;
+    }
+    .chilean-flag-stripes {
+        height: 40px;
+        max-width: 120px;
+        margin-bottom: 12px;
+    }
+    .white-stripe {
+        border-bottom-width: 20px;
+    }
+    .trophy-wrapper {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+    }
+    .fallback-trophy-icon {
+        font-size: 1.8rem;
+    }
+    .fallback-title-text {
+        font-size: 1.15rem;
+    }
+    .fallback-subtitle-text {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+}
+

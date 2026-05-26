@@ -683,6 +683,28 @@
                                 ambiente familiar.</p>
                         </div>
                     </div>
+                    <div class="timeline-item important-event" id="championship-timeline-item">
+                        <div class="timeline-date highlight-date">25 Jul</div>
+                        <div class="timeline-content">
+                            <span class="badge badge-important-event"><i class="fa-solid fa-star spin-slow"></i> Evento Destacado</span>
+                            <h4>2° Gran Campeonato de Cueca y Destrezas Huasas</h4>
+                            <p class="time-loc"><i class="fa-solid fa-clock"></i> 10:00 | <i
+                                    class="fa-solid fa-location-dot"></i> Gimnasio Municipal de La Ligua</p>
+                            <p class="timeline-event-description">Gran certamen cuequero y despliegue de destrezas huasas de la provincia. Parejas de toda la región competirán en distintas categorías por el gran trofeo. ¡Habrá música en vivo, empanadas y excelente ambiente familiar!</p>
+                            
+                            <div class="timeline-event-media">
+                                <img src="img/2 campeonato/championship.jpg" class="timeline-event-img" onerror="this.style.display='none'; document.getElementById('championship-timeline-fallback').classList.remove('hidden');" alt="Afiche 2° Gran Campeonato de Cueca y Destrezas Huasas">
+                                <div id="championship-timeline-fallback" class="timeline-event-fallback hidden">
+                                    <div class="fallback-gradient-card">
+                                        <i class="fa-solid fa-trophy fallback-icon"></i>
+                                        <span class="fallback-title">2° Gran Campeonato</span>
+                                        <span class="fallback-subtitle">Cueca y Destrezas Huasas</span>
+                                        <span class="fallback-placeholder-msg"><i class="fa-solid fa-circle-info"></i> La imagen se mostrará automáticamente al subir el afiche</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="timeline-item">
                         <div class="timeline-date">18 Sep</div>
                         <div class="timeline-content">
@@ -1165,6 +1187,71 @@
             </div>
         </div>
         <button class="toast-close" onclick="closeToast()">&times;</button>
+    </div>
+
+    <!-- PROMOTIONAL CHAMPIONSHIP POPUP MODAL -->
+    <div id="promo-popup" class="promo-popup-overlay">
+        <div class="promo-popup-card shadow-premium">
+            <button class="promo-popup-close" id="close-promo-popup-btn" aria-label="Cerrar Anuncio">&times;</button>
+            <div class="promo-card-content">
+                <div class="promo-media-container">
+                    <img src="img/2 campeonato/championship.jpg" class="promo-img" onerror="this.style.display='none'; document.getElementById('championship-promo-fallback').classList.remove('hidden');" alt="2° Gran Campeonato de Cueca y Destrezas Huasas">
+                    <div id="championship-promo-fallback" class="promo-fallback-bg hidden">
+                        <div class="promo-fallback-content">
+                            <div class="chilean-flag-stripes">
+                                <span class="blue-stripe"><i class="fa-solid fa-star text-white"></i></span>
+                                <span class="white-stripe"></span>
+                                <span class="red-stripe"></span>
+                            </div>
+                            <div class="trophy-wrapper">
+                                <i class="fa-solid fa-trophy text-gold fallback-trophy-icon glow-pulse"></i>
+                            </div>
+                            <h3 class="fallback-title-text">2° Gran Campeonato de Cueca</h3>
+                            <p class="fallback-subtitle-text">& Destrezas Huasas</p>
+                            <span class="fallback-info-tag"><i class="fa-solid fa-image"></i> Sin Afiche</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="promo-details-container">
+                    <span class="promo-badge"><i class="fa-solid fa-fire text-gold"></i> ¡Gran Evento Próximamente!</span>
+                    <h2>2° Gran Campeonato de Cueca <br><span class="gradient-text">& Destrezas Huasas</span></h2>
+                    <p class="promo-intro">Invitamos a todas las agrupaciones, clubes y parejas folclóricas de la provincia y región a participar en este magno encuentro del folklore chileno.</p>
+                    
+                    <div class="promo-info-grid">
+                        <div class="promo-info-item">
+                            <i class="fa-solid fa-calendar-check icon-accent"></i>
+                            <div>
+                                <h5>Fecha y Hora</h5>
+                                <p>Sábado, 25 de Julio · 10:00 Hrs</p>
+                            </div>
+                        </div>
+                        <div class="promo-info-item">
+                            <i class="fa-solid fa-location-dot icon-accent"></i>
+                            <div>
+                                <h5>Lugar</h5>
+                                <p>Gimnasio Municipal de La Ligua</p>
+                            </div>
+                        </div>
+                        <div class="promo-info-item">
+                            <i class="fa-solid fa-award icon-accent"></i>
+                            <div>
+                                <h5>Categorías</h5>
+                                <p>Infantil, Juvenil, Adulto y Senior</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="promo-cta-group">
+                        <a href="https://wa.me/56912345678?text=Hola,%20quisiera%20más%20información%20y%20las%20bases%20del%202do%20Gran%20Campeonato%20de%20Cueca" target="_blank" class="btn btn-primary btn-promo-cta" id="promo-whatsapp-btn">
+                            <i class="fa-brands fa-whatsapp"></i> Inscribirse / Ver Bases
+                        </a>
+                        <button class="btn btn-outline btn-promo-close" id="close-promo-popup-btn-alt">
+                            Cerrar Anuncio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Supabase JS Client SDK -->

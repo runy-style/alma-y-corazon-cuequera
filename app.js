@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initGallery();
     initPortal();
     initCarousel();
+    initPromoPopup();
 });
 
 /* ==========================================================================
@@ -583,8 +584,17 @@ async function syncFromSupabase() {
         if (timelineEvents && timelineEvents.length > 0) {
             const timelineElement = document.querySelector('#eventos-tab .timeline');
             if (timelineElement) {
+                // Guardar la tarjeta enriquecida del campeonato si está presente en el HTML
+                const championshipEl = document.getElementById('championship-timeline-item');
+                const championshipHtml = championshipEl ? championshipEl.outerHTML : '';
+
                 timelineElement.innerHTML = '';
+                
                 timelineEvents.forEach(evt => {
+                    // Evitar duplicar el campeonato si ya está registrado en Supabase
+                    if (evt.title.includes("2° Gran Campeonato") || evt.title.includes("2do Campeonato")) {
+                        return;
+                    }
                     const newItemHtml = `
                         <div class="timeline-item">
                             <div class="timeline-date">${evt.date}</div>
@@ -597,6 +607,24 @@ async function syncFromSupabase() {
                     `;
                     timelineElement.insertAdjacentHTML('beforeend', newItemHtml);
                 });
+
+                // Re-inyectar la tarjeta del campeonato en su posición cronológica correcta
+                if (championshipHtml) {
+                    let inserted = false;
+                    const items = timelineElement.querySelectorAll('.timeline-item');
+                    for (let item of items) {
+                        const dateText = item.querySelector('.timeline-date')?.textContent || '';
+                        // Si la fecha contiene "Sep", "Oct", "Nov", "Dic" (meses después de Julio)
+                        if (dateText.includes('Sep') || dateText.includes('Oct') || dateText.includes('Nov') || dateText.includes('Dic')) {
+                            item.insertAdjacentHTML('beforebegin', championshipHtml);
+                            inserted = true;
+                            break;
+                        }
+                    }
+                    if (!inserted) {
+                        timelineElement.insertAdjacentHTML('beforeend', championshipHtml);
+                    }
+                }
             }
         }
 
@@ -1601,4 +1629,46 @@ function initCarousel() {
             }, 6000);
         });
     }
+}
+
+/* ==========================================================================
+   PROMOTIONAL WELCOME POPUP CONTROLLER
+   ========================================================================== */
+function initPromoPopup() {
+    const promoOverlay = document.getElementById('promo-popup');
+    if (!promoOverlay) return;
+
+    // Verificar si el usuario ya vio el pop-up en la sesión actual
+    const seenPromo = sessionStorage.getItem('seen-championship-promo');
+    if (seenPromo) {
+        console.log("ℹ️ El popup promocional ya fue visto en esta sesión.");
+        return;
+    }
+
+    // Retraso natural y premium de 1.5 segundos para mostrar el pop-up
+    setTimeout(() => {
+        promoOverlay.classList.add('open');
+        console.log("🌟 Mostrando popup promocional del 2° Gran Campeonato de Cueca.");
+    }, 1500);
+
+    // Función para cerrar la ventana promocional
+    const closePromo = () => {
+        promoOverlay.classList.remove('open');
+        sessionStorage.setItem('seen-championship-promo', 'true');
+        console.log("💾 Popup promocional cerrado y registrado en sessionStorage.");
+    };
+
+    // Agregar listeners a los botones de cierre
+    const closeBtn = document.getElementById('close-promo-popup-btn');
+    const closeBtnAlt = document.getElementById('close-promo-popup-btn-alt');
+
+    if (closeBtn) closeBtn.addEventListener('click', closePromo);
+    if (closeBtnAlt) closeBtnAlt.addEventListener('click', closePromo);
+
+    // Cerrar al hacer clic fuera del recuadro informativo (en el overlay difuminado)
+    promoOverlay.addEventListener('click', (e) => {
+        if (e.target === promoOverlay) {
+            closePromo();
+        }
+    });
 }
