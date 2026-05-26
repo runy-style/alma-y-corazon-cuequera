@@ -351,6 +351,25 @@ function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl =
    5. PORTAL PRIVADO DE SOCIOS - BASE DE DATOS Y ESTADO DEL USUARIO
    ========================================================================== */// Database of members and their payment status
 let MEMBERS_DATABASE = {
+    "admin": {
+        name: "Administrador General",
+        role: "Administrador General",
+        password: "admin123",
+        quotas: [
+            { month: "Ene", status: "paid" },
+            { month: "Feb", status: "paid" },
+            { month: "Mar", status: "paid" },
+            { month: "Abr", status: "paid" },
+            { month: "May", status: "paid" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
     "patricia": {
         name: "Patricia Araya",
         role: "Socio Activo",
@@ -735,6 +754,12 @@ function initPortal() {
             loginSuccess('directiva', 'directiva2026');
         });
     }
+    const quickLoginBtnSuper = document.getElementById('btn-quick-login-super');
+    if (quickLoginBtnSuper) {
+        quickLoginBtnSuper.addEventListener('click', () => {
+            loginSuccess('directiva', 'admin');
+        });
+    }
 
     // Logout Action
     if (logoutBtn) {
@@ -940,6 +965,75 @@ function initPortal() {
             updateFinancialSummaryAndChart();
             
             showToast("¡Socio Registrado!", `El socio ${name} fue registrado con éxito. Clave: ${password}`);
+        });
+    }
+
+    // Admin delete member button
+    const deleteMemberBtn = document.getElementById('btn-admin-delete-member');
+    if (deleteMemberBtn) {
+        deleteMemberBtn.addEventListener('click', async () => {
+            const memberKey = activeUser.activeMemberKey;
+            
+            // Protect core accounts from deletion
+            if (memberKey === 'directiva2026' || memberKey === 'admin' || memberKey === 'patricia') {
+                showToast("Acción Bloqueada", "No puedes eliminar las cuentas administrativas ni de socios históricos principales.");
+                return;
+            }
+            
+            const member = MEMBERS_DATABASE[memberKey];
+            if (!member) return;
+            
+            const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar al socio ${member.name} (${member.role})? Esta acción es definitiva y borrará todo su historial de cuotas.`);
+            if (!confirmDelete) return;
+            
+            if (isSupabaseActive) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('members')
+                        .delete()
+                        .eq('id', memberKey);
+                    
+                    if (error) throw error;
+                    console.log(`🗑️ Socio ${memberKey} eliminado de Supabase.`);
+                    await syncFromSupabase();
+                } catch (err) {
+                    console.error("🔴 Error eliminando socio de Supabase:", err);
+                    showToast("Error de Servidor", "No se pudo eliminar el socio de la base de datos.");
+                    return;
+                }
+            } else {
+                // Delete locally
+                delete MEMBERS_DATABASE[memberKey];
+            }
+            
+            // Refresh member selector
+            const select = document.getElementById('admin-member-select');
+            if (select) {
+                // Find option and remove it
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === memberKey) {
+                        select.remove(i);
+                        break;
+                    }
+                }
+                
+                // Select first available member
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
+                    activeUser.activeMemberKey = select.value;
+                    document.getElementById('admin-active-member-name').textContent = MEMBERS_DATABASE[select.value] ? MEMBERS_DATABASE[select.value].name : select.value;
+                } else {
+                    activeUser.activeMemberKey = '';
+                    document.getElementById('admin-active-member-name').textContent = 'Ninguno';
+                }
+            }
+            
+            // Re-render
+            populateQuotasGrid();
+            populateAdminQuotaGrid();
+            updateFinancialSummaryAndChart();
+            
+            showToast("Socio Eliminado", `El socio ${member.name} ha sido borrado del sistema.`);
         });
     }
 }

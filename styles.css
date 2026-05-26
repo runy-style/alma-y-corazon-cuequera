@@ -2446,3 +2446,23 @@ body.light-theme .admin-quota-btn {
         aspect-ratio: 1.1;
     }
 }
+
+/* Delete member & Superuser custom interactive button styles */
+#btn-admin-delete-member:hover {
+    background: #d32f2f !important;
+    color: #fff !important;
+    border-color: #d32f2f !important;
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+}
+
+.btn-demo-green {
+    background: rgba(0, 200, 83, 0.1) !important;
+    border-color: rgba(0, 200, 83, 0.25) !important;
+    color: #00e676 !important;
+}
+.btn-demo-green:hover {
+    background: #00c853 !important;
+    color: #fff !important;
+    border-color: #00c853 !important;
+    box-shadow: 0 4px 8px rgba(0, 200, 83, 0.4);
+}
