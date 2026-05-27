@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Sincronizar timeline público desde Supabase al arrancar si está activo
     if (isSupabaseActive) {
         await syncFromSupabase();
+    } else {
+        // En modo de demostración local, renderizar noticias iniciales públicas
+        renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
     }
 
     // Initialize Application States & UI Triggers
@@ -772,6 +775,9 @@ async function syncFromSupabase() {
         // Update local gallery database and render
         GALLERY_PHOTOS_DATABASE = galleryPhotos;
         renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+        
+        // Renderizar las noticias en el grid público
+        renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
 
         console.log("🟢 Sincronización con Supabase completada con éxito.");
     } catch (err) {
@@ -954,6 +960,13 @@ function initPortal() {
         });
     }
 
+    const publicSearchInput = document.getElementById('public-news-search-input');
+    if (publicSearchInput) {
+        publicSearchInput.addEventListener('input', () => {
+            renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
+        });
+    }
+
     // Initialize Administration panel tabs
     const adminTabs = document.querySelectorAll('.admin-tab-btn');
     adminTabs.forEach(tab => {
@@ -1039,6 +1052,7 @@ function initPortal() {
 
             // Re-render
             renderAgreementsList();
+            renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
             newsForm.reset();
             const previewContainer = document.getElementById('admin-news-image-preview-container');
             if (previewContainer) previewContainer.style.display = 'none';
@@ -2018,5 +2032,91 @@ function renderGalleryGrid(photosList = []) {
         });
 
         grid.appendChild(card);
+    });
+}
+
+// 8. Dynamic Public News & Novedades Renderer
+function renderPublicNewsGrid(newsList = []) {
+    const list = document.getElementById('public-news-list');
+    if (!list) return;
+
+    const searchInput = document.getElementById('public-news-search-input');
+    const filterQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+    const filtered = newsList.filter(item => {
+        if (!filterQuery) return true;
+        return item.title.toLowerCase().includes(filterQuery) ||
+               item.content.toLowerCase().includes(filterQuery) ||
+               item.decisions.toLowerCase().includes(filterQuery) ||
+               item.date.toLowerCase().includes(filterQuery);
+    });
+
+    if (filtered.length === 0) {
+        list.innerHTML = `
+            <div class="gallery-empty-placeholder" id="public-news-empty-placeholder" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.08); border-radius: var(--radius-md); text-align: center; color: var(--text-muted); width: 100%;">
+                <i class="fa-solid fa-bullhorn" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Sin resultados</h4>
+                <p style="margin: 0; font-size: 0.9rem; max-width: 400px;">No se encontraron noticias ni boletines que coincidan con la búsqueda.</p>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = '';
+    filtered.forEach(news => {
+        const typeBadge = news.type === 'acuerdo'
+            ? `<span style="background: rgba(25, 118, 210, 0.15); color: #29b6f6; border: 1px solid rgba(25, 118, 210, 0.3); padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-file-contract"></i> Acuerdo</span>`
+            : `<span style="background: rgba(0, 200, 83, 0.15); color: #00e676; border: 1px solid rgba(0, 200, 83, 0.3); padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-bullhorn"></i> Noticia</span>`;
+
+        let imageHtml = '';
+        if (news.image_url) {
+            imageHtml = `
+                <div style="margin-top: 15px; margin-bottom: 15px; overflow: hidden; border-radius: var(--radius-sm); border: 1px solid var(--border-color); aspect-ratio: 16/9; background: rgba(0,0,0,0.3);">
+                    <img src="${news.image_url}" alt="${news.title}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: var(--transition);" class="public-news-img">
+                </div>
+            `;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'db-card shadow-premium';
+        card.style.borderColor = news.type === 'acuerdo' ? 'rgba(41, 182, 246, 0.3)' : 'rgba(0, 230, 118, 0.3)';
+        card.style.gap = '12px';
+        card.style.padding = '24px';
+        card.style.background = 'var(--bg-surface-glass)';
+        card.style.borderRadius = 'var(--radius-lg)';
+        card.style.boxShadow = 'var(--shadow-md)';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.position = 'relative';
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">
+                <span><i class="fa-solid fa-calendar-day text-gold"></i> ${news.date}</span>
+                ${typeBadge}
+            </div>
+            <h4 style="margin: 5px 0 0 0; font-size: 1.15rem; font-family: var(--font-header); font-weight: 700; color: var(--text-light); line-height: 1.3;">${news.title}</h4>
+            <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; flex-grow: 1;">${news.content}</p>
+            ${imageHtml}
+            <div style="margin-top: 10px; padding: 12px; background: rgba(255, 213, 79, 0.05); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--text-light); display: flex; flex-direction: column; gap: 4px;">
+                <span style="font-weight: 700; color: var(--accent);"><i class="fa-solid fa-circle-check"></i> Resolución:</span>
+                <span>${news.decisions}</span>
+            </div>
+        `;
+
+        // Proporcionar zoom en la foto al pasar el mouse
+        if (news.image_url) {
+            const img = card.querySelector('.public-news-img');
+            card.addEventListener('mouseenter', () => {
+                if (img) img.style.transform = 'scale(1.04)';
+            });
+            card.addEventListener('mouseleave', () => {
+                if (img) img.style.transform = 'scale(1)';
+            });
+            img.addEventListener('click', () => {
+                openLightbox(news.title, news.content, news.date, news.type, '', '', news.image_url);
+            });
+        }
+
+        list.appendChild(card);
     });
 }

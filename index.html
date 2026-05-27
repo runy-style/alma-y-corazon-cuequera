@@ -46,6 +46,8 @@
                                 class="fa-solid fa-graduation-cap"></i> Talleres</a></li>
                     <li><a href="#" class="nav-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
                             Eventos</a></li>
+                    <li><a href="#" class="nav-link" data-target="noticias-tab"><i class="fa-solid fa-bullhorn"></i>
+                            Noticias</a></li>
                     <li>
                         <button class="btn-portal nav-portal-btn" id="portal-trigger">
                             <i class="fa-solid fa-key"></i> Portal Socios
@@ -80,6 +82,8 @@
                     Talleres</a></li>
             <li><a href="#" class="mob-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
                     Eventos</a></li>
+            <li><a href="#" class="mob-link" data-target="noticias-tab"><i class="fa-solid fa-bullhorn"></i>
+                    Noticias</a></li>
             <li>
                 <button class="btn-portal mobile-portal-btn w-full" id="mobile-portal-trigger">
                     <i class="fa-solid fa-key"></i> Portal Socios
@@ -485,6 +489,8 @@
                         <!-- Dots Indicators -->
                         <div class="carousel-dots" id="expo-carousel-dots">
                             <!-- Generated dynamically by JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -542,6 +548,35 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </section>
+
+        <!-- 4.5 NOTICIAS SECTION -->
+        <section id="noticias-tab" class="app-section">
+            <div class="section-header">
+                <span class="section-tag">Novedades del Club</span>
+                <h2 class="section-title">Noticias y Boletines</h2>
+                <div class="section-underline"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 30px; gap: 15px; background: var(--bg-surface-glass); padding: 15px 25px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-bullhorn text-gold"></i> Infórmate sobre las últimas novedades, acuerdos de asambleas y actividades oficiales de la agrupación.
+                </p>
+                <div class="search-box-news" style="max-width: 320px; width: 100%; position: relative;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
+                    <input type="text" id="public-news-search-input" placeholder="Buscar noticia o acuerdo..." style="width: 100%; padding: 10px 12px 10px 38px; font-size: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); color: var(--text); transition: var(--transition);">
+                </div>
+            </div>
+
+            <!-- Listado de Noticias Público -->
+            <div id="public-news-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; min-height: 250px;">
+                <!-- Rellenado dinámicamente con JS -->
+                <div class="gallery-empty-placeholder" id="public-news-empty-placeholder" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.08); border-radius: var(--radius-md); text-align: center; color: var(--text-muted); width: 100%;">
+                    <i class="fa-solid fa-bullhorn" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                    <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Sin Noticias Publicadas</h4>
+                    <p style="margin: 0; font-size: 0.9rem; max-width: 400px;">La directiva aún no ha redactado boletines informativos. Las noticias cargadas aparecerán aquí de forma inmediata.</p>
                 </div>
             </div>
         </section>
@@ -997,6 +1032,7 @@
                     <li><a href="#" onclick="switchSection('nosotros-tab')">Quiénes Somos</a></li>
                     <li><a href="#" onclick="switchSection('talleres-tab')">Nuestros Talleres</a></li>
                     <li><a href="#" onclick="switchSection('eventos-tab')">Galería de Eventos</a></li>
+                    <li><a href="#" onclick="switchSection('noticias-tab')">Noticias y Novedades</a></li>
                 </ul>
             </div>
             <div class="footer-contact">
