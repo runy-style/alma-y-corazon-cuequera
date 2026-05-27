@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initPortal();
     initCarousel();
     initPromoPopup();
+    initSponsorsCarousel();
 });
 
 /* ==========================================================================
@@ -2156,3 +2157,59 @@ window.deleteAgreement = async function(id) {
         showToast("Eliminado", "Publicación eliminada localmente.");
     }
 };
+
+/* ==========================================================================
+   SPONSORS CAROUSEL SLIDE CONTROLLER (AUTOMATIC & RESPONSIVE)
+   ========================================================================== */
+function initSponsorsCarousel() {
+    const track = document.getElementById('sponsors-carousel-track');
+    const container = document.getElementById('sponsors-carousel-container');
+    if (!track || !container) return;
+
+    let currentIndex = 0;
+    const cards = track.querySelectorAll('.sponsor-card');
+    const totalCards = cards.length;
+    if (totalCards === 0) return;
+
+    function getVisibleSlidesCount() {
+        if (window.innerWidth <= 480) return 1;
+        if (window.innerWidth <= 768) return 2;
+        return 3;
+    }
+
+    function moveToIndex(index) {
+        const visibleSlides = getVisibleSlidesCount();
+        const maxIndex = totalCards - visibleSlides;
+        
+        if (index > maxIndex) {
+            currentIndex = 0;
+        } else if (index < 0) {
+            currentIndex = maxIndex;
+        } else {
+            currentIndex = index;
+        }
+
+        const cardWidth = cards[0].getBoundingClientRect().width;
+        const gap = 15;
+        const offset = currentIndex * (cardWidth + gap);
+        track.style.transform = `translateX(-${offset}px)`;
+    }
+
+    let autoSlideInterval = setInterval(() => {
+        moveToIndex(currentIndex + 1);
+    }, 3000);
+
+    container.addEventListener('mouseenter', () => {
+        clearInterval(autoSlideInterval);
+    });
+
+    container.addEventListener('mouseleave', () => {
+        autoSlideInterval = setInterval(() => {
+            moveToIndex(currentIndex + 1);
+        }, 3000);
+    });
+
+    window.addEventListener('resize', () => {
+        moveToIndex(currentIndex);
+    });
+}

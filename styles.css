@@ -3186,15 +3186,24 @@ body.light-theme .e-stat {
     box-shadow: var(--shadow-lg);
 }
 
-.sponsors-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+.sponsors-carousel-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 10px 0;
+}
+
+.sponsors-carousel-track {
+    display: flex;
     gap: 15px;
-    margin-top: 15px;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    width: 100%;
 }
 
 .sponsor-card {
-    aspect-ratio: 1;
+    flex-shrink: 0;
+    width: calc(33.333% - 10px);
+    aspect-ratio: 16/10;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     background: rgba(0, 0, 0, 0.4);
@@ -3202,7 +3211,7 @@ body.light-theme .e-stat {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    padding: 15px;
     transition: var(--transition);
 }
 
@@ -3226,5 +3235,18 @@ body.light-theme .e-stat {
 .sponsor-card img.sponsor-img:hover {
     transform: scale(1.05);
     filter: brightness(1.08);
+}
+
+/* Responsiveness for sponsors slider */
+@media (max-width: 768px) {
+    .sponsor-card {
+        width: calc(50% - 7.5px);
+    }
+}
+
+@media (max-width: 480px) {
+    .sponsor-card {
+        width: 100%;
+    }
 }
 
