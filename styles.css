@@ -2170,21 +2170,38 @@ body.light-theme .admin-quota-btn {
 
 .lightbox-photo-bg {
     width: 100%;
-    aspect-ratio: 1.6;
+    min-height: 250px;
+    max-height: 70vh;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     border: 1px solid var(--border-color);
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.4);
+    transition: var(--transition);
+}
+
+.lightbox-photo-bg img.lightbox-img {
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: none;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
 }
 
 .lightbox-photo-bg.has-image {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    transition: var(--transition);
+    background: rgba(0, 0, 0, 0.7);
 }
+
+.lightbox-photo-bg.has-image img.lightbox-img {
+    display: block;
+}
+
 .lightbox-photo-bg i {
     font-size: 8rem;
     color: rgba(255, 255, 255, 0.2);
@@ -2597,6 +2614,7 @@ body.light-theme .e-stat {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    cursor: zoom-in;
 }
 .carousel-slide.active {
     opacity: 1;
@@ -3136,5 +3154,23 @@ body.light-theme .e-stat {
         font-size: 0.95rem;
         margin-bottom: 8px;
     }
+}
+
+/* Clickable image full-size zoom indicators */
+.timeline-event-img,
+.promo-img,
+.public-news-img,
+.agreement-image-container img {
+    cursor: zoom-in;
+    transition: var(--transition) !important;
+}
+
+.timeline-event-img:hover,
+.promo-img:hover,
+.public-news-img:hover,
+.agreement-image-container img:hover {
+    filter: brightness(1.06);
+    transform: scale(1.02);
+    box-shadow: var(--shadow-md);
 }
 

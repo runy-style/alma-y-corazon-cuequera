@@ -336,10 +336,11 @@ function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl =
     const lbTag = document.getElementById('lightbox-tag');
     const lbBg = document.getElementById('lightbox-bg-element');
     const lbIcon = document.getElementById('lightbox-icon');
+    const lbImg = document.getElementById('lightbox-img');
 
     if (lightbox && lbTitle && lbDesc && lbTag && lbBg && lbIcon) {
         lbTitle.textContent = title;
-        lbDesc.textContent = `${desc} - Publicado el ${date}`;
+        lbDesc.textContent = desc ? `${desc} - Publicado el ${date}` : `Publicado el ${date}`;
         
         // Capitalize tag
         const formattedTag = tag.charAt(0).toUpperCase() + tag.slice(1).replace('-', ' ');
@@ -348,12 +349,18 @@ function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl =
         if (imgUrl) {
             // Apply real image styling
             lbBg.className = 'lightbox-photo-bg has-image';
-            lbBg.style.backgroundImage = `url('${imgUrl}')`;
+            if (lbImg) {
+                lbImg.src = imgUrl;
+                lbImg.alt = title;
+            }
             lbIcon.style.display = 'none';
         } else {
             // Fallback to gradient & icon
             lbBg.className = `lightbox-photo-bg ${visualClasses.replace('gallery-visual-bg', '')}`;
-            lbBg.style.backgroundImage = '';
+            if (lbImg) {
+                lbImg.src = '';
+                lbImg.alt = '';
+            }
             lbIcon.className = iconClass;
             lbIcon.style.display = 'block';
         }
@@ -1885,6 +1892,21 @@ function setupCarousel(containerId, prevBtnId, nextBtnId, dotsContainerId) {
             }, 6000);
         });
     }
+
+    // Click handler to open slides in Lightbox
+    slides.forEach(slide => {
+        slide.addEventListener('click', (e) => {
+            if (e.target.closest('a') || e.target.closest('button')) return;
+
+            const bgImg = slide.style.backgroundImage;
+            if (bgImg) {
+                const imgUrl = bgImg.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+                const title = slide.querySelector('h4')?.textContent || 'Galería de Eventos';
+                const desc = slide.querySelector('p')?.textContent || '';
+                openLightbox(title, desc, '2026', 'evento', '', '', imgUrl);
+            }
+        });
+    });
 }
 
 function initCarousel() {
@@ -1932,6 +1954,22 @@ function initPromoPopup() {
             closePromo();
         }
     });
+
+    // Clic en la imagen del anuncio para abrir en tamaño completo (Lightbox)
+    const promoImg = promoOverlay.querySelector('.promo-img');
+    if (promoImg) {
+        promoImg.addEventListener('click', () => {
+            openLightbox(
+                '2° Gran Campeonato de Cueca & Destrezas Huasas',
+                'Afiche Oficial del certamen cuequero y despliegue de destrezas huasas de la provincia de Petorca. Sábado 30 de Mayo, Gimnasio Municipal de La Ligua.',
+                '30 May 2026',
+                'evento',
+                '',
+                '',
+                promoImg.src
+            );
+        });
+    }
 }
 
 // 7. Dynamic Public Gallery Grid Renderer
