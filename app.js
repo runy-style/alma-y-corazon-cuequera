@@ -1593,8 +1593,18 @@ function renderAgreementsList(filterQuery = '') {
             `;
         }
 
+        let deleteBtnHtml = '';
+        if (activeUser.role === 'directiva') {
+            deleteBtnHtml = `
+                <button class="btn btn-delete-news" style="position: absolute; top: 15px; right: 15px; background: rgba(211, 47, 47, 0.08); color: #d32f2f; border: 1px solid rgba(211, 47, 47, 0.2); border-radius: var(--radius-sm); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);" title="Eliminar Publicación" onclick="deleteAgreement(${news.id})">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+        }
+
         card.innerHTML = `
-            <div class="agreement-top-meta">
+            ${deleteBtnHtml}
+            <div class="agreement-top-meta" style="${activeUser.role === 'directiva' ? 'padding-right: 35px;' : ''}">
                 <span class="agr-date"><i class="fa-solid fa-calendar-day"></i> ${news.date}</span>
                 ${typeBadge}
             </div>
@@ -2079,3 +2089,32 @@ function renderPublicNewsGrid(newsList = []) {
         list.appendChild(card);
     });
 }
+
+// 9. Global news & agreement deletion handler
+window.deleteAgreement = async function(id) {
+    const confirmDel = confirm("¿Estás seguro de que deseas eliminar permanentemente esta publicación (Noticia/Acuerdo) de la base de datos?");
+    if (!confirmDel) return;
+
+    if (isSupabaseActive) {
+        try {
+            const { error } = await supabaseClient
+                .from('agreements_news')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            console.log(`🗑️ Publicación ${id} eliminada.`);
+            showToast("Publicación Eliminada", "El acta/boletín fue borrado de la base de datos.");
+            await syncFromSupabase();
+            renderAgreementsList();
+        } catch (err) {
+            console.error("🔴 Error eliminando publicación de Supabase:", err);
+            showToast("Error de Servidor", "No se pudo borrar del servidor.");
+        }
+    } else {
+        MOCK_NEWS_AGREEMENTS = MOCK_NEWS_AGREEMENTS.filter(item => item.id !== id);
+        renderAgreementsList();
+        renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
+        showToast("Eliminado", "Publicación eliminada localmente.");
+    }
+};
