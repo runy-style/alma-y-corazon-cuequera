@@ -3174,3 +3174,57 @@ body.light-theme .e-stat {
     box-shadow: var(--shadow-md);
 }
 
+/* Championship Sponsors Panel */
+.championship-sponsors-section {
+    margin-top: -45px;
+    margin-bottom: 45px;
+    padding: 30px;
+    background: linear-gradient(135deg, rgba(34, 23, 17, 0.95), rgba(21, 15, 11, 0.98));
+    border: 1px solid rgba(255, 213, 79, 0.3);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.sponsors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.sponsor-card {
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    transition: var(--transition);
+}
+
+.sponsor-card:hover {
+    border-color: var(--accent);
+    background: rgba(255, 213, 79, 0.05);
+    box-shadow: 0 4px 12px rgba(255, 213, 79, 0.1);
+    transform: translateY(-3px);
+}
+
+.sponsor-card img.sponsor-img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    cursor: zoom-in;
+    transition: var(--transition) !important;
+}
+
+.sponsor-card img.sponsor-img:hover {
+    transform: scale(1.05);
+    filter: brightness(1.08);
+}
+
