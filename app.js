@@ -471,48 +471,7 @@ let activeUser = {
 };
 
 // News and Agreements Mock Array
-let MOCK_NEWS_AGREEMENTS = [
-    {
-        id: 1,
-        date: "20 Mayo, 2026",
-        type: "noticia",
-        title: "Lanzamiento oficial de Rifa Invernal 2026",
-        content: "Estimados socios, a partir de hoy se inicia la distribución de los talonarios para la rifa anual de invierno. Cada socio tiene asignado un talonario de 10 números con el fin de juntar fondos para renovar los calzados de cueca tradicionales de nuestro elenco oficial.",
-        decisions: "Se acuerda que el valor del número será de $2.000 pesos y el sorteo se realizará el Sábado 18 de Julio en nuestra peña."
-    },
-    {
-        id: 2,
-        date: "12 Mayo, 2026",
-        type: "acuerdo",
-        title: "Acta Asamblea Extraordinaria: Confección de Vestuario",
-        content: "En la sesión ordinaria del mes de Mayo, se discutió la cotización para los nuevos vestidos de china y chamantos huasos para los jóvenes de la agrupación. Tras analizar 3 presupuestos de talleres locales de La Ligua, se ha tomado una definición de compra.",
-        decisions: "Votación aprobada unánimemente: Se contratará a la tejedora local Sra. Rosa Díaz para confeccionar 8 chamantos de telar, y a Confecciones Petorca para 10 vestidos floreados clásicos."
-    },
-    {
-        id: 3,
-        date: "28 Abril, 2026",
-        type: "acuerdo",
-        title: "Acuerdo de Apoyo Municipal para Gala de Fiestas Patrias",
-        content: "Se sostuvo reunión protocolar con el encargado de Cultura de la Ilustre Municipalidad de La Ligua. La municipalidad se compromete con la amplificación completa, escenario y permisos de uso de suelo en la Plaza de Armas sin costo.",
-        decisions: "Acuerdo pactado: La agrupación aportará con el show artístico de 90 minutos y se autoriza la venta de empanadas y jugos a beneficio de nuestro club folclórico."
-    },
-    {
-        id: 4,
-        date: "14 Abril, 2026",
-        type: "noticia",
-        title: "Bienvenida a nuevos socios y balance inicial",
-        content: "Queremos dar una afectuosa bienvenida a las 6 nuevas familias que se integraron a nuestros talleres de iniciación y han solicitado incorporarse como socios activos de la agrupación Alma y Corazón Cuequera. ¡A zapatear con el alma!",
-        decisions: "Integración formal al registro de cuotas a contar del mes de Mayo 2026."
-    },
-    {
-        id: 5,
-        date: "10 Marzo, 2026",
-        type: "acuerdo",
-        title: "Planificación de Cuota Social Anual 2026",
-        content: "En la asamblea general de inicio de año, la directiva propuso mantener congelada la cuota mensual de socios activos para fomentar la participación de la comunidad tras los gastos de marzo.",
-        decisions: "Acuerdo tomado: La cuota mensual se mantendrá en $5.000 pesos chilenos mensuales para el presente período 2026."
-    }
-];
+let MOCK_NEWS_AGREEMENTS = [];
 
 // Base values for finance system (added to dynamically calculated ones)
 const BASE_FINANCES = {
@@ -715,7 +674,7 @@ async function syncFromSupabase() {
 
         // Render dynamic timeline if events are present
         if (timelineEvents && timelineEvents.length > 0) {
-            const timelineElement = document.querySelector('#eventos-tab .timeline');
+            const timelineElement = document.querySelector('#noticias-tab .timeline');
             if (timelineElement) {
                 // Guardar la tarjeta enriquecida del campeonato si está presente en el HTML
                 const championshipEl = document.getElementById('championship-timeline-item');
@@ -1086,7 +1045,7 @@ function initPortal() {
                 await syncFromSupabase();
             } else {
                 // Add new timeline element to the public Timeline inside eventos-tab localmente
-                const timelineElement = document.querySelector('#eventos-tab .timeline');
+                const timelineElement = document.querySelector('#noticias-tab .timeline');
                 if (timelineElement) {
                     let eventMediaHtml = '';
                     if (imageUrl) {
