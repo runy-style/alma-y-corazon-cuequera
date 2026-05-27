@@ -3176,9 +3176,9 @@ body.light-theme .e-stat {
 
 /* Championship Sponsors Panel */
 .championship-sponsors-section {
-    margin-top: -45px;
+    margin-top: -15px;
     margin-bottom: 45px;
-    padding: 30px;
+    padding: 35px 30px 30px 30px;
     background: linear-gradient(135deg, rgba(34, 23, 17, 0.95), rgba(21, 15, 11, 0.98));
     border: 1px solid rgba(255, 213, 79, 0.3);
     border-top: none;
