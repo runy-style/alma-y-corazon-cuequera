@@ -672,6 +672,11 @@ async function syncFromSupabase() {
             newMembersDb[member.id] = {
                 name: member.name,
                 role: member.role,
+                password: member.password || "cueca123",
+                email: member.email || "",
+                phone: member.phone || "",
+                dancer_details: member.dancer_details || "",
+                is_first_login: member.is_first_login !== undefined ? member.is_first_login : (member.password === 'cueca123'),
                 quotas: []
             };
         });
@@ -1131,8 +1136,23 @@ function initPortal() {
                     // A. Insertar miembro
                     const { error: mError } = await supabaseClient
                         .from('members')
-                        .insert([{ id: username, name: name, role: role, password: password }]);
-                    if (mError) throw mError;
+                        .insert([{ 
+                            id: username, 
+                            name: name, 
+                            role: role, 
+                            password: password,
+                            is_first_login: true,
+                            email: "",
+                            phone: "",
+                            dancer_details: ""
+                        }]);
+                    if (mError) {
+                        console.warn("⚠️ Columnas extendidas no configuradas en Supabase al registrar miembro. Reintentando inserción básica.", mError);
+                        const { error: basicError } = await supabaseClient
+                            .from('members')
+                            .insert([{ id: username, name: name, role: role, password: password }]);
+                        if (basicError) throw basicError;
+                    }
 
                     // B. Insertar 12 cuotas
                     const quotaRows = months.map((m, idx) => ({
@@ -1160,6 +1180,10 @@ function initPortal() {
                     name: name,
                     role: role,
                     password: password,
+                    email: "",
+                    phone: "",
+                    dancer_details: "",
+                    is_first_login: true,
                     quotas: quotas
                 };
             }
