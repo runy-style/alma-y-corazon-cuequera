@@ -3250,3 +3250,24 @@ body.light-theme .e-stat {
     }
 }
 
+/* Member Profile Card & Forms Transitions */
+#member-profile-card {
+    transition: var(--transition);
+}
+
+.profile-info-content {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+body.light-theme .profile-info-content {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+#fl-error-msg, #rec-error-msg {
+    margin-top: 12px;
+}
+

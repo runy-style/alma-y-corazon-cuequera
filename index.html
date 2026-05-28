@@ -726,6 +726,7 @@
                     <button type="submit" class="btn btn-primary btn-submit-login">
                         <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
                     </button>
+                    <a href="#" id="forgot-password-link" style="color: var(--accent); font-size: 0.82rem; text-decoration: underline; margin-top: 15px; display: inline-block; cursor: pointer; text-align: center; width: 100%;">¿Olvidaste tu contraseña?</a>
                 </form>
 
                 <!-- Demo helper -->
@@ -1071,6 +1072,28 @@
                         </div>
                     </div>
 
+                    <!-- Tarjeta de Perfil de Socio -->
+                    <div class="db-card shadow-premium" id="member-profile-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-user-gear text-gold"></i> Mis Datos de Socio</h3>
+                            <span class="badge badge-active"><i class="fa-solid fa-circle-check"></i> Activo</span>
+                        </div>
+                        <div class="profile-info-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                            <div>
+                                <strong style="color: var(--text-muted);">Correo Registrado:</strong>
+                                <span id="profile-email-lbl" style="color: var(--text-light); float: right;">-</span>
+                            </div>
+                            <div style="border-top: 1px solid var(--border-color); padding-top: 8px;">
+                                <strong style="color: var(--text-muted);">Teléfono de Contacto:</strong>
+                                <span id="profile-phone-lbl" style="color: var(--text-light); float: right;">-</span>
+                            </div>
+                            <div style="border-top: 1px solid var(--border-color); padding-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                                <strong style="color: var(--text-muted);">Ficha de Bailarín:</strong>
+                                <p id="profile-dancer-lbl" style="margin: 0; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.82rem; line-height: 1.4; color: var(--text-light); font-style: italic;">-</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 3. Financial Statistics Graphic (SVG Double-Line Interactive Chart) -->
                     <div class="db-card card-span-2 shadow-premium" id="financial-charts-card">
                         <div class="db-card-header">
@@ -1287,6 +1310,116 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIRST-TIME LOGIN DATA COMPLETION MODAL -->
+    <div id="first-login-modal" class="enrollment-modal" style="display: none; justify-content: center; align-items: center; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
+        <div class="modal-card shadow-premium" style="max-width: 550px; border: 1px solid rgba(255, 213, 79, 0.3); background: linear-gradient(135deg, rgba(34, 23, 17, 0.98), rgba(21, 15, 11, 0.99));">
+            <div class="modal-header" style="text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
+                <span class="badge badge-featured" style="margin-bottom: 10px; display: inline-block; background: rgba(255, 213, 79, 0.15); color: var(--accent);"><i class="fa-solid fa-shield-halved spin-slow"></i> Primer Ingreso Detectado</span>
+                <h3 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--text-light); margin: 5px 0 10px 0;">Completa tus Datos de Socio</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin: 0;">Para garantizar la seguridad de tu cuenta y mantener actualizada la ficha del club, por favor completa tu perfil y personaliza tu contraseña genérica.</p>
+            </div>
+            
+            <form id="first-login-form" class="enrollment-form">
+                <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="first-email" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; display: block;"><i class="fa-solid fa-envelope text-gold"></i> Correo Electrónico</label>
+                        <input type="email" id="first-email" required placeholder="Ej: socio@correo.com" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="first-phone" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; display: block;"><i class="fa-solid fa-phone text-gold"></i> Teléfono de Contacto</label>
+                        <input type="tel" id="first-phone" required placeholder="Ej: +56 9 1234 5678" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="first-dancer-details" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; display: block;"><i class="fa-solid fa-person-running text-gold"></i> Ficha de Bailarín / Rol Folclórico</label>
+                    <textarea id="first-dancer-details" rows="2" required placeholder="Describe tu categoría, rol folclórico o experiencia (ej: Bailarina Elenco Juvenil, Huaso de Destreza, Socio Cooperador)..." style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); resize: none;"></textarea>
+                </div>
+
+                <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <div class="form-group">
+                        <label for="first-pwd" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; display: block;"><i class="fa-solid fa-key text-gold"></i> Nueva Contraseña</label>
+                        <input type="password" id="first-pwd" required placeholder="Mínimo 6 caracteres" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+                    <div class="form-group">
+                        <label for="first-pwd-confirm" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; display: block;"><i class="fa-solid fa-shield text-gold"></i> Confirmar Contraseña</label>
+                        <input type="password" id="first-pwd-confirm" required placeholder="Repite la contraseña" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+                </div>
+
+                <div id="first-login-error" class="alert alert-danger hidden" style="background: rgba(211, 47, 47, 0.15); border: 1px solid rgba(211,47,47,0.3); color: #ff5252; padding: 10px; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span id="first-login-error-text">Las contraseñas no coinciden.</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full" style="padding: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-check text-gold"></i> Guardar y Acceder al Portal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PASSWORD RECOVERY MODAL -->
+    <div id="recovery-modal" class="enrollment-modal" style="display: none; justify-content: center; align-items: center; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);">
+        <div class="modal-card shadow-premium" style="max-width: 450px; border: 1px solid var(--border-color); background: var(--bg-surface-glass); position: relative;">
+            <span class="close-modal" id="close-recovery-btn" style="position: absolute; right: 20px; top: 15px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); transition: var(--transition);">&times;</span>
+            
+            <!-- VISTA PASO 1: SOLICITUD -->
+            <div id="recovery-step-1">
+                <div class="modal-header" style="text-align: center; margin-bottom: 20px;">
+                    <h3><i class="fa-solid fa-key text-gold"></i> Recuperar Contraseña</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-top: 5px;">Ingresa tu nombre de usuario y el correo electrónico registrado en tu ficha de socio para restablecer tu contraseña.</p>
+                </div>
+                
+                <form id="recovery-form">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="recovery-username"><i class="fa-solid fa-user"></i> Nombre de Usuario o RUT</label>
+                        <input type="text" id="recovery-username" required placeholder="Ej: socio2026" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="recovery-email"><i class="fa-solid fa-envelope"></i> Correo Electrónico Registrado</label>
+                        <input type="email" id="recovery-email" required placeholder="Ej: socio@correo.com" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+
+                    <div id="recovery-error" class="alert alert-danger hidden" style="background: rgba(211, 47, 47, 0.15); border: 1px solid rgba(211,47,47,0.3); color: #ff5252; padding: 10px; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 15px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <span id="recovery-error-text">Los datos no coinciden con nuestros registros.</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full" style="padding: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-solid fa-magnifying-glass"></i> Validar Cuenta
+                    </button>
+                </form>
+            </div>
+
+            <!-- VISTA PASO 2: NUEVA CLAVE -->
+            <div id="recovery-step-2" style="display: none;">
+                <div class="modal-header" style="text-align: center; margin-bottom: 20px;">
+                    <h3><i class="fa-solid fa-lock-open text-gold"></i> Restablecer Contraseña</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-top: 5px;">¡Cuenta validada con éxito! Ingresa una nueva contraseña segura para tu cuenta.</p>
+                </div>
+                
+                <form id="reset-password-form">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="reset-pwd"><i class="fa-solid fa-key"></i> Nueva Contraseña</label>
+                        <input type="password" id="reset-pwd" required placeholder="Mínimo 6 caracteres" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="reset-pwd-confirm"><i class="fa-solid fa-shield"></i> Confirmar Nueva Contraseña</label>
+                        <input type="password" id="reset-pwd-confirm" required placeholder="Repite la contraseña" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text);">
+                    </div>
+
+                    <div id="reset-error" class="alert alert-danger hidden" style="background: rgba(211, 47, 47, 0.15); border: 1px solid rgba(211,47,47,0.3); color: #ff5252; padding: 10px; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 15px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <span id="reset-error-text">Las contraseñas no coinciden o son inválidas.</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full" style="padding: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-check text-gold"></i> Actualizar Contraseña e Ingresar
+                    </button>
+                </form>
             </div>
         </div>
     </div>

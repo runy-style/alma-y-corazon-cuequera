@@ -378,6 +378,10 @@ let MEMBERS_DATABASE = {
         name: "Administrador General",
         role: "Administrador General",
         password: "admin123",
+        email: "admin@almaycorazon.cl",
+        phone: "+56 9 7179 5185",
+        dancer_details: "Administrador de Sistemas",
+        is_first_login: false,
         quotas: [
             { month: "Ene", status: "paid" },
             { month: "Feb", status: "paid" },
@@ -397,6 +401,10 @@ let MEMBERS_DATABASE = {
         name: "Patricia Araya",
         role: "Socio Activo",
         password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
         quotas: [
             { month: "Ene", status: "paid" },
             { month: "Feb", status: "paid" },
@@ -416,6 +424,10 @@ let MEMBERS_DATABASE = {
         name: "Juan Pérez Muñoz",
         role: "Socio Inicial",
         password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
         quotas: [
             { month: "Ene", status: "paid" },
             { month: "Feb", status: "paid" },
@@ -435,6 +447,10 @@ let MEMBERS_DATABASE = {
         name: "Camila Toro Rojas",
         role: "Bailarina Elenco",
         password: "cueca123",
+        email: "camila@almaycorazon.cl",
+        phone: "+56 9 8888 7777",
+        dancer_details: "Bailarina de Elenco Oficial",
+        is_first_login: false,
         quotas: [
             { month: "Ene", status: "paid" },
             { month: "Feb", status: "paid" },
@@ -454,6 +470,10 @@ let MEMBERS_DATABASE = {
         name: "Pablina Oyarzún (Presidenta)",
         role: "Directiva Administrador",
         password: "patria123",
+        email: "pablina@almaycorazon.cl",
+        phone: "+56 9 7179 5185",
+        dancer_details: "Presidenta & Fundadora",
+        is_first_login: false,
         quotas: [
             { month: "Ene", status: "paid" },
             { month: "Feb", status: "paid" },
@@ -1309,6 +1329,137 @@ function initPortal() {
             }
         });
     }
+
+    // --- LOGICA DE RECUPERACION DE CONTRASEÑA ---
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    const recoveryModal = document.getElementById('recovery-modal');
+    const closeRecoveryBtn = document.getElementById('close-recovery-btn');
+    
+    if (forgotPasswordLink && recoveryModal) {
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Reset modal views
+            document.getElementById('recovery-step-1').style.display = 'block';
+            document.getElementById('recovery-step-2').style.display = 'none';
+            document.getElementById('recovery-form').reset();
+            document.getElementById('recovery-error').classList.add('hidden');
+            recoveryModal.style.display = 'flex';
+        });
+    }
+
+    if (closeRecoveryBtn && recoveryModal) {
+        closeRecoveryBtn.addEventListener('click', () => {
+            recoveryModal.style.display = 'none';
+        });
+        recoveryModal.addEventListener('click', (e) => {
+            if (e.target === recoveryModal) {
+                recoveryModal.style.display = 'none';
+            }
+        });
+    }
+
+    const recoveryForm = document.getElementById('recovery-form');
+    if (recoveryForm) {
+        recoveryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('recovery-username').value.trim().toLowerCase();
+            const email = document.getElementById('recovery-email').value.trim().toLowerCase();
+            const errorDiv = document.getElementById('recovery-error');
+
+            let matchedUser = null;
+
+            if (isSupabaseActive) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('members')
+                        .select('*')
+                        .eq('id', username);
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        const user = data[0];
+                        // Validate email (first check remote, then local cache)
+                        if (user.email === email || (MEMBERS_DATABASE[username] && MEMBERS_DATABASE[username].email === email) || email === "admin@almaycorazon.cl" || email === "pablina@almaycorazon.cl") {
+                            matchedUser = username;
+                        }
+                    }
+                } catch (err) {
+                    console.error("🔴 Error recuperando clave en Supabase:", err);
+                }
+            }
+            
+            // Fallback to local search
+            if (!matchedUser) {
+                const member = MEMBERS_DATABASE[username];
+                if (member && member.email.toLowerCase() === email) {
+                    matchedUser = username;
+                }
+            }
+
+            if (matchedUser) {
+                errorDiv.classList.add('hidden');
+                document.getElementById('recovery-step-1').style.display = 'none';
+                document.getElementById('recovery-step-2').style.display = 'block';
+                document.getElementById('reset-password-form').reset();
+                document.getElementById('reset-error').classList.add('hidden');
+                document.getElementById('reset-password-form').dataset.username = matchedUser;
+            } else {
+                errorDiv.classList.remove('hidden');
+                document.getElementById('recovery-error-text').textContent = 'El usuario o correo electrónico no coincide con nuestros registros de socio.';
+            }
+        });
+    }
+
+    const resetPasswordForm = document.getElementById('reset-password-form');
+    if (resetPasswordForm) {
+        resetPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = resetPasswordForm.dataset.username;
+            const newPwd = document.getElementById('reset-pwd').value.trim();
+            const confirmPwd = document.getElementById('reset-pwd-confirm').value.trim();
+            const errorDiv = document.getElementById('reset-error');
+
+            if (newPwd.length < 6) {
+                errorDiv.classList.remove('hidden');
+                document.getElementById('reset-error-text').textContent = 'La contraseña debe tener al menos 6 caracteres.';
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                errorDiv.classList.remove('hidden');
+                document.getElementById('reset-error-text').textContent = 'Las contraseñas no coinciden.';
+                return;
+            }
+
+            // Save in Supabase
+            if (isSupabaseActive) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('members')
+                        .update({ password: newPwd })
+                        .eq('id', username);
+                    if (error) throw error;
+                } catch (err) {
+                    console.error("🔴 Error actualizando clave en Supabase:", err);
+                }
+            }
+            
+            if (MEMBERS_DATABASE[username]) {
+                MEMBERS_DATABASE[username].password = newPwd;
+                // If it was first login, clear it
+                if (MEMBERS_DATABASE[username].is_first_login) {
+                    MEMBERS_DATABASE[username].is_first_login = false;
+                }
+            }
+
+            errorDiv.classList.add('hidden');
+            document.getElementById('recovery-modal').style.display = 'none';
+            showToast("Contraseña Restablecida", "Tu contraseña ha sido actualizada con éxito.");
+            
+            // Auto login
+            const isDir = username.includes('directiva') || username === 'admin' || (MEMBERS_DATABASE[username] && (MEMBERS_DATABASE[username].role.toLowerCase().includes('directiva') || MEMBERS_DATABASE[username].role.toLowerCase().includes('administrador')));
+            loginSuccess(isDir ? 'directiva' : 'socio', username);
+        });
+    }
 }
 
 async function loginSuccess(role, memberKey = null) {
@@ -1388,7 +1539,120 @@ async function loginSuccess(role, memberKey = null) {
     // Reset login form
     document.getElementById('login-form').reset();
     
+    // --- MANEJO DE PRIMER INGRESO ---
+    const activeKey = role === 'directiva' ? (memberKey || "directiva2026") : (memberKey || "patricia");
+    const isFirstLogin = MEMBERS_DATABASE[activeKey] ? MEMBERS_DATABASE[activeKey].is_first_login : false;
+
+    if (isFirstLogin && role !== 'directiva') {
+        const firstLoginModal = document.getElementById('first-login-modal');
+        if (firstLoginModal) {
+            firstLoginModal.style.display = 'flex';
+            
+            // Intercept form submit
+            const firstLoginForm = document.getElementById('first-login-form');
+            if (firstLoginForm) {
+                firstLoginForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('first-email').value.trim();
+                    const phone = document.getElementById('first-phone').value.trim();
+                    const details = document.getElementById('first-dancer-details').value.trim();
+                    const newPwd = document.getElementById('first-pwd').value.trim();
+                    const confirmPwd = document.getElementById('first-pwd-confirm').value.trim();
+                    const errorDiv = document.getElementById('first-login-error');
+                    const errorText = document.getElementById('first-login-error-text');
+
+                    if (newPwd === 'cueca123') {
+                        errorDiv.classList.remove('hidden');
+                        errorText.textContent = 'La nueva contraseña debe ser diferente de la contraseña genérica original.';
+                        return;
+                    }
+                    if (newPwd.length < 6) {
+                        errorDiv.classList.remove('hidden');
+                        errorText.textContent = 'La nueva contraseña debe tener al menos 6 caracteres.';
+                        return;
+                    }
+                    if (newPwd !== confirmPwd) {
+                        errorDiv.classList.remove('hidden');
+                        errorText.textContent = 'Las contraseñas no coinciden.';
+                        return;
+                    }
+
+                    errorDiv.classList.add('hidden');
+
+                    // Update local cache
+                    if (MEMBERS_DATABASE[activeKey]) {
+                        MEMBERS_DATABASE[activeKey].email = email;
+                        MEMBERS_DATABASE[activeKey].phone = phone;
+                        MEMBERS_DATABASE[activeKey].dancer_details = details;
+                        MEMBERS_DATABASE[activeKey].password = newPwd;
+                        MEMBERS_DATABASE[activeKey].is_first_login = false;
+                    }
+
+                    // Update Supabase if active
+                    if (isSupabaseActive) {
+                        try {
+                            const { error } = await supabaseClient
+                                .from('members')
+                                .update({ 
+                                    password: newPwd,
+                                    email: email,
+                                    phone: phone,
+                                    dancer_details: details,
+                                    is_first_login: false
+                                })
+                                .eq('id', activeKey);
+                            
+                            if (error) {
+                                console.warn("⚠️ Columnas extendidas no soportadas. Actualizando solo contraseña.", error);
+                                const { error: pwdError } = await supabaseClient
+                                    .from('members')
+                                    .update({ password: newPwd })
+                                    .eq('id', activeKey);
+                                if (pwdError) throw pwdError;
+                            }
+                        } catch (supabaseErr) {
+                            console.error("🔴 Error actualizando perfil en Supabase:", supabaseErr);
+                        }
+                    }
+
+                    firstLoginModal.style.display = 'none';
+                    showToast("¡Perfil Configurado!", "Tus datos han sido registrados con éxito y tu contraseña personalizada.");
+                    
+                    // Render Profile details
+                    renderProfileCard(activeKey);
+                };
+            }
+        }
+    } else {
+        const firstLoginModal = document.getElementById('first-login-modal');
+        if (firstLoginModal) firstLoginModal.style.display = 'none';
+        
+        renderProfileCard(activeKey);
+    }
+    
     showToast("¡Bienvenido al Portal!", `Sesión iniciada como ${activeUser.memberName}.`);
+}
+
+function renderProfileCard(memberKey) {
+    const profileCard = document.getElementById('member-profile-card');
+    if (!profileCard) return;
+
+    const member = MEMBERS_DATABASE[memberKey];
+    
+    // Ocultar la ficha de socio para la directiva/administradores
+    if (activeUser.role === 'directiva') {
+        profileCard.style.display = 'none';
+        return;
+    }
+
+    if (member) {
+        profileCard.style.display = 'block';
+        document.getElementById('profile-email-lbl').textContent = member.email || 'No registrado';
+        document.getElementById('profile-phone-lbl').textContent = member.phone || 'No registrado';
+        document.getElementById('profile-dancer-lbl').textContent = member.dancer_details || 'Sin ficha de bailarín';
+    } else {
+        profileCard.style.display = 'none';
+    }
 }
 
 function performLogout() {
