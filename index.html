@@ -835,6 +835,51 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Ficha de Datos del Socio Seleccionado (Visible para la Directiva) -->
+                            <div class="db-card shadow-premium" id="admin-member-profile-card" style="margin-top: 24px; border-color: var(--accent); background: rgba(255, 213, 79, 0.02);">
+                                <div class="db-card-header">
+                                    <h3><i class="fa-solid fa-address-card text-gold"></i> Ficha de Socio: <span id="admin-profile-name-lbl" class="text-gold">-</span></h3>
+                                    <button id="btn-admin-edit-profile" class="btn btn-demo-quick" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 12px; min-width: auto; height: auto;"><i class="fa-solid fa-pen-to-square"></i> Editar Ficha</button>
+                                </div>
+                                <div class="profile-info-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                                    <!-- Vista Lectura Directiva -->
+                                    <div id="admin-profile-view-mode">
+                                        <div style="margin-bottom: 8px;">
+                                            <strong style="color: var(--text-muted);">Correo Electrónico:</strong>
+                                            <span id="admin-profile-email-lbl" style="color: var(--text-light); float: right;">-</span>
+                                        </div>
+                                        <div style="border-top: 1px solid var(--border-color); padding-top: 8px; margin-bottom: 8px;">
+                                            <strong style="color: var(--text-muted);">Teléfono de Contacto:</strong>
+                                            <span id="admin-profile-phone-lbl" style="color: var(--text-light); float: right;">-</span>
+                                        </div>
+                                        <div style="border-top: 1px solid var(--border-color); padding-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                                            <strong style="color: var(--text-muted);">Ficha de Bailarín / Rol:</strong>
+                                            <p id="admin-profile-dancer-lbl" style="margin: 0; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.82rem; line-height: 1.4; color: var(--text-light); font-style: italic;">-</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Vista Edición Directiva -->
+                                    <form id="admin-profile-edit-form" style="display: none; flex-direction: column; gap: 12px;">
+                                        <div>
+                                            <label for="admin-edit-email" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Correo Registrado</label>
+                                            <input type="email" id="admin-edit-email" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); font-size: 0.85rem;">
+                                        </div>
+                                        <div>
+                                            <label for="admin-edit-phone" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Teléfono de Contacto</label>
+                                            <input type="tel" id="admin-edit-phone" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); font-size: 0.85rem;">
+                                        </div>
+                                        <div>
+                                            <label for="admin-edit-dancer" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Ficha de Bailarín / Rol Folclórico</label>
+                                            <textarea id="admin-edit-dancer" rows="3" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); font-size: 0.85rem; resize: none;"></textarea>
+                                        </div>
+                                        <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                            <button type="submit" class="btn btn-primary" style="flex: 1; padding: 6px; font-size: 0.8rem;"><i class="fa-solid fa-circle-check"></i> Guardar Cambios</button>
+                                            <button type="button" id="btn-admin-cancel-edit-profile" class="btn btn-outline" style="flex: 1; padding: 6px; font-size: 0.8rem; border-color: rgba(255,255,255,0.25);">Cancelar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Subsección 2: Agregar Actas y Acuerdos de Asamblea -->
@@ -1076,21 +1121,44 @@
                     <div class="db-card shadow-premium" id="member-profile-card">
                         <div class="db-card-header">
                             <h3><i class="fa-solid fa-user-gear text-gold"></i> Mis Datos de Socio</h3>
-                            <span class="badge badge-active"><i class="fa-solid fa-circle-check"></i> Activo</span>
+                            <button id="btn-edit-profile" class="btn btn-demo-quick" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 12px; min-width: auto; height: auto;"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
                         </div>
                         <div class="profile-info-content" style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
-                            <div>
-                                <strong style="color: var(--text-muted);">Correo Registrado:</strong>
-                                <span id="profile-email-lbl" style="color: var(--text-light); float: right;">-</span>
+                            <!-- Vista Lectura -->
+                            <div id="profile-view-mode">
+                                <div style="margin-bottom: 8px;">
+                                    <strong style="color: var(--text-muted);">Correo Registrado:</strong>
+                                    <span id="profile-email-lbl" style="color: var(--text-light); float: right;">-</span>
+                                </div>
+                                <div style="border-top: 1px solid var(--border-color); padding-top: 8px; margin-bottom: 8px;">
+                                    <strong style="color: var(--text-muted);">Teléfono de Contacto:</strong>
+                                    <span id="profile-phone-lbl" style="color: var(--text-light); float: right;">-</span>
+                                </div>
+                                <div style="border-top: 1px solid var(--border-color); padding-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                                    <strong style="color: var(--text-muted);">Ficha de Bailarín:</strong>
+                                    <p id="profile-dancer-lbl" style="margin: 0; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.82rem; line-height: 1.4; color: var(--text-light); font-style: italic;">-</p>
+                                </div>
                             </div>
-                            <div style="border-top: 1px solid var(--border-color); padding-top: 8px;">
-                                <strong style="color: var(--text-muted);">Teléfono de Contacto:</strong>
-                                <span id="profile-phone-lbl" style="color: var(--text-light); float: right;">-</span>
-                            </div>
-                            <div style="border-top: 1px solid var(--border-color); padding-top: 8px; display: flex; flex-direction: column; gap: 4px;">
-                                <strong style="color: var(--text-muted);">Ficha de Bailarín:</strong>
-                                <p id="profile-dancer-lbl" style="margin: 0; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.82rem; line-height: 1.4; color: var(--text-light); font-style: italic;">-</p>
-                            </div>
+                            
+                            <!-- Vista Edición -->
+                            <form id="profile-edit-form" style="display: none; flex-direction: column; gap: 12px;">
+                                <div>
+                                    <label for="edit-profile-email" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Correo Registrado</label>
+                                    <input type="email" id="edit-profile-email" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); font-size: 0.85rem;">
+                                </div>
+                                <div>
+                                    <label for="edit-profile-phone" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Teléfono de Contacto</label>
+                                    <input type="tel" id="edit-profile-phone" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); font-size: 0.85rem;">
+                                </div>
+                                <div>
+                                    <label for="edit-profile-dancer" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Ficha de Bailarín / Rol Folclórico</label>
+                                    <textarea id="edit-profile-dancer" rows="3" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); font-size: 0.85rem; resize: none;"></textarea>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 6px; font-size: 0.8rem;"><i class="fa-solid fa-circle-check"></i> Guardar</button>
+                                    <button type="button" id="btn-cancel-edit-profile" class="btn btn-outline" style="flex: 1; padding: 6px; font-size: 0.8rem; border-color: rgba(255,255,255,0.25);">Cancelar</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
 

@@ -997,6 +997,154 @@ function initPortal() {
 
             populateQuotasGrid();
             populateAdminQuotaGrid();
+            
+            // Actualizar la ficha de socio seleccionada para la directiva
+            renderAdminProfileCard(activeUser.activeMemberKey);
+        });
+    }
+
+    // --- LOGICA DE EDICION DE PROPIO SOCIO ---
+    const btnEditProfile = document.getElementById('btn-edit-profile');
+    const btnCancelEditProfile = document.getElementById('btn-cancel-edit-profile');
+    const profileViewMode = document.getElementById('profile-view-mode');
+    const profileEditForm = document.getElementById('profile-edit-form');
+
+    if (btnEditProfile && profileViewMode && profileEditForm) {
+        btnEditProfile.addEventListener('click', () => {
+            const member = MEMBERS_DATABASE[activeUser.username];
+            if (member) {
+                document.getElementById('edit-profile-email').value = member.email || '';
+                document.getElementById('edit-profile-phone').value = member.phone || '';
+                document.getElementById('edit-profile-dancer').value = member.dancer_details || '';
+                
+                profileViewMode.style.display = 'none';
+                profileEditForm.style.display = 'flex';
+                btnEditProfile.style.display = 'none';
+            }
+        });
+    }
+
+    if (btnCancelEditProfile && profileViewMode && profileEditForm && btnEditProfile) {
+        btnCancelEditProfile.addEventListener('click', () => {
+            profileViewMode.style.display = 'block';
+            profileEditForm.style.display = 'none';
+            btnEditProfile.style.display = 'block';
+        });
+    }
+
+    if (profileEditForm) {
+        profileEditForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('edit-profile-email').value.trim();
+            const phone = document.getElementById('edit-profile-phone').value.trim();
+            const dancer = document.getElementById('edit-profile-dancer').value.trim();
+            const username = activeUser.username;
+
+            // Actualizar en memoria local
+            if (MEMBERS_DATABASE[username]) {
+                MEMBERS_DATABASE[username].email = email;
+                MEMBERS_DATABASE[username].phone = phone;
+                MEMBERS_DATABASE[username].dancer_details = dancer;
+            }
+
+            // Sincronizar con Supabase si está activo
+            if (isSupabaseActive) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('members')
+                        .update({ 
+                            email: email, 
+                            phone: phone, 
+                            dancer_details: dancer 
+                        })
+                        .eq('id', username);
+                    if (error) throw error;
+                } catch (err) {
+                    console.error("🔴 Error actualizando perfil de socio en Supabase:", err);
+                }
+            }
+
+            // Volver al modo lectura
+            profileViewMode.style.display = 'block';
+            profileEditForm.style.display = 'none';
+            if (btnEditProfile) btnEditProfile.style.display = 'block';
+
+            // Re-renderizar
+            renderProfileCard(username);
+            showToast("Datos Guardados", "Tu ficha personal ha sido actualizada con éxito.");
+        });
+    }
+
+    // --- LOGICA DE EDICION DE SOCIO POR LA DIRECTIVA ---
+    const btnAdminEditProfile = document.getElementById('btn-admin-edit-profile');
+    const btnAdminCancelEditProfile = document.getElementById('btn-admin-cancel-edit-profile');
+    const adminProfileViewMode = document.getElementById('admin-profile-view-mode');
+    const adminProfileEditForm = document.getElementById('admin-profile-edit-form');
+
+    if (btnAdminEditProfile && adminProfileViewMode && adminProfileEditForm) {
+        btnAdminEditProfile.addEventListener('click', () => {
+            const memberKey = activeUser.activeMemberKey;
+            const member = MEMBERS_DATABASE[memberKey];
+            if (member) {
+                document.getElementById('admin-edit-email').value = member.email || '';
+                document.getElementById('admin-edit-phone').value = member.phone || '';
+                document.getElementById('admin-edit-dancer').value = member.dancer_details || '';
+                
+                adminProfileViewMode.style.display = 'none';
+                adminProfileEditForm.style.display = 'flex';
+                btnAdminEditProfile.style.display = 'none';
+            }
+        });
+    }
+
+    if (btnAdminCancelEditProfile && adminProfileViewMode && adminProfileEditForm && btnAdminEditProfile) {
+        btnAdminCancelEditProfile.addEventListener('click', () => {
+            adminProfileViewMode.style.display = 'block';
+            adminProfileEditForm.style.display = 'none';
+            btnAdminEditProfile.style.display = 'block';
+        });
+    }
+
+    if (adminProfileEditForm) {
+        adminProfileEditForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const memberKey = activeUser.activeMemberKey;
+            const email = document.getElementById('admin-edit-email').value.trim();
+            const phone = document.getElementById('admin-edit-phone').value.trim();
+            const dancer = document.getElementById('admin-edit-dancer').value.trim();
+
+            // Actualizar en memoria local
+            if (MEMBERS_DATABASE[memberKey]) {
+                MEMBERS_DATABASE[memberKey].email = email;
+                MEMBERS_DATABASE[memberKey].phone = phone;
+                MEMBERS_DATABASE[memberKey].dancer_details = dancer;
+            }
+
+            // Sincronizar con Supabase si está activo
+            if (isSupabaseActive) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('members')
+                        .update({ 
+                            email: email, 
+                            phone: phone, 
+                            dancer_details: dancer 
+                        })
+                        .eq('id', memberKey);
+                    if (error) throw error;
+                } catch (err) {
+                    console.error("🔴 Error actualizando perfil de socio por directiva en Supabase:", err);
+                }
+            }
+
+            // Volver al modo lectura
+            adminProfileViewMode.style.display = 'block';
+            adminProfileEditForm.style.display = 'none';
+            if (btnAdminEditProfile) btnAdminEditProfile.style.display = 'block';
+
+            // Re-renderizar
+            renderAdminProfileCard(memberKey);
+            showToast("Ficha Modificada", `Los datos de la ficha de ${MEMBERS_DATABASE[memberKey]?.name || memberKey} fueron actualizados.`);
         });
     }
 
@@ -1525,6 +1673,9 @@ async function loginSuccess(role, memberKey = null) {
                 select.value = defaultKey;
                 activeUser.activeMemberKey = defaultKey;
                 document.getElementById('admin-active-member-name').textContent = MEMBERS_DATABASE[defaultKey] ? MEMBERS_DATABASE[defaultKey].name : defaultKey;
+                
+                // Renderizar la ficha de socio seleccionado para la directiva al entrar
+                renderAdminProfileCard(defaultKey);
             }
         }
     } else {
@@ -1676,6 +1827,37 @@ function renderProfileCard(memberKey) {
         document.getElementById('profile-dancer-lbl').textContent = member.dancer_details || 'Sin ficha de bailarín';
     } else {
         profileCard.style.display = 'none';
+    }
+}
+
+function renderAdminProfileCard(memberKey) {
+    const adminProfileCard = document.getElementById('admin-member-profile-card');
+    if (!adminProfileCard) return;
+
+    // Si el rol activo no es directiva, ocultar
+    if (activeUser.role !== 'directiva') {
+        adminProfileCard.style.display = 'none';
+        return;
+    }
+
+    // Resetear a modo lectura
+    const viewMode = document.getElementById('admin-profile-view-mode');
+    const editForm = document.getElementById('admin-profile-edit-form');
+    const editBtn = document.getElementById('btn-admin-edit-profile');
+
+    if (viewMode) viewMode.style.display = 'block';
+    if (editForm) editForm.style.display = 'none';
+    if (editBtn) editBtn.style.display = 'block';
+
+    const member = MEMBERS_DATABASE[memberKey];
+    if (member) {
+        adminProfileCard.style.display = 'block';
+        document.getElementById('admin-profile-name-lbl').textContent = member.name || memberKey;
+        document.getElementById('admin-profile-email-lbl').textContent = member.email || 'No registrado';
+        document.getElementById('admin-profile-phone-lbl').textContent = member.phone || 'No registrado';
+        document.getElementById('admin-profile-dancer-lbl').textContent = member.dancer_details || 'Sin ficha de bailarín';
+    } else {
+        adminProfileCard.style.display = 'none';
     }
 }
 
