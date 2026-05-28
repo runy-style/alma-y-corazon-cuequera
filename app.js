@@ -715,16 +715,26 @@ async function syncFromSupabase() {
         MEMBERS_DATABASE = newMembersDb;
 
         if (agreements && agreements.length > 0) {
-            MOCK_NEWS_AGREEMENTS = agreements.map(item => ({
-                id: item.id,
-                date: item.date,
-                type: item.type,
-                title: item.title,
-                content: item.content,
-                decisions: item.decisions,
-                image_url: item.image_url,
-                visibility: item.visibility || 'publica'
-            }));
+            MOCK_NEWS_AGREEMENTS = agreements.map(item => {
+                let type = item.type || 'acuerdo';
+                let visibility = 'publica';
+                if (type.endsWith('_interno') || type.endsWith('_interna')) {
+                    visibility = 'interna';
+                    type = type.replace('_interno', '').replace('_interna', '');
+                } else if (item.visibility === 'interna') {
+                    visibility = 'interna';
+                }
+                return {
+                    id: item.id,
+                    date: item.date,
+                    type: type,
+                    title: item.title,
+                    content: item.content,
+                    decisions: item.decisions,
+                    image_url: item.image_url,
+                    visibility: visibility
+                };
+            });
         }
 
         // Render dynamic timeline if events are present
@@ -819,51 +829,31 @@ async function saveQuotaToSupabase(memberKey, month, status) {
 }
 
 // 3. Save new news/agreement to Supabase
+// 3. Save new news/agreement to Supabase
 async function saveAgreementToSupabase(date, type, title, content, decisions, imageUrl = null, visibility = 'interna') {
     if (!isSupabaseActive) return;
+
+    // Encode visibility directly inside the 'type' column (e.g., 'acuerdo_interno' or 'noticia_interno')
+    // This allows private/internal visibility to work seamlessly on any remote Supabase database 
+    // without requiring manual database migrations or table schema updates.
+    const encodedType = visibility === 'interna' ? `${type}_interno` : type;
 
     try {
         const { error } = await supabaseClient
             .from('agreements_news')
             .insert([{
                 date: date,
-                type: type,
+                type: encodedType,
                 title: title,
                 content: content,
                 decisions: decisions,
-                image_url: imageUrl,
-                visibility: visibility
+                image_url: imageUrl
             }]);
 
-        if (error) {
-            // Check if error is related to missing column
-            if (error.message && (error.message.includes('visibility') || error.message.includes('columna') || error.code === 'PGRST200')) {
-                console.warn("⚠️ La columna 'visibility' no existe en la tabla de Supabase. Intentando fallback sin esta columna...");
-                throw error; // trigger catch for fallback
-            }
-            throw error;
-        }
-        console.log("💾 Acuerdo/Noticia publicado en Supabase con visibilidad:", visibility);
+        if (error) throw error;
+        console.log("💾 Acuerdo/Noticia publicado en Supabase con tipo:", encodedType);
     } catch (err) {
-        // Fallback: insert without visibility column
-        try {
-            console.log("🔄 Ejecutando fallback de inserción sin columna 'visibility'...");
-            const { error: fallbackError } = await supabaseClient
-                .from('agreements_news')
-                .insert([{
-                    date: date,
-                    type: type,
-                    title: title,
-                    content: content,
-                    decisions: decisions,
-                    image_url: imageUrl
-                }]);
-            
-            if (fallbackError) throw fallbackError;
-            console.log("💾 Acuerdo/Noticia publicado en Supabase (Fallback exitoso sin columna de visibilidad).");
-        } catch (fallbackErr) {
-            console.error("🔴 Error total al publicar acuerdo en Supabase:", fallbackErr);
-        }
+        console.error("🔴 Error al publicar acuerdo en Supabase:", err);
     }
 }
 
