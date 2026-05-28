@@ -499,7 +499,28 @@ let activeUser = {
 };
 
 // News and Agreements Mock Array
-let MOCK_NEWS_AGREEMENTS = [];
+let MOCK_NEWS_AGREEMENTS = [
+    {
+        id: 1,
+        date: "15 May 2026",
+        type: "acuerdo",
+        title: "Adquisición de Mantas de Telar Típicas",
+        content: "La directiva ha cerrado el acuerdo con las artesanas locales de La Ligua para la confección de 12 mantas de telar de lana natural para el elenco de varones de la agrupación.",
+        decisions: "Se aprueba el presupuesto de $450.000 para el anticipo del 50% de los materiales.",
+        image_url: "img/logo.jpg",
+        visibility: "interna"
+    },
+    {
+        id: 2,
+        date: "10 May 2026",
+        type: "noticia",
+        title: "Gran Convocatoria Talleres de Cueca 2026",
+        content: "Queremos agradecer a toda la comunidad de La Ligua por el tremendo éxito en la jornada de inscripción presencial para nuestros talleres de cueca inicial y avanzado.",
+        decisions: "Clases inician el próximo sábado 6 de junio a las 16:00 hrs en el Centro Comunitario.",
+        image_url: "img/logo.jpg",
+        visibility: "publica"
+    }
+];
 
 // Base values for finance system (added to dynamically calculated ones)
 const BASE_FINANCES = {
@@ -701,7 +722,8 @@ async function syncFromSupabase() {
                 title: item.title,
                 content: item.content,
                 decisions: item.decisions,
-                image_url: item.image_url
+                image_url: item.image_url,
+                visibility: item.visibility || 'publica'
             }));
         }
 
@@ -797,7 +819,7 @@ async function saveQuotaToSupabase(memberKey, month, status) {
 }
 
 // 3. Save new news/agreement to Supabase
-async function saveAgreementToSupabase(date, type, title, content, decisions, imageUrl = null) {
+async function saveAgreementToSupabase(date, type, title, content, decisions, imageUrl = null, visibility = 'interna') {
     if (!isSupabaseActive) return;
 
     try {
@@ -809,13 +831,39 @@ async function saveAgreementToSupabase(date, type, title, content, decisions, im
                 title: title,
                 content: content,
                 decisions: decisions,
-                image_url: imageUrl
+                image_url: imageUrl,
+                visibility: visibility
             }]);
 
-        if (error) throw error;
-        console.log("💾 Acuerdo/Noticia publicado en Supabase.");
+        if (error) {
+            // Check if error is related to missing column
+            if (error.message && (error.message.includes('visibility') || error.message.includes('columna') || error.code === 'PGRST200')) {
+                console.warn("⚠️ La columna 'visibility' no existe en la tabla de Supabase. Intentando fallback sin esta columna...");
+                throw error; // trigger catch for fallback
+            }
+            throw error;
+        }
+        console.log("💾 Acuerdo/Noticia publicado en Supabase con visibilidad:", visibility);
     } catch (err) {
-        console.error("🔴 Error al publicar acuerdo en Supabase:", err);
+        // Fallback: insert without visibility column
+        try {
+            console.log("🔄 Ejecutando fallback de inserción sin columna 'visibility'...");
+            const { error: fallbackError } = await supabaseClient
+                .from('agreements_news')
+                .insert([{
+                    date: date,
+                    type: type,
+                    title: title,
+                    content: content,
+                    decisions: decisions,
+                    image_url: imageUrl
+                }]);
+            
+            if (fallbackError) throw fallbackError;
+            console.log("💾 Acuerdo/Noticia publicado en Supabase (Fallback exitoso sin columna de visibilidad).");
+        } catch (fallbackErr) {
+            console.error("🔴 Error total al publicar acuerdo en Supabase:", fallbackErr);
+        }
     }
 }
 
@@ -1157,6 +1205,10 @@ function initPortal() {
             const type = document.getElementById('admin-news-type').value;
             const content = document.getElementById('admin-news-content').value;
             const decisions = document.getElementById('admin-news-decisions').value;
+            
+            // Get visibility selection (default to 'interna' if not found)
+            const visEl = document.getElementById('admin-news-visibility');
+            const visibility = visEl ? visEl.value : 'interna';
 
             // Previsualización y carga del archivo de imagen
             let imageUrl = null;
@@ -1175,7 +1227,7 @@ function initPortal() {
 
             // Guardar en Supabase si está activo
             if (isSupabaseActive) {
-                await saveAgreementToSupabase(dateStr, type, title, content, decisions, imageUrl);
+                await saveAgreementToSupabase(dateStr, type, title, content, decisions, imageUrl, visibility);
                 await syncFromSupabase();
             } else {
                 // Prepend new agreement object to the news feed localmente
@@ -1186,7 +1238,8 @@ function initPortal() {
                     title: title,
                     content: content,
                     decisions: decisions,
-                    image_url: imageUrl || "img/logo.jpg"
+                    image_url: imageUrl || "img/logo.jpg",
+                    visibility: visibility
                 });
             }
 
@@ -2062,6 +2115,10 @@ function renderAgreementsList(filterQuery = '') {
             ? `<span class="agr-type-badge badge-acuerdo"><i class="fa-solid fa-file-contract"></i> Acuerdo</span>`
             : `<span class="agr-type-badge badge-noticia"><i class="fa-solid fa-bullhorn"></i> Noticia</span>`;
 
+        const visibilityBadge = news.visibility === 'interna'
+            ? `<span class="agr-type-badge" style="background: rgba(255, 213, 79, 0.12); color: var(--accent); border: 1px solid rgba(255, 213, 79, 0.25); display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700;"><i class="fa-solid fa-user-shield"></i> Interno (Socios)</span>`
+            : '';
+
         let imageHtml = '';
         if (news.image_url) {
             imageHtml = `
@@ -2082,9 +2139,10 @@ function renderAgreementsList(filterQuery = '') {
 
         card.innerHTML = `
             ${deleteBtnHtml}
-            <div class="agreement-top-meta" style="${activeUser.role === 'directiva' ? 'padding-right: 35px;' : ''}">
+            <div class="agreement-top-meta" style="${activeUser.role === 'directiva' ? 'padding-right: 35px;' : ''} display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <span class="agr-date"><i class="fa-solid fa-calendar-day"></i> ${news.date}</span>
                 ${typeBadge}
+                ${visibilityBadge}
             </div>
             <h4>${news.title}</h4>
             <p>${news.content}</p>
@@ -2522,6 +2580,7 @@ function renderPublicNewsGrid(newsList = []) {
     const filterQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
     const filtered = newsList.filter(item => {
+        if (item.visibility === 'interna') return false;
         if (!filterQuery) return true;
         return item.title.toLowerCase().includes(filterQuery) ||
                item.content.toLowerCase().includes(filterQuery) ||
