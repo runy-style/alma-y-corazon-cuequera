@@ -1356,13 +1356,25 @@
     <!-- LIGHTBOX / PHOTO VIEW DIALOG MODAL -->
     <div id="gallery-lightbox" class="lightbox-modal">
         <span class="close-lightbox" id="close-lightbox-btn">&times;</span>
+        
+        <!-- Botones de Navegación de Lightbox (Carrusel) -->
+        <button class="lightbox-nav-btn prev-btn" id="lightbox-prev-btn" aria-label="Foto anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="lightbox-nav-btn next-btn" id="lightbox-next-btn" aria-label="Foto siguiente">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
         <div class="lightbox-content">
             <div class="lightbox-photo-bg" id="lightbox-bg-element">
                 <img id="lightbox-img" src="" alt="Vista en tamaño completo" class="lightbox-img">
                 <i id="lightbox-icon" class="fa-solid fa-guitar"></i>
             </div>
             <div class="lightbox-caption" id="lightbox-caption">
-                <h4 id="lightbox-title">Gala de Fiestas Patrias</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;">
+                    <h4 id="lightbox-title" style="margin: 0;">Gala de Fiestas Patrias</h4>
+                    <span id="lightbox-counter" style="font-size: 0.8rem; color: var(--accent); font-weight: 700; background: rgba(255, 213, 79, 0.12); padding: 3px 10px; border-radius: var(--radius-full); display: none;">1 de 28</span>
+                </div>
                 <p id="lightbox-desc">Descripción del evento</p>
                 <span class="lightbox-tag" id="lightbox-tag">Presentaciones</span>
             </div>

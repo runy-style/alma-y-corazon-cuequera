@@ -2133,7 +2133,7 @@ body.light-theme .admin-quota-btn {
     width: 100%;
     height: 100%;
     background-color: rgba(15, 10, 8, 0.97);
-    z-index: 200;
+    z-index: 3000;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -2156,6 +2156,59 @@ body.light-theme .admin-quota-btn {
 .close-lightbox:hover {
     opacity: 1;
     transform: scale(1.08);
+}
+
+/* Lightbox Navigation Buttons (Carrusel) */
+.lightbox-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(15, 10, 8, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 3100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.lightbox-nav-btn:hover {
+    background: var(--accent);
+    color: #1a0f05;
+    border-color: var(--accent);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 213, 79, 0.5);
+}
+.lightbox-nav-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+.lightbox-nav-btn.prev-btn {
+    left: 40px;
+}
+.lightbox-nav-btn.next-btn {
+    right: 40px;
+}
+
+@media (max-width: 900px) {
+    .lightbox-nav-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+    }
+    .lightbox-nav-btn.prev-btn {
+        left: 20px;
+    }
+    .lightbox-nav-btn.next-btn {
+        right: 20px;
+    }
 }
 
 .lightbox-content {

@@ -324,6 +324,36 @@ function initGallery() {
         });
     }
 
+    // Botones de Navegación del Carrusel de Lightbox
+    const prevBtn = document.getElementById('lightbox-prev-btn');
+    const nextBtn = document.getElementById('lightbox-next-btn');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar que el clic cierre el modal
+            navigateLightbox(-1);
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar que el clic cierre el modal
+            navigateLightbox(1);
+        });
+    }
+
+    // Soporte para Navegación con Teclado
+    document.addEventListener('keydown', (e) => {
+        if (lightbox && lightbox.classList.contains('open')) {
+            if (e.key === 'ArrowLeft') {
+                navigateLightbox(-1);
+            } else if (e.key === 'ArrowRight') {
+                navigateLightbox(1);
+            } else if (e.key === 'Escape') {
+                lightbox.classList.remove('open');
+            }
+        }
+    });
+
     // Renderizar galería inicial pública
     if (document.getElementById('gallery-grid')) {
         renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
@@ -333,7 +363,12 @@ function initGallery() {
     initAlbumModalClose();
 }
 
-function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl = null) {
+// Estado global para navegación carrusel de Lightbox
+window.CURRENT_LIGHTBOX_ALBUM_PHOTOS = [];
+window.CURRENT_LIGHTBOX_PHOTO_INDEX = 0;
+window.LIGHTBOX_OPENING_FROM_ALBUM = false;
+
+function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl = null, fromNavigation = false) {
     const lightbox = document.getElementById('gallery-lightbox');
     const lbTitle = document.getElementById('lightbox-title');
     const lbDesc = document.getElementById('lightbox-desc');
@@ -341,6 +376,28 @@ function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl =
     const lbBg = document.getElementById('lightbox-bg-element');
     const lbIcon = document.getElementById('lightbox-icon');
     const lbImg = document.getElementById('lightbox-img');
+    const lbCounter = document.getElementById('lightbox-counter');
+
+    if (!fromNavigation) {
+        if (window.LIGHTBOX_OPENING_FROM_ALBUM) {
+            window.LIGHTBOX_OPENING_FROM_ALBUM = false;
+        } else {
+            // Clic estándar en fotos fuera de álbumes (boletines, auspiciadores) - reset a foto única
+            window.CURRENT_LIGHTBOX_ALBUM_PHOTOS = [{
+                title: title,
+                desc: desc,
+                date: date,
+                tag: tag,
+                visualClasses: visualClasses,
+                iconClass: iconClass,
+                imgUrl: imgUrl
+            }];
+            window.CURRENT_LIGHTBOX_PHOTO_INDEX = 0;
+        }
+    }
+
+    // Actualizar visibilidad de botones prev/next
+    updateLightboxNavButtons();
 
     if (lightbox && lbTitle && lbDesc && lbTag && lbBg && lbIcon) {
         lbTitle.textContent = title;
@@ -349,6 +406,16 @@ function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl =
         // Capitalize tag
         const formattedTag = tag.charAt(0).toUpperCase() + tag.slice(1).replace('-', ' ');
         lbTag.textContent = formattedTag;
+
+        // Actualizar contador del pie de foto
+        if (lbCounter) {
+            if (window.CURRENT_LIGHTBOX_ALBUM_PHOTOS && window.CURRENT_LIGHTBOX_ALBUM_PHOTOS.length > 1) {
+                lbCounter.textContent = `${window.CURRENT_LIGHTBOX_PHOTO_INDEX + 1} de ${window.CURRENT_LIGHTBOX_ALBUM_PHOTOS.length}`;
+                lbCounter.style.display = 'inline-block';
+            } else {
+                lbCounter.style.display = 'none';
+            }
+        }
         
         if (imgUrl) {
             // Apply real image styling
@@ -371,6 +438,37 @@ function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl =
         
         lightbox.classList.add('open');
     }
+}
+
+function updateLightboxNavButtons() {
+    const prevBtn = document.getElementById('lightbox-prev-btn');
+    const nextBtn = document.getElementById('lightbox-next-btn');
+    if (prevBtn && nextBtn) {
+        if (window.CURRENT_LIGHTBOX_ALBUM_PHOTOS && window.CURRENT_LIGHTBOX_ALBUM_PHOTOS.length > 1) {
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+        } else {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        }
+    }
+}
+
+function navigateLightbox(direction) {
+    if (!window.CURRENT_LIGHTBOX_ALBUM_PHOTOS || window.CURRENT_LIGHTBOX_ALBUM_PHOTOS.length <= 1) return;
+    
+    let newIndex = window.CURRENT_LIGHTBOX_PHOTO_INDEX + direction;
+    if (newIndex < 0) {
+        newIndex = window.CURRENT_LIGHTBOX_ALBUM_PHOTOS.length - 1;
+    } else if (newIndex >= window.CURRENT_LIGHTBOX_ALBUM_PHOTOS.length) {
+        newIndex = 0;
+    }
+    
+    window.CURRENT_LIGHTBOX_PHOTO_INDEX = newIndex;
+    const photo = window.CURRENT_LIGHTBOX_ALBUM_PHOTOS[newIndex];
+    
+    // Llamar a openLightbox conservando el estado del carrusel (fromNavigation = true)
+    openLightbox(photo.title, photo.desc, photo.date, photo.tag, photo.visualClasses, photo.iconClass, photo.imgUrl, true);
 }
 
 /* ==========================================================================
@@ -3950,7 +4048,7 @@ function openAlbumModal(title, categoryKey, photos) {
     
     mGrid.innerHTML = '';
 
-    photos.forEach(photo => {
+    photos.forEach((photo, idx) => {
         const formattedDate = photo.created_at ? new Date(photo.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
         
         const photoCard = document.createElement('div');
@@ -3986,6 +4084,22 @@ function openAlbumModal(title, categoryKey, photos) {
 
         // Click behavior (Lightbox modal opener)
         photoCard.addEventListener('click', () => {
+            // Inicializar el set de fotos para el carrusel de Lightbox
+            window.CURRENT_LIGHTBOX_ALBUM_PHOTOS = photos.map(p => {
+                const pFormattedDate = p.created_at ? new Date(p.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+                return {
+                    title: p.caption,
+                    desc: p.caption,
+                    date: pFormattedDate,
+                    tag: p.category,
+                    visualClasses: '',
+                    iconClass: '',
+                    imgUrl: p.url
+                };
+            });
+            window.CURRENT_LIGHTBOX_PHOTO_INDEX = idx;
+            window.LIGHTBOX_OPENING_FROM_ALBUM = true;
+
             openLightbox(photo.caption, photo.caption, formattedDate, photo.category, '', '', photo.url);
         });
 
