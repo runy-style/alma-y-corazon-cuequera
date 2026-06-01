@@ -1358,6 +1358,38 @@ if (!localStorage.getItem('accounting-transactions')) {
     localStorage.setItem('accounting-transactions', JSON.stringify(window.TRANSACTION_HISTORY));
 }
 
+// Historial de fotos del 2° Gran Campeonato de Cueca (28 fotos)
+const CHAMPIONSHIP_PHOTOS = [
+    { id: 201, url: "img/2 campeonato/campeonato/1.jpg", caption: "Competencia Oficial de Cueca - Pareja Infantil", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 202, url: "img/2 campeonato/campeonato/689027021_1452080790293002_8754299683149409443_n.jpg", caption: "Entrega de Premios y Bandas de Honor", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 203, url: "img/2 campeonato/campeonato/706734809_1452079310293150_2403136708693615119_n.jpg", caption: "Destrezas Huasas - Zapateo y Escobillado", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 204, url: "img/2 campeonato/campeonato/708939593_1452079520293129_3143217551864603213_n.jpg", caption: "Elegancia en el Escenario Principal", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 205, url: "img/2 campeonato/campeonato/709066354_1452081100292971_8647289103873746646_n.jpg", caption: "Despliegue de Pañuelos al Viento", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 206, url: "img/2 campeonato/campeonato/709737732_1452081546959593_7235106985676441189_n.jpg", caption: "Tradición y Orgullo Familiar Cuequero", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 207, url: "img/2 campeonato/campeonato/710059029_1452081396959608_8250220684607616005_n.jpg", caption: "Competencia de Cueca Categoría Adulto", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 208, url: "img/2 campeonato/campeonato/710059187_1452079903626424_8068067261999965234_n.jpg", caption: "El Compás Cuequero de La Ligua", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 209, url: "img/2 campeonato/campeonato/710059444_1452079043626510_5402232350039870168_n.jpg", caption: "Picardía y Coquetería en la Pista de Baile", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 210, url: "img/2 campeonato/campeonato/710078984_1452081910292890_6226023590494693774_n.jpg", caption: "Premiación Campeones Destrezas Huasas", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 211, url: "img/2 campeonato/campeonato/710079303_1452081310292950_6405778205627263753_n.jpg", caption: "Zapateo de Honor en la Clausura", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 212, url: "img/2 campeonato/campeonato/710082508_1452080983626316_6222566406544769316_n.jpg", caption: "Pareja Competidora Categoría Juvenil", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 213, url: "img/2 campeonato/campeonato/710098171_1452079213626493_5193027713974953954_n.jpg", caption: "El Sentimiento Huaso en el Escenario", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 214, url: "img/2 campeonato/campeonato/710376509_1452079640293117_3639951452893859639_n.jpg", caption: "Gran Convocatoria Cuequera en La Ligua", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 215, url: "img/2 campeonato/campeonato/710516915_1452080166959731_6947537632057315706_n.jpg", caption: "La Elegancia de la Mujer Liguense en la Cueca", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 216, url: "img/2 campeonato/campeonato/710517543_1452079410293140_3341915862748662708_n.jpg", caption: "Remate y Vueltas en Sincronía Perfecta", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 217, url: "img/2 campeonato/campeonato/710556738_1452081183626296_1616574223596901146_n.jpg", caption: "Parejas Folclóricas del Valle de Petorca", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 218, url: "img/2 campeonato/campeonato/710613974_1452081640292917_439464595677720305_n.jpg", caption: "Gran Campeonato y Destrezas Huasas 2026", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 219, url: "img/2 campeonato/campeonato/710723182_1452080420293039_5487066948209064794_n.jpg", caption: "Competidores de Cueca con Alma y Pasión", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 220, url: "img/2 campeonato/campeonato/711514156_1452081763626238_6164225519158417610_n.jpg", caption: "Zapateo Intenso en la Gran Final", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 221, url: "img/2 campeonato/campeonato/711752619_1452084180292663_5726676017336137494_n.jpg", caption: "El Encanto y Gracia de Nuestra Tradición", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 222, url: "img/2 campeonato/campeonato/712430450_1452084606959287_3899583349411537116_n.jpg", caption: "Gran Cierre del 2° Campeonato de Cueca", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 223, url: "img/2 campeonato/campeonato/712455032_1452084150292666_3229435056653166021_n.jpg", caption: "Muestra Artística de la Directiva", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 224, url: "img/2 campeonato/campeonato/712471721_1452084473625967_4463305388721910848_n.jpg", caption: "Los Mejores Momentos del Campeonato", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 225, url: "img/2 campeonato/campeonato/712483619_1452084583625956_1456738820849495376_n.jpg", caption: "Abrazo Cuequero de los Campeones 2026", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 226, url: "img/2 campeonato/campeonato/712684123_1452084153625999_3497333770762373447_n.jpg", caption: "Picardía Huasa en la Pista Principal", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 227, url: "img/2 campeonato/campeonato/713863460_1452084463625968_6814313032561013286_n.jpg", caption: "Folkloristas de Corazón en La Ligua", category: "campeonato", created_at: "2026-05-30T12:00:00Z" },
+    { id: 228, url: "img/2 campeonato/campeonato/713903382_1452084166959331_4020842890568664108_n.jpg", caption: "El Brillo del Pañuelo de Honor", category: "campeonato", created_at: "2026-05-30T12:00:00Z" }
+];
+
 // Base de datos local para la galería (Pre-cargada con fotos de demostración)
 let GALLERY_PHOTOS_DATABASE = [
     {
@@ -1373,7 +1405,8 @@ let GALLERY_PHOTOS_DATABASE = [
         caption: "El Compás de la Cueca - Taller y Ensayo",
         category: "talleres",
         created_at: "2026-01-20T12:00:00Z"
-    }
+    },
+    ...CHAMPIONSHIP_PHOTOS
 ];
 
 // Helper to set up image selector previews in forms
@@ -1633,8 +1666,28 @@ async function syncFromSupabase() {
             }
         }
 
-        // Update local gallery database and render
-        GALLERY_PHOTOS_DATABASE = galleryPhotos;
+        // Update local gallery database and render (intelligently merging static championship photos to prevent duplicates)
+        const dbUrls = new Set(galleryPhotos.map(p => p.url));
+        const staticChampionshipPhotos = CHAMPIONSHIP_PHOTOS.filter(p => !dbUrls.has(p.url));
+        
+        const initialStaticPhotos = [
+            {
+                id: 101,
+                url: "img/expo/640302143_1131572123029484_5355877768243442583_n.jpg",
+                caption: "Gran Elenco Alma y Corazón - Presentación Expo 2026",
+                category: "presentaciones",
+                created_at: "2026-01-15T12:00:00Z"
+            },
+            {
+                id: 102,
+                url: "img/expo/637485610_1131569206363109_2574869984867681992_n.jpg",
+                caption: "El Compás de la Cueca - Taller y Ensayo",
+                category: "talleres",
+                created_at: "2026-01-20T12:00:00Z"
+            }
+        ].filter(p => !dbUrls.has(p.url));
+
+        GALLERY_PHOTOS_DATABASE = [...staticChampionshipPhotos, ...initialStaticPhotos, ...galleryPhotos];
         renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
         
         // Renderizar las noticias en el grid público

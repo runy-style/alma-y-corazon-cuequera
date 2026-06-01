@@ -358,39 +358,80 @@
             <div class="section-header">
                 <span class="section-tag">Nuestras Memorias</span>
                 <h2 class="section-title">Eventos y Galería</h2>
-                   <!-- Evento Destacado: 2° Gran Campeonato de Cueca y Destrezas Huasas -->
-            <div class="featured-event-card shadow-premium" id="championship-featured-card" style="margin-bottom: 0; border: 1px solid rgba(255, 213, 79, 0.3); background: linear-gradient(135deg, rgba(34, 23, 17, 0.9), rgba(21, 15, 11, 0.95)); border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-                <div class="featured-event-info">
-                    <span class="badge badge-featured" style="background: rgba(255, 213, 79, 0.15); color: var(--accent); border-color: rgba(255, 213, 79, 0.3);"><i class="fa-solid fa-star spin-slow"></i> ¡Gran Evento Próximamente!</span>
-                    <h3>2° Gran Campeonato de Cueca <br>& Destrezas Huasas</h3>
-                    <p class="event-meta"><i class="fa-solid fa-calendar-day"></i> Sábado, 30 de Mayo, 2026 · <i class="fa-solid fa-location-dot"></i> Gimnasio Municipal de La Ligua</p>
-                    <p class="event-desc">
-                        ¡Llega el certamen cuequero más esperado de la provincia! Alma y Corazón Cuequera invita a todas las agrupaciones, clubes y parejas folclóricas de la región a participar en este gran encuentro. Competencia en múltiples categorías, música en vivo y un ambiente 100% familiar. ¡Ven a vivir nuestras tradiciones!
-                    </p>
-                    <div class="event-stats-row" style="flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-                        <div class="e-stat"><i class="fa-solid fa-award"></i> Mini Infantil / Infantil</div>
-                        <div class="e-stat"><i class="fa-solid fa-award"></i> Junior / Juvenil / Adulto</div>
-                        <div class="e-stat"><i class="fa-solid fa-award"></i> Destrezas Huasas (D/V)</div>
-                    </div>
-                    <div class="featured-event-cta">
-                        <a href="https://wa.me/56971795185?text=Hola,%20quisiera%20más%20información%20y%20las%20bases%20del%202do%20Gran%20Campeonato%20de%20Cueca" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
-                            <i class="fa-brands fa-whatsapp"></i> Inscribirse / Ver Bases
-                        </a>
-                    </div>
-                </div>
-                <div class="featured-event-carousel-wrapper">
-                    <div class="carousel-container" id="championship-carousel">
-                        <div class="carousel-slides">
-                            <div class="carousel-slide active" style="background-image: url('img/2 campeonato/auspiciadores/667390153_1181483501371679_8202842901632095501_n.jpg');">
-                                <div class="carousel-caption">
-                                    <h4>Afiche Oficial 2026</h4>
-                                    <p>Sábado, 30 de Mayo en el Gimnasio Municipal de La Ligua.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
+
+             <!-- Evento Destacado: 2° Gran Campeonato de Cueca y Destrezas Huasas -->
+             <div class="featured-event-card shadow-premium" id="championship-featured-card" style="margin-bottom: 35px; border: 1px solid rgba(255, 213, 79, 0.3); background: linear-gradient(135deg, rgba(34, 23, 17, 0.9), rgba(21, 15, 11, 0.95)); border-radius: var(--radius-lg);">
+                 <div class="featured-event-info">
+                     <span class="badge badge-featured" style="background: rgba(255, 213, 79, 0.15); color: var(--accent); border-color: rgba(255, 213, 79, 0.3);"><i class="fa-solid fa-trophy"></i> ¡Éxito Rotundo en La Ligua!</span>
+                     <h3>2° Gran Campeonato de Cueca <br>& Destrezas Huasas</h3>
+                     <p class="event-meta"><i class="fa-solid fa-calendar-day"></i> Sábado, 30 de Mayo, 2026 · <i class="fa-solid fa-location-dot"></i> Gimnasio Municipal de La Ligua</p>
+                     <p class="event-desc">
+                         ¡Vivimos una jornada histórica e inolvidable para el folklore de nuestra comuna! Con la participación de más de 80 parejas competidoras de toda la región y un gimnasio municipal repleto, Alma y Corazón Cuequera coronó a los nuevos campeones. Revisa los mejores momentos, la destreza y pasión en nuestro carrusel interactivo y galería de fotos.
+                     </p>
+                     <div class="event-stats-row" style="flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                         <div class="e-stat"><i class="fa-solid fa-award"></i> 80+ Parejas</div>
+                         <div class="e-stat"><i class="fa-solid fa-music"></i> Músicos en Vivo</div>
+                         <div class="e-stat"><i class="fa-solid fa-face-smile"></i> Gimnasio Completo</div>
+                     </div>
+                     <div class="featured-event-cta">
+                         <button class="btn btn-primary" onclick="const filterBtn = document.querySelector('.filter-btn[data-filter=\'campeonato\']'); if(filterBtn) { filterBtn.click(); switchSection('eventos-tab'); filterBtn.scrollIntoView({behavior: 'smooth'}); }" style="display: inline-flex; align-items: center; gap: 8px;">
+                             <i class="fa-solid fa-images"></i> Ver Galería Completa
+                         </button>
+                     </div>
+                 </div>
+                 <div class="featured-event-carousel-wrapper">
+                     <div class="carousel-container" id="championship-carousel">
+                         <div class="carousel-slides">
+                             <div class="carousel-slide active" style="background-image: url('img/2 campeonato/campeonato/712430450_1452084606959287_3899583349411537116_n.jpg');">
+                                 <div class="carousel-caption">
+                                     <h4>Gran Cierre del Campeonato</h4>
+                                     <p>Gran marco de público y delegaciones reunidos en la gran premiación.</p>
+                                 </div>
+                             </div>
+                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/706734809_1452079310293150_2403136708693615119_n.jpg');">
+                                 <div class="carousel-caption">
+                                     <h4>Destrezas Huasas</h4>
+                                     <p>Zapateos y destrezas cuequeras por parejas destacadas de la región.</p>
+                                 </div>
+                             </div>
+                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/710079303_1452081310292950_6405778205627263753_n.jpg');">
+                                 <div class="carousel-caption">
+                                     <h4>Zapateo de Honor</h4>
+                                     <p>Los campeones oficiales deleitando al público y jurados en la ronda final.</p>
+                                 </div>
+                             </div>
+                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/710376509_1452079640293117_3639951452893859639_n.jpg');">
+                                 <div class="carousel-caption">
+                                     <h4>Convocatoria Masiva</h4>
+                                     <p>El Gimnasio Municipal de La Ligua repleto en apoyo a nuestras tradiciones chilenas.</p>
+                                 </div>
+                             </div>
+                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/712455032_1452084150292666_3229435056653166021_n.jpg');">
+                                 <div class="carousel-caption">
+                                     <h4>Presentación de Honor</h4>
+                                     <p>Espectacular cuadro artístico especial presentado por la directiva y elenco oficial.</p>
+                                 </div>
+                             </div>
+                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/712483619_1452084583625956_1456738820849495376_n.jpg');">
+                                 <div class="carousel-caption">
+                                     <h4>Abrazo Fraternal</h4>
+                                     <p>Espíritu de camaradería y alegría cuequera entre los ganadores coronados 2026.</p>
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- Navigation Arrows -->
+                         <button class="carousel-btn btn-prev" id="championship-carousel-prev" aria-label="Anterior slide"><i class="fa-solid fa-chevron-left"></i></button>
+                         <button class="carousel-btn btn-next" id="championship-carousel-next" aria-label="Siguiente slide"><i class="fa-solid fa-chevron-right"></i></button>
+                         
+                         <!-- Dots Indicators -->
+                         <div class="carousel-dots" id="championship-carousel-dots">
+                             <!-- Generated dynamically by JS -->
+                         </div>
+                     </div>
+                 </div>
+             </div>
 
             <!-- Auspiciadores del 2° Gran Campeonato -->
             <div class="championship-sponsors-section">
@@ -624,6 +665,7 @@
                         <button class="filter-btn" data-filter="presentaciones" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Presentaciones</button>
                         <button class="filter-btn" data-filter="talleres" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Talleres</button>
                         <button class="filter-btn" data-filter="comunidad" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Comunidad</button>
+                        <button class="filter-btn" data-filter="campeonato" style="padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: var(--transition);">Campeonato</button>
                     </div>
                 </div>
                 
@@ -1024,6 +1066,7 @@
                                                 <option value="presentaciones">Presentaciones / Galas</option>
                                                 <option value="talleres">Talleres / Ensayos</option>
                                                 <option value="comunidad">Comunidad / Reuniones</option>
+                                                <option value="campeonato">Campeonato</option>
                                             </select>
                                         </div>
                                     </div>
