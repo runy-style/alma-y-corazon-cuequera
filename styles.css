@@ -1716,15 +1716,14 @@ body.light-theme .svg-chart-container {
 
 .chart-node {
     cursor: pointer;
-    transition: var(--transition);
+    transition: r 0.15s ease-out, stroke-width 0.15s ease-out;
 }
 .chart-node-ingreso { fill: #29b6f6; stroke: var(--bg-surface); stroke-width: 2.5; }
 .chart-node-egreso { fill: #ff5252; stroke: var(--bg-surface); stroke-width: 2.5; }
 
 .chart-node:hover {
-    transform: scale(1.4);
-    transform-origin: center;
-    stroke-width: 4;
+    r: 9px !important;
+    stroke-width: 4px;
 }
 
 .chart-tooltip-group {
