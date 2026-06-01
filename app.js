@@ -328,6 +328,9 @@ function initGallery() {
     if (document.getElementById('gallery-grid')) {
         renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
     }
+
+    // Inicializar listeners del modal de álbum
+    initAlbumModalClose();
 }
 
 function openLightbox(title, desc, date, tag, visualClasses, iconClass, imgUrl = null) {
@@ -3468,69 +3471,111 @@ function initPromoPopup() {
 }
 
 // 7. Dynamic Public Gallery Grid Renderer
+// 7. Dynamic Public Gallery Grid Renderer (Grouped by Album Folders)
 function renderGalleryGrid(photosList = []) {
     const grid = document.getElementById('gallery-grid');
     if (!grid) return;
+
+    // We group the photosList by category
+    const albums = {
+        "presentaciones": {
+            title: "Presentaciones y Galas",
+            description: "Registros oficiales de nuestras galas y presentaciones en escenarios regionales.",
+            photos: []
+        },
+        "talleres": {
+            title: "Talleres y Ensayos",
+            description: "Clases de cueca, ensayos del elenco y preparación coreográfica semanal.",
+            photos: []
+        },
+        "comunidad": {
+            title: "Comunidad y Reuniones",
+            description: "Actividades recreativas, asambleas de socios y celebraciones del club.",
+            photos: []
+        },
+        "campeonato": {
+            title: "2° Campeonato de Cueca 🏆",
+            description: "Los mejores momentos del gran campeonato y destrezas huasas de La Ligua.",
+            photos: []
+        }
+    };
+
+    // Distribute photos to their respective albums
+    photosList.forEach(photo => {
+        const cat = photo.category || 'comunidad';
+        if (albums[cat]) {
+            albums[cat].photos.push(photo);
+        } else {
+            // Dynamically create album if it doesn't exist
+            albums[cat] = {
+                title: cat.charAt(0).toUpperCase() + cat.slice(1),
+                description: `Fotografías de la categoría ${cat}.`,
+                photos: [photo]
+            };
+        }
+    });
 
     // Filter active category
     const activeFilterBtn = document.querySelector('.filter-btn.active');
     const categoryFilter = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'all';
 
-    const filtered = photosList.filter(photo => {
-        return categoryFilter === 'all' || photo.category === categoryFilter;
-    });
+    grid.innerHTML = '';
 
-    if (filtered.length === 0) {
+    // Convert albums to list and filter
+    const albumsToRender = Object.keys(albums)
+        .map(key => ({ key, ...albums[key] }))
+        .filter(album => {
+            if (categoryFilter !== 'all' && album.key !== categoryFilter) return false;
+            // Only render albums that have at least 1 photo, or if explicitly filtered
+            return album.photos.length > 0;
+        });
+
+    if (albumsToRender.length === 0) {
         grid.innerHTML = `
             <div class="gallery-empty-placeholder" id="gallery-empty-placeholder" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.08); border-radius: var(--radius-md); text-align: center; color: var(--text-muted); width: 100%;">
                 <i class="fa-solid fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
-                <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Galería vacía</h4>
+                <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Álbum vacío</h4>
                 <p style="margin: 0; font-size: 0.9rem; max-width: 400px;">La directiva aún no ha subido imágenes en la categoría seleccionada.</p>
             </div>
         `;
         return;
     }
 
-    grid.innerHTML = '';
-    filtered.forEach(photo => {
-        const formattedDate = photo.created_at ? new Date(photo.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    albumsToRender.forEach(album => {
+        const photoCount = album.photos.length;
         
-        const card = document.createElement('div');
-        card.className = 'gallery-item cursor-pointer';
-        card.setAttribute('data-category', photo.category);
-        card.style.position = 'relative';
-        card.style.overflow = 'hidden';
-        card.style.borderRadius = 'var(--radius-md)';
-        card.style.border = '1px solid var(--border-color)';
-        card.style.aspectRatio = '4/3';
-        card.style.background = 'rgba(0,0,0,0.4)';
-        card.style.cursor = 'pointer';
-        card.style.transition = 'var(--transition)';
+        // Sort photos by date descending (latest first) so the newest uploaded is the cover image
+        const sortedPhotos = [...album.photos].sort((a, b) => {
+            return (b.id || 0) - (a.id || 0);
+        });
 
+        // Cover images for the stack effect: we take up to 3 cover images to stack them!
+        const cover3 = sortedPhotos[0]?.url || "img/logo.jpg";
+        const cover2 = sortedPhotos[1]?.url || cover3;
+        const cover1 = sortedPhotos[2]?.url || cover2;
+
+        const card = document.createElement('div');
+        card.className = 'album-card-stack';
+        
         card.innerHTML = `
-            <img src="${photo.url}" alt="${photo.caption}" class="gallery-img" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition);">
-            <div class="gallery-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 15px; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0.9; transition: var(--transition);">
-                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${photo.caption}</h4>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 0.75rem; color: var(--text-muted);">
-                    <span class="gallery-date"><i class="fa-solid fa-calendar-day"></i> ${formattedDate}</span>
-                    <span style="background: rgba(255,213,79,0.15); color: var(--accent); padding: 2px 8px; border-radius: var(--radius-full); text-transform: capitalize;">${photo.category}</span>
-                </div>
+            <!-- Layer 1 (Bottom) -->
+            <img src="${cover1}" alt="Capa 1" class="album-card-photo layer-1">
+            <!-- Layer 2 (Middle) -->
+            <img src="${cover2}" alt="Capa 2" class="album-card-photo layer-2">
+            <!-- Layer 3 (Top/Cover) -->
+            <img src="${cover3}" alt="${album.title}" class="album-card-photo layer-3">
+            
+            <div class="album-card-info">
+                <h4>${album.title}</h4>
+                <span class="album-count-badge">
+                    <i class="fa-solid fa-images"></i> ${photoCount} ${photoCount === 1 ? 'Foto' : 'Fotos'}
+                </span>
             </div>
         `;
-        
-        // Add zoom hover effect
-        card.addEventListener('mouseenter', () => {
-            const img = card.querySelector('.gallery-img');
-            if (img) img.style.transform = 'scale(1.05)';
-        });
-        card.addEventListener('mouseleave', () => {
-            const img = card.querySelector('.gallery-img');
-            if (img) img.style.transform = 'scale(1)';
-        });
 
-        // Click behavior (Lightbox modal opener)
+        // Click action opens the beautiful fullscreen blurred folder modal!
         card.addEventListener('click', () => {
-            openLightbox(photo.caption, photo.caption, formattedDate, photo.category, '', '', photo.url);
+            openAlbumModal(album.title, album.key, sortedPhotos);
         });
 
         grid.appendChild(card);
@@ -3885,3 +3930,87 @@ window.deleteTransaction = function(id) {
         `Se eliminó de la contabilidad: "$${amt.toLocaleString('es-CL')}" por concepto de "${desc}"`
     );
 };
+
+/* ==========================================================================
+   18. ALBUM CARDS & FULLSCREEN BLURRED DIRECTORY (CARPETA BLUR) CONTROLLER
+   ========================================================================== */
+function openAlbumModal(title, categoryKey, photos) {
+    const modal = document.getElementById('album-modal');
+    const mTitle = document.getElementById('album-modal-title');
+    const mTag = document.getElementById('album-modal-tag');
+    const mGrid = document.getElementById('album-modal-grid');
+
+    if (!modal || !mTitle || !mTag || !mGrid) return;
+
+    mTitle.textContent = title;
+    
+    // Capitalize tag
+    const formattedTag = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1).replace('-', ' ');
+    mTag.textContent = formattedTag;
+    
+    mGrid.innerHTML = '';
+
+    photos.forEach(photo => {
+        const formattedDate = photo.created_at ? new Date(photo.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        
+        const photoCard = document.createElement('div');
+        photoCard.className = 'gallery-item cursor-pointer';
+        photoCard.style.position = 'relative';
+        photoCard.style.overflow = 'hidden';
+        photoCard.style.borderRadius = 'var(--radius-md)';
+        photoCard.style.border = '1px solid var(--border-color)';
+        photoCard.style.aspectRatio = '4/3';
+        photoCard.style.background = 'rgba(0,0,0,0.4)';
+        photoCard.style.cursor = 'pointer';
+        photoCard.style.transition = 'var(--transition)';
+
+        photoCard.innerHTML = `
+            <img src="${photo.url}" alt="${photo.caption}" class="gallery-img" style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition); display: block;">
+            <div class="gallery-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 15px; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0.9; transition: var(--transition);">
+                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${photo.caption}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 0.72rem; color: var(--text-muted);">
+                    <span class="gallery-date"><i class="fa-solid fa-calendar-day"></i> ${formattedDate}</span>
+                </div>
+            </div>
+        `;
+
+        // Zoom hover effect
+        photoCard.addEventListener('mouseenter', () => {
+            const img = photoCard.querySelector('.gallery-img');
+            if (img) img.style.transform = 'scale(1.04)';
+        });
+        photoCard.addEventListener('mouseleave', () => {
+            const img = photoCard.querySelector('.gallery-img');
+            if (img) img.style.transform = 'scale(1)';
+        });
+
+        // Click behavior (Lightbox modal opener)
+        photoCard.addEventListener('click', () => {
+            openLightbox(photo.caption, photo.caption, formattedDate, photo.category, '', '', photo.url);
+        });
+
+        mGrid.appendChild(photoCard);
+    });
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Lock main scroll
+}
+
+function initAlbumModalClose() {
+    const closeBtn = document.getElementById('close-album-modal-btn');
+    const modal = document.getElementById('album-modal');
+    
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore main scroll
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+    }
+}
