@@ -1329,38 +1329,31 @@ let MOCK_NEWS_AGREEMENTS = [
 
 // Base values for finance system (added to dynamically calculated ones)
 const BASE_FINANCES = {
-    ingresos: 2200000,
-    egresos: 1230000,
-    monthlyIngresosBase: [380000, 420000, 560000, 340000, 500000],
-    monthlyEgresosBase: [250000, 300000, 320000, 180000, 180000]
+    ingresos: 0,
+    egresos: 0,
+    monthlyIngresosBase: [0, 0, 0, 0, 0],
+    monthlyEgresosBase: [0, 0, 0, 0, 0]
 };
 
 // Historial de transacciones de contabilidad (ingresos y egresos)
-const DEFAULT_ACCOUNTING_TRANSACTIONS = [
-    {
-        id: "tx-1",
-        date: "2026-03-05",
-        type: "egreso",
-        amount: 120000,
-        description: "Compra de zapatos de cueca cuequeros"
-    },
-    {
-        id: "tx-2",
-        date: "2026-04-12",
-        type: "ingreso",
-        amount: 75000,
-        description: "Venta de empanadas ensayo general"
-    },
-    {
-        id: "tx-3",
-        date: "2026-05-18",
-        type: "egreso",
-        amount: 90000,
-        description: "Pago amplificación Gala de Otoño"
-    }
-];
+const DEFAULT_ACCOUNTING_TRANSACTIONS = [];
 
-window.TRANSACTION_HISTORY = JSON.parse(localStorage.getItem('accounting-transactions')) || DEFAULT_ACCOUNTING_TRANSACTIONS;
+// Limpiar datos de demostración anteriores del almacenamiento local si existen
+let storedTxs = localStorage.getItem('accounting-transactions');
+if (storedTxs) {
+    try {
+        const parsed = JSON.parse(storedTxs);
+        if (parsed.some(t => t.id === "tx-1" || t.id === "tx-2" || t.id === "tx-3")) {
+            localStorage.setItem('accounting-transactions', '[]');
+            storedTxs = '[]';
+        }
+    } catch (e) {
+        localStorage.setItem('accounting-transactions', '[]');
+        storedTxs = '[]';
+    }
+}
+
+window.TRANSACTION_HISTORY = JSON.parse(storedTxs) || DEFAULT_ACCOUNTING_TRANSACTIONS;
 if (!localStorage.getItem('accounting-transactions')) {
     localStorage.setItem('accounting-transactions', JSON.stringify(window.TRANSACTION_HISTORY));
 }
