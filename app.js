@@ -488,6 +488,811 @@ let MEMBERS_DATABASE = {
             { month: "Nov", status: "pending" },
             { month: "Dic", status: "pending" }
         ]
+    },
+    "zaira.ibaceta": {
+        name: "Zaira Ibaceta Vergara",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "violeta.navea": {
+        name: "Violeta Navea Rojo",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "carolina.astudillo": {
+        name: "Carolina Astudillo Astudillo",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "joselyn.zamora": {
+        name: "Joselyn Zamora Arancibia",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "tamara.vilches": {
+        name: "Tamara Vilches Espejo",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "estefania.olivares": {
+        name: "Estefanía Olivares Chacana",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "yasna.espinoza": {
+        name: "Yasna Espinoza Rojas",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "mayra.vega": {
+        name: "Mayra Vega Navea",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "sebastian.valenzuela": {
+        name: "Sebastián Valenzuela Fernández",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "stefanie.cepeda": {
+        name: "Stefanie Cepeda Soto",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "johana.godoy": {
+        name: "Johana Godoy Ordenes",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "nixa.iturra": {
+        name: "Nixa Iturra Oyarzun",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "barbara.perez": {
+        name: "Bárbara Pérez Barros",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "rudy.verdejo": {
+        name: "Rudy Verdejo Arancibia",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "pablina.oyarzun": {
+        name: "Pablina Oyarzun Fierro",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "gabriela.vega": {
+        name: "Gabriela Vega Villaroel",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "vania.fernandez": {
+        name: "Vania Fernández Oyarzun",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "nicool.vargas": {
+        name: "Nicool Vargas Mencía",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "juana.saavedra": {
+        name: "Juana Saavedra Miranda",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "kathia.vega": {
+        name: "Kathia Vega Villaroel",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "javiera.fuentes": {
+        name: "Javiera Fuentes Báez",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "danilo.cataldo": {
+        name: "Danilo Cataldo Astudillo",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "violeta.espejo": {
+        name: "Violeta Espejo Araya",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "luis.baez": {
+        name: "Luis Báez Estay",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "ligia.fuentes": {
+        name: "Ligia Fuentes Báez",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "leonel.chacana": {
+        name: "Leonel Chacana Brito",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "karol.vargas": {
+        name: "Karol Vargas Ponce",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "yohan.godoy": {
+        name: "Yohan Godoy Olivares",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "javiera.ortiz": {
+        name: "Javiera Ortiz Alarcón",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "claudia.alarcon": {
+        name: "Claudia Alarcon Muñoz",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "leydi.oyanedel": {
+        name: "Leydi Oyanedel",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "catherine.diaz": {
+        name: "Catherine Díaz Tapia",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "priscila.arancibia": {
+        name: "Priscila Arancibia Gómez",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "jose.vera": {
+        name: "José Joaquín Vera",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
+    },
+    "allison.poblete": {
+        name: "Allison Poblete Flores",
+        role: "Socio Activo",
+        password: "cueca123",
+        email: "",
+        phone: "",
+        dancer_details: "",
+        is_first_login: true,
+        quotas: [
+            { month: "Ene", status: "pending" },
+            { month: "Feb", status: "pending" },
+            { month: "Mar", status: "pending" },
+            { month: "Abr", status: "pending" },
+            { month: "May", status: "pending" },
+            { month: "Jun", status: "pending" },
+            { month: "Jul", status: "pending" },
+            { month: "Ago", status: "pending" },
+            { month: "Sep", status: "pending" },
+            { month: "Oct", status: "pending" },
+            { month: "Nov", status: "pending" },
+            { month: "Dic", status: "pending" }
+        ]
     }
 };
 // Current Session Info
@@ -690,14 +1495,21 @@ async function syncFromSupabase() {
         // Reconstruct MEMBERS_DATABASE from Supabase tables
         const newMembersDb = {};
         members.forEach(member => {
+            const localEmail = localStorage.getItem('local-member-email-' + member.id) || "";
+            const localPhone = localStorage.getItem('local-member-phone-' + member.id) || "";
+            const localDancer = localStorage.getItem('local-member-dancer-' + member.id) || "";
+            const localFirstLoginStr = localStorage.getItem('local-member-firstlogin-' + member.id);
+            const defaultFirstLogin = member.password === 'cueca123';
+            const localFirstLogin = localFirstLoginStr !== null ? (localFirstLoginStr === 'true') : defaultFirstLogin;
+
             newMembersDb[member.id] = {
                 name: member.name,
                 role: member.role,
                 password: member.password || "cueca123",
-                email: member.email || "",
-                phone: member.phone || "",
-                dancer_details: member.dancer_details || "",
-                is_first_login: member.is_first_login !== undefined ? member.is_first_login : (member.password === 'cueca123'),
+                email: member.email || localEmail,
+                phone: member.phone || localPhone,
+                dancer_details: member.dancer_details || localDancer,
+                is_first_login: member.is_first_login !== undefined ? member.is_first_login : localFirstLogin,
                 quotas: []
             };
         });
@@ -714,7 +1526,7 @@ async function syncFromSupabase() {
         // Update local variables
         MEMBERS_DATABASE = newMembersDb;
 
-        if (agreements && agreements.length > 0) {
+        if (agreements) {
             MOCK_NEWS_AGREEMENTS = agreements.map(item => {
                 let type = item.type || 'acuerdo';
                 let visibility = 'publica';
@@ -735,6 +1547,8 @@ async function syncFromSupabase() {
                     visibility: visibility
                 };
             });
+        } else {
+            MOCK_NEWS_AGREEMENTS = [];
         }
 
         // Render dynamic timeline if events are present
@@ -1084,6 +1898,11 @@ function initPortal() {
                 MEMBERS_DATABASE[username].phone = phone;
                 MEMBERS_DATABASE[username].dancer_details = dancer;
             }
+            
+            // Save to LocalStorage fallback
+            localStorage.setItem('local-member-email-' + username, email);
+            localStorage.setItem('local-member-phone-' + username, phone);
+            localStorage.setItem('local-member-dancer-' + username, dancer);
 
             // Sincronizar con Supabase si está activo
             if (isSupabaseActive) {
@@ -1127,6 +1946,9 @@ function initPortal() {
                 document.getElementById('admin-edit-email').value = member.email || '';
                 document.getElementById('admin-edit-phone').value = member.phone || '';
                 document.getElementById('admin-edit-dancer').value = member.dancer_details || '';
+                if (document.getElementById('admin-edit-role')) {
+                    document.getElementById('admin-edit-role').value = member.role || 'Socio Activo';
+                }
                 
                 adminProfileViewMode.style.display = 'none';
                 adminProfileEditForm.style.display = 'flex';
@@ -1150,13 +1972,21 @@ function initPortal() {
             const email = document.getElementById('admin-edit-email').value.trim();
             const phone = document.getElementById('admin-edit-phone').value.trim();
             const dancer = document.getElementById('admin-edit-dancer').value.trim();
+            const roleEl = document.getElementById('admin-edit-role');
+            const role = roleEl ? roleEl.value : (MEMBERS_DATABASE[memberKey] ? MEMBERS_DATABASE[memberKey].role : 'Socio Activo');
 
             // Actualizar en memoria local
             if (MEMBERS_DATABASE[memberKey]) {
                 MEMBERS_DATABASE[memberKey].email = email;
                 MEMBERS_DATABASE[memberKey].phone = phone;
                 MEMBERS_DATABASE[memberKey].dancer_details = dancer;
+                MEMBERS_DATABASE[memberKey].role = role;
             }
+            
+            // Save to LocalStorage fallback
+            localStorage.setItem('local-member-email-' + memberKey, email);
+            localStorage.setItem('local-member-phone-' + memberKey, phone);
+            localStorage.setItem('local-member-dancer-' + memberKey, dancer);
 
             // Sincronizar con Supabase si está activo
             if (isSupabaseActive) {
@@ -1166,12 +1996,21 @@ function initPortal() {
                         .update({ 
                             email: email, 
                             phone: phone, 
-                            dancer_details: dancer 
+                            dancer_details: dancer,
+                            role: role
                         })
                         .eq('id', memberKey);
-                    if (error) throw error;
+                    if (error) {
+                        console.warn("⚠️ Columnas extendidas no configuradas en Supabase al editar socio. Reintentando actualización básica de rol.", error);
+                        const { error: roleError } = await supabaseClient
+                            .from('members')
+                            .update({ role: role })
+                            .eq('id', memberKey);
+                        if (roleError) throw roleError;
+                    }
                 } catch (err) {
                     console.error("🔴 Error actualizando perfil de socio por directiva en Supabase:", err);
+                    showToast("Error de Guardado", "No se pudo actualizar la ficha completa, pero los permisos del rol se actualizaron correctamente.");
                 }
             }
 
@@ -1182,6 +2021,22 @@ function initPortal() {
 
             // Re-renderizar
             renderAdminProfileCard(memberKey);
+            
+            // Actualizar dinámicamente el selector dropdown de miembros en el panel para reflejar el nuevo rol
+            const select = document.getElementById('admin-member-select');
+            if (select) {
+                select.innerHTML = '';
+                Object.keys(MEMBERS_DATABASE).forEach(key => {
+                    if (key !== 'directiva2026' && MEMBERS_DATABASE[key]) {
+                        const opt = document.createElement('option');
+                        opt.value = key;
+                        opt.textContent = `${MEMBERS_DATABASE[key].name || key} (${MEMBERS_DATABASE[key].role || ''})`;
+                        select.appendChild(opt);
+                    }
+                });
+                select.value = memberKey;
+            }
+            
             showToast("Ficha Modificada", `Los datos de la ficha de ${MEMBERS_DATABASE[memberKey]?.name || memberKey} fueron actualizados.`);
         });
     }
@@ -1805,6 +2660,12 @@ async function loginSuccess(role, memberKey = null) {
                         MEMBERS_DATABASE[activeKey].password = newPwd;
                         MEMBERS_DATABASE[activeKey].is_first_login = false;
                     }
+                    
+                    // Save to LocalStorage fallback
+                    localStorage.setItem('local-member-email-' + activeKey, email);
+                    localStorage.setItem('local-member-phone-' + activeKey, phone);
+                    localStorage.setItem('local-member-dancer-' + activeKey, details);
+                    localStorage.setItem('local-member-firstlogin-' + activeKey, 'false');
 
                     // Update Supabase if active
                     if (isSupabaseActive) {
@@ -1899,6 +2760,11 @@ function renderAdminProfileCard(memberKey) {
         document.getElementById('admin-profile-email-lbl').textContent = member.email || 'No registrado';
         document.getElementById('admin-profile-phone-lbl').textContent = member.phone || 'No registrado';
         document.getElementById('admin-profile-dancer-lbl').textContent = member.dancer_details || 'Sin ficha de bailarín';
+        
+        const roleLabel = document.getElementById('admin-profile-role-lbl');
+        if (roleLabel) {
+            roleLabel.textContent = member.role || 'Socio Activo';
+        }
     } else {
         adminProfileCard.style.display = 'none';
     }
@@ -2653,6 +3519,11 @@ window.deleteAgreement = async function(id) {
     const confirmDel = confirm("¿Estás seguro de que deseas eliminar permanentemente esta publicación (Noticia/Acuerdo) de la base de datos?");
     if (!confirmDel) return;
 
+    // Instantly remove from local memory array to ensure UI updates immediately
+    MOCK_NEWS_AGREEMENTS = MOCK_NEWS_AGREEMENTS.filter(item => item.id !== id);
+    renderAgreementsList();
+    renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
+
     if (isSupabaseActive) {
         try {
             const { error } = await supabaseClient
@@ -2665,14 +3536,12 @@ window.deleteAgreement = async function(id) {
             showToast("Publicación Eliminada", "El acta/boletín fue borrado de la base de datos.");
             await syncFromSupabase();
             renderAgreementsList();
+            renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
         } catch (err) {
             console.error("🔴 Error eliminando publicación de Supabase:", err);
             showToast("Error de Servidor", "No se pudo borrar del servidor.");
         }
     } else {
-        MOCK_NEWS_AGREEMENTS = MOCK_NEWS_AGREEMENTS.filter(item => item.id !== id);
-        renderAgreementsList();
-        renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
         showToast("Eliminado", "Publicación eliminada localmente.");
     }
 };
