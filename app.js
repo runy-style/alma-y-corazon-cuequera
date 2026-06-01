@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initGallery();
     initPortal();
     initCarousel();
-    initPromoPopup();
+    // initPromoPopup(); // Desactivado porque el campeonato ya finalizó
     initSponsorsCarousel();
 });
 
