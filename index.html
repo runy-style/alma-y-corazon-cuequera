@@ -779,6 +779,8 @@
                                     class="fa-solid fa-user-plus"></i> Registrar Socio</button>
                             <button class="admin-tab-btn" data-tab="admin-tab-subir-foto"><i
                                     class="fa-solid fa-cloud-arrow-up"></i> Subir a Galería</button>
+                            <button class="admin-tab-btn" data-tab="admin-tab-contabilidad"><i
+                                    class="fa-solid fa-scale-balanced text-gold"></i> Contabilidad</button>
                         </div>
 
                         <!-- Subsección 1: Editor de Cuotas Interactivo -->
@@ -1042,6 +1044,67 @@
                                     <i class="fa-solid fa-cloud-arrow-up"></i> Subir Foto a Galería
                                 </button>
                             </form>
+                        </div>
+
+                        <!-- Subsección 6: Contabilidad (Ingresos y Egresos) -->
+                        <div class="admin-sub-content" id="admin-tab-contabilidad">
+                            <div class="acc-grid-layout">
+                                <!-- Formulario Izquierda -->
+                                <div class="admin-help-box" style="display: flex; flex-direction: column; gap: 15px;">
+                                    <h4 style="font-size: 1rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 0;"><i class="fa-solid fa-file-invoice-dollar text-gold"></i> Registrar Movimiento</h4>
+                                    
+                                    <form id="admin-accounting-form" class="admin-form-inline" style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div class="form-group">
+                                            <label for="acc-type">Tipo de Movimiento</label>
+                                            <select id="acc-type" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); cursor: pointer;">
+                                                <option value="ingreso">🟢 Ingreso (Entrada de Dinero)</option>
+                                                <option value="egreso">🔴 Egreso (Gasto / Salida)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="acc-amount">Monto ($ CLP)</label>
+                                            <input type="number" id="acc-amount" min="1" required placeholder="Ej: 50000" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 10px; border-radius: var(--radius-sm); color: var(--text); width: 100%;">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="acc-date">Fecha</label>
+                                            <input type="date" id="acc-date" required style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 10px; border-radius: var(--radius-sm); color: var(--text); width: 100%;">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="acc-description">Concepto / Detalle</label>
+                                            <input type="text" id="acc-description" required placeholder="Ej: Compra de cintas cuequeras" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 10px; border-radius: var(--radius-sm); color: var(--text); width: 100%;">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                            <i class="fa-solid fa-plus-circle"></i> Registrar Movimiento
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Tabla Derecha -->
+                                <div style="display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
+                                    <h4 style="font-size: 1rem; margin-bottom: 0;"><i class="fa-solid fa-list-check text-gold"></i> Historial de Movimientos Registrados</h4>
+                                    <div class="acc-table-container" style="overflow-x: auto;">
+                                        <table class="acc-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Tipo</th>
+                                                    <th>Concepto / Detalle</th>
+                                                    <th>Monto</th>
+                                                    <th style="text-align: center;">Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="accounting-transactions-body">
+                                                <!-- Dinámico -->
+                                            </tbody>
+                                        </table>
+                                        <div class="acc-total-summary" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; padding: 16px; background: rgba(0, 0, 0, 0.2); border-top: 1px dashed var(--border-color); font-size: 0.82rem;">
+                                            <span>Ingresos: <strong id="acc-sum-ingresos" style="color: #00e676;">$0</strong></span>
+                                            <span>Egresos: <strong id="acc-sum-egresos" style="color: #ff5252;">$0</strong></span>
+                                            <span>Neto: <strong id="acc-sum-neto" class="text-gold">$0</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

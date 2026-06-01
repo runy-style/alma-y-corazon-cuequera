@@ -1335,6 +1335,36 @@ const BASE_FINANCES = {
     monthlyEgresosBase: [250000, 300000, 320000, 180000, 180000]
 };
 
+// Historial de transacciones de contabilidad (ingresos y egresos)
+const DEFAULT_ACCOUNTING_TRANSACTIONS = [
+    {
+        id: "tx-1",
+        date: "2026-03-05",
+        type: "egreso",
+        amount: 120000,
+        description: "Compra de zapatos de cueca cuequeros"
+    },
+    {
+        id: "tx-2",
+        date: "2026-04-12",
+        type: "ingreso",
+        amount: 75000,
+        description: "Venta de empanadas ensayo general"
+    },
+    {
+        id: "tx-3",
+        date: "2026-05-18",
+        type: "egreso",
+        amount: 90000,
+        description: "Pago amplificación Gala de Otoño"
+    }
+];
+
+window.TRANSACTION_HISTORY = JSON.parse(localStorage.getItem('accounting-transactions')) || DEFAULT_ACCOUNTING_TRANSACTIONS;
+if (!localStorage.getItem('accounting-transactions')) {
+    localStorage.setItem('accounting-transactions', JSON.stringify(window.TRANSACTION_HISTORY));
+}
+
 // Base de datos local para la galería (Pre-cargada con fotos de demostración)
 let GALLERY_PHOTOS_DATABASE = [
     {
@@ -2530,6 +2560,9 @@ function initPortal() {
             loginSuccess(isDir ? 'directiva' : 'socio', username);
         });
     }
+
+    // Inicializar módulo de contabilidad
+    initAccounting();
 }
 
 async function loginSuccess(role, memberKey = null) {
@@ -2918,9 +2951,23 @@ function updateFinancialSummaryAndChart() {
         }
     });
 
+    // Custom transactions from LocalStorage
+    let totalCustomIngresos = 0;
+    let totalCustomEgresos = 0;
+    if (window.TRANSACTION_HISTORY) {
+        window.TRANSACTION_HISTORY.forEach(t => {
+            const amt = parseFloat(t.amount || 0);
+            if (t.type === 'ingreso') {
+                totalCustomIngresos += amt;
+            } else if (t.type === 'egreso') {
+                totalCustomEgresos += amt;
+            }
+        });
+    }
+
     // Dynamic metrics
-    const finalIngresos = BASE_FINANCES.ingresos + totalPaidQuotasSum;
-    const finalEgresos = BASE_FINANCES.egresos;
+    const finalIngresos = BASE_FINANCES.ingresos + totalPaidQuotasSum + totalCustomIngresos;
+    const finalEgresos = BASE_FINANCES.egresos + totalCustomEgresos;
     const netBalance = finalIngresos - finalEgresos;
 
     document.getElementById('fin-total-ingresos').textContent = `$${finalIngresos.toLocaleString('es-CL')}`;
@@ -2935,7 +2982,6 @@ function updateFinancialSummaryAndChart() {
     }
 
     // 2. Redraw the SVG double-line chart incorporating these dynamically added values
-    // We add a minor weight to Enero-Mayo based on payments
     renderFinancialChart(totalPaidQuotasSum);
 }
 
@@ -3027,6 +3073,24 @@ function renderFinancialChart(quotaSumOffset = 0) {
     ingresos[4] = BASE_FINANCES.monthlyIngresosBase[4] + quotaSumOffset;
     
     const egresos = [...BASE_FINANCES.monthlyEgresosBase];
+
+    // Distribuir transacciones por mes dinámicamente en el gráfico
+    if (window.TRANSACTION_HISTORY) {
+        window.TRANSACTION_HISTORY.forEach(t => {
+            if (!t.date || !t.amount) return;
+            const parts = t.date.split('-');
+            if (parts.length >= 2) {
+                const monthNum = parseInt(parts[1], 10);
+                const idx = Math.min(Math.max(monthNum - 1, 0), 4);
+                const amt = parseFloat(t.amount);
+                if (t.type === 'ingreso') {
+                    ingresos[idx] += amt;
+                } else if (t.type === 'egreso') {
+                    egresos[idx] += amt;
+                }
+            }
+        });
+    }
 
     // Determine colors based on active theme
     const isLightTheme = document.body.classList.contains('light-theme');
@@ -3601,3 +3665,177 @@ function initSponsorsCarousel() {
         moveToIndex(currentIndex);
     });
 }
+
+/* ==========================================================================
+   17. CONTABILIDAD / BOOKKEEPING TAB MODULE CONTROLLER
+   ========================================================================== */
+function initAccounting() {
+    const accountingForm = document.getElementById('admin-accounting-form');
+    
+    // Set default date to today in the input field
+    const dateInput = document.getElementById('acc-date');
+    if (dateInput) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Months start at 0
+        let dd = today.getDate();
+        
+        if (mm < 10) mm = '0' + mm;
+        if (dd < 10) dd = '0' + dd;
+        
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    if (accountingForm) {
+        accountingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const type = document.getElementById('acc-type').value;
+            const amountVal = document.getElementById('acc-amount').value;
+            const dateVal = document.getElementById('acc-date').value;
+            const descriptionVal = document.getElementById('acc-description').value.trim();
+            
+            if (!amountVal || !dateVal || !descriptionVal) {
+                alert("Por favor, rellene todos los campos.");
+                return;
+            }
+            
+            const amount = parseFloat(amountVal);
+            if (isNaN(amount) || amount <= 0) {
+                alert("Por favor, ingrese un monto válido mayor a 0.");
+                return;
+            }
+            
+            // Build new transaction object
+            const newTx = {
+                id: 'tx-' + Date.now(),
+                date: dateVal,
+                type: type,
+                amount: amount,
+                description: descriptionVal
+            };
+            
+            // Add to transaction history
+            window.TRANSACTION_HISTORY.push(newTx);
+            
+            // Persist to LocalStorage
+            localStorage.setItem('accounting-transactions', JSON.stringify(window.TRANSACTION_HISTORY));
+            
+            // Reset form fields
+            document.getElementById('acc-amount').value = '';
+            document.getElementById('acc-description').value = '';
+            
+            // Recalculate metrics and redraw SVG chart
+            updateFinancialSummaryAndChart();
+            
+            // Re-render transactions list table
+            renderAccountingTable();
+            
+            // Feedback to user
+            showToast(
+                type === 'ingreso' ? "🟢 Ingreso Registrado" : "🔴 Egreso Registrado",
+                `Se registró "$${amount.toLocaleString('es-CL')}" por concepto de: ${descriptionVal}`
+            );
+        });
+    }
+    
+    // Initial rendering of the table
+    renderAccountingTable();
+}
+
+function renderAccountingTable() {
+    const tableBody = document.getElementById('accounting-transactions-body');
+    const sumIngresosLabel = document.getElementById('acc-sum-ingresos');
+    const sumEgresosLabel = document.getElementById('acc-sum-egresos');
+    const sumNetoLabel = document.getElementById('acc-sum-neto');
+    
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+    
+    // Sort transactions chronologically (latest date first)
+    const sortedTxs = [...window.TRANSACTION_HISTORY].sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+    });
+    
+    let sumIngresos = 0;
+    let sumEgresos = 0;
+    
+    if (sortedTxs.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 25px;">
+                    <i class="fa-solid fa-scale-unbalanced-stroke" style="font-size: 1.8rem; margin-bottom: 8px; display: block; opacity: 0.7;"></i>
+                    No hay movimientos financieros registrados en el historial.
+                </td>
+            </tr>
+        `;
+    } else {
+        sortedTxs.forEach(tx => {
+            const row = document.createElement('tr');
+            
+            let typeBadge = '';
+            let amountText = '';
+            
+            if (tx.type === 'ingreso') {
+                sumIngresos += tx.amount;
+                typeBadge = `<span class="acc-badge acc-badge-ingreso"><i class="fa-solid fa-circle-arrow-down"></i> Ingreso</span>`;
+                amountText = `<span style="color: #00e676; font-weight: 700;">+$${tx.amount.toLocaleString('es-CL')}</span>`;
+            } else {
+                sumEgresos += tx.amount;
+                typeBadge = `<span class="acc-badge acc-badge-egreso"><i class="fa-solid fa-circle-arrow-up"></i> Egreso</span>`;
+                amountText = `<span style="color: #ff5252; font-weight: 700;">-$${tx.amount.toLocaleString('es-CL')}</span>`;
+            }
+            
+            row.innerHTML = `
+                <td style="font-weight: 600; white-space: nowrap;"><i class="fa-solid fa-calendar-day text-gold" style="font-size: 0.72rem; margin-right: 4px;"></i> ${tx.date}</td>
+                <td>${typeBadge}</td>
+                <td style="word-break: break-word; font-weight: 500;">${tx.description}</td>
+                <td style="white-space: nowrap;">${amountText}</td>
+                <td>
+                    <button class="btn-delete-acc" onclick="deleteTransaction('${tx.id}')" title="Eliminar Movimiento">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    // Update local table summaries
+    if (sumIngresosLabel) sumIngresosLabel.textContent = `$${sumIngresos.toLocaleString('es-CL')}`;
+    if (sumEgresosLabel) sumEgresosLabel.textContent = `$${sumEgresos.toLocaleString('es-CL')}`;
+    
+    if (sumNetoLabel) {
+        const net = sumIngresos - sumEgresos;
+        sumNetoLabel.textContent = `$${net.toLocaleString('es-CL')}`;
+        if (net >= 0) {
+            sumNetoLabel.className = 'text-green';
+            sumNetoLabel.style.color = '#00e676';
+        } else {
+            sumNetoLabel.className = 'text-red';
+            sumNetoLabel.style.color = '#ff5252';
+        }
+    }
+}
+
+// Global action handler for transaction deletion
+window.deleteTransaction = function(id) {
+    const confirmDel = confirm("¿Estás seguro de que deseas eliminar permanentemente este movimiento de la contabilidad?");
+    if (!confirmDel) return;
+    
+    const tx = window.TRANSACTION_HISTORY.find(t => t.id === id);
+    const amt = tx ? tx.amount : 0;
+    const desc = tx ? tx.description : "";
+    
+    window.TRANSACTION_HISTORY = window.TRANSACTION_HISTORY.filter(t => t.id !== id);
+    
+    localStorage.setItem('accounting-transactions', JSON.stringify(window.TRANSACTION_HISTORY));
+    
+    updateFinancialSummaryAndChart();
+    renderAccountingTable();
+    
+    showToast(
+        "Movimiento Eliminado",
+        `Se eliminó de la contabilidad: "$${amt.toLocaleString('es-CL')}" por concepto de "${desc}"`
+    );
+};

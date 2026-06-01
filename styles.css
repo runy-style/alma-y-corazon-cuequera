@@ -3271,3 +3271,98 @@ body.light-theme .profile-info-content {
     margin-top: 12px;
 }
 
+/* ==========================================================================
+   16. CONTABILIDAD / BOOKKEEPING TAB MODULE
+   ========================================================================== */
+.acc-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-items: start;
+}
+@media (min-width: 992px) {
+    .acc-grid-layout {
+        grid-template-columns: 320px 1fr;
+    }
+}
+.acc-table-container {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: var(--transition);
+}
+body.light-theme .acc-table-container {
+    background: rgba(255, 255, 255, 0.4);
+}
+.acc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    text-align: left;
+}
+.acc-table th {
+    background: rgba(212, 197, 163, 0.1);
+    color: var(--accent);
+    padding: 12px 14px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.82rem;
+}
+.acc-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text);
+    vertical-align: middle;
+}
+.acc-table tr:last-child td {
+    border-bottom: none;
+}
+.acc-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+body.light-theme .acc-table tr:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+.acc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+.acc-badge-ingreso {
+    background: rgba(0, 200, 83, 0.12);
+    color: #00e676;
+    border: 1px solid rgba(0, 200, 83, 0.25);
+}
+.acc-badge-egreso {
+    background: rgba(211, 47, 47, 0.12);
+    color: #ff5252;
+    border: 1px solid rgba(211, 47, 47, 0.25);
+}
+.btn-delete-acc {
+    background: rgba(211, 47, 47, 0.08);
+    color: #d32f2f;
+    border: 1px solid rgba(211, 47, 47, 0.2);
+    border-radius: var(--radius-sm);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    margin: 0 auto;
+}
+.btn-delete-acc:hover {
+    background: rgba(211, 47, 47, 0.2);
+    color: #ff5252;
+    border-color: rgba(211, 47, 47, 0.4);
+    transform: scale(1.08);
+}
+
