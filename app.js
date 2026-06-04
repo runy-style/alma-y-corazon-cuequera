@@ -2976,12 +2976,12 @@ function populateQuotasGrid() {
         
         let statusClass = 'pending';
         let statusIcon = '<i class="fa-solid fa-clock badge-icon"></i>';
-        let tooltip = 'Por pagar ($5.000)';
+        let tooltip = 'Por pagar ($2.000)';
 
         if (quota.status === 'paid') {
             statusClass = 'paid';
             statusIcon = '<i class="fa-solid fa-circle-check badge-icon"></i>';
-            tooltip = 'Aportado ($5.000)';
+            tooltip = 'Aportado ($2.000)';
         } else if (quota.status === 'overdue') {
             statusClass = 'overdue';
             statusIcon = '<i class="fa-solid fa-triangle-exclamation badge-icon"></i>';
@@ -3000,8 +3000,8 @@ function populateQuotasGrid() {
 
     // Calculate sum statistics dynamically
     const paidCount = quotasToRender.filter(q => q.status === 'paid').length;
-    const totalAmount = paidCount * 5000;
-    const remainingAmount = (12 - paidCount) * 5000;
+    const totalAmount = paidCount * 2000;
+    const remainingAmount = (12 - paidCount) * 2000;
 
     document.getElementById('quota-paid-count').textContent = `${paidCount} / 12`;
     document.getElementById('quota-total-amount').textContent = `$${totalAmount.toLocaleString('es-CL')}`;
@@ -3094,7 +3094,7 @@ function updateFinancialSummaryAndChart() {
         const member = MEMBERS_DATABASE[key];
         if (member && member.quotas) {
             const paidCount = member.quotas.filter(q => q.status === 'paid').length;
-            totalPaidQuotasSum += paidCount * 5000;
+            totalPaidQuotasSum += paidCount * 2000;
         }
     });
 
