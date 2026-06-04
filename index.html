@@ -1124,7 +1124,12 @@
 
                                 <!-- Tabla Derecha -->
                                 <div style="display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
-                                    <h4 style="font-size: 1rem; margin-bottom: 0;"><i class="fa-solid fa-list-check text-gold"></i> Historial de Movimientos Registrados</h4>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                        <h4 style="font-size: 1rem; margin: 0;"><i class="fa-solid fa-list-check text-gold"></i> Historial de Movimientos Registrados</h4>
+                                        <button id="btn-export-excel" type="button" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; margin: 0; min-width: auto; height: auto;">
+                                            <i class="fa-solid fa-file-excel"></i> Descargar Informe Excel
+                                        </button>
+                                    </div>
                                     <div class="acc-table-container" style="overflow-x: auto;">
                                         <table class="acc-table">
                                             <thead>
@@ -1559,6 +1564,8 @@
 
     <!-- Supabase JS Client SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SheetJS (XLSX) Library -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Interactive script loader -->
     <script src="app.js"></script>
 </body>

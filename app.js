@@ -3928,6 +3928,19 @@ function initAccounting() {
         });
     }
     
+    // Hook event listener for Excel export button
+    const exportBtn = document.getElementById('btn-export-excel');
+    if (exportBtn) {
+        console.log("🟢 Botón de exportación a Excel encontrado y enlazado.");
+        exportBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("🟢 Clic detectado en el botón de exportación a Excel.");
+            exportAccountingToExcel();
+        });
+    } else {
+        console.error("🔴 Botón de exportación a Excel (#btn-export-excel) NO encontrado en el DOM.");
+    }
+
     // Initial rendering of the table
     renderAccountingTable();
 }
@@ -4128,3 +4141,132 @@ function initAlbumModalClose() {
         });
     }
 }
+
+/* ==========================================================================
+   18. EXPORTAR CONTABILIDAD A EXCEL (SHEETJS GENERATOR)
+   ========================================================================== */
+function exportAccountingToExcel() {
+    // 1. Calcular valores consolidados de cuotas
+    let totalPaidQuotasSum = 0;
+    const paidQuotasList = [];
+    
+    Object.keys(MEMBERS_DATABASE).forEach(key => {
+        const member = MEMBERS_DATABASE[key];
+        if (member && member.quotas) {
+            member.quotas.forEach(q => {
+                if (q.status === 'paid') {
+                    totalPaidQuotasSum += 2000;
+                    paidQuotasList.push({
+                        "Nombre del Socio": member.name,
+                        "Mes Pagado": q.month,
+                        "Monto ($ CLP)": 2000,
+                        "Estado": "Cancelada (Pagada)"
+                    });
+                }
+            });
+        }
+    });
+
+    // 2. Calcular ingresos y egresos directos
+    let totalCustomIngresos = 0;
+    let totalCustomEgresos = 0;
+    const directMovements = [];
+    
+    if (window.TRANSACTION_HISTORY) {
+        // Ordenar movimientos por fecha de forma ascendente para el reporte
+        const sortedTxs = [...window.TRANSACTION_HISTORY].sort((a, b) => new Date(a.date) - new Date(b.date));
+        sortedTxs.forEach(t => {
+            const amt = parseFloat(t.amount || 0);
+            if (t.type === 'ingreso') {
+                totalCustomIngresos += amt;
+            } else if (t.type === 'egreso') {
+                totalCustomEgresos += amt;
+            }
+            directMovements.push({
+                "Fecha": t.date,
+                "Tipo": t.type === 'ingreso' ? 'Ingreso' : 'Egreso',
+                "Concepto / Detalle": t.description,
+                "Monto ($ CLP)": amt
+            });
+        });
+    }
+
+    const totalIngresosGeneral = totalPaidQuotasSum + totalCustomIngresos;
+    const netBalance = totalIngresosGeneral - totalCustomEgresos;
+
+    // 3. Preparar los datos del Resumen General
+    const summaryData = [
+        { "Indicador / Concepto": "Fecha de Solicitud del Informe", "Monto ($ CLP)": null, "Descripción": new Date().toLocaleString('es-CL') },
+        { "Indicador / Concepto": "Ingresos por Cuotas de Socios", "Monto ($ CLP)": totalPaidQuotasSum, "Descripción": "Recaudación acumulada de cuotas de $2.000 por mes/socio" },
+        { "Indicador / Concepto": "Ingresos Directos (Actividades, Eventos)", "Monto ($ CLP)": totalCustomIngresos, "Descripción": "Otros ingresos registrados en el panel de contabilidad" },
+        { "Indicador / Concepto": "Total de Ingresos Consolidados", "Monto ($ CLP)": totalIngresosGeneral, "Descripción": "Suma de Cuotas Socios + Ingresos Directos" },
+        { "Indicador / Concepto": "Total de Egresos Directos (Gastos)", "Monto ($ CLP)": totalCustomEgresos, "Descripción": "Gastos registrados en el panel de contabilidad" },
+        { "Indicador / Concepto": "Saldo Neto Total en Caja", "Monto ($ CLP)": netBalance, "Descripción": "Balance general (Ingresos Consolidados - Egresos Consolidados)" }
+    ];
+
+    // 4. Generar el libro de Excel (Workbook)
+    try {
+        if (typeof XLSX === 'undefined') {
+            showToast("⚠️ Biblioteca Faltante", "La biblioteca de exportación a Excel no se ha cargado correctamente.");
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+
+        // Hoja 1: Resumen General
+        const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+        
+        // Hoja 2: Movimientos de Caja Directos (Ingresos y Egresos)
+        const wsCashFlow = XLSX.utils.json_to_sheet(directMovements.length > 0 ? directMovements : [{
+            "Fecha": "Sin registros", "Tipo": "-", "Concepto / Detalle": "No hay movimientos registrados", "Monto ($ CLP)": 0
+        }]);
+
+        // Hoja 3: Detalle de Cuotas Canceladas
+        const wsQuotas = XLSX.utils.json_to_sheet(paidQuotasList.length > 0 ? paidQuotasList : [{
+            "Nombre del Socio": "Sin registros", "Mes Pagado": "-", "Monto ($ CLP)": 0, "Estado": "-"
+        }]);
+
+        // Función auxiliar para auto-ajustar el ancho de las columnas
+        const adjustColumnWidths = (ws, data) => {
+            if (!data || data.length === 0) return;
+            const keys = Object.keys(data[0]);
+            const cols = keys.map(key => {
+                let maxLen = key.toString().length;
+                data.forEach(row => {
+                    const val = row[key] !== null && row[key] !== undefined ? row[key].toString() : '';
+                    if (val.length > maxLen) {
+                        maxLen = val.length;
+                    }
+                });
+                return { wch: maxLen + 3 }; // Padding de 3 caracteres
+            });
+            ws['!cols'] = cols;
+        };
+
+        adjustColumnWidths(wsSummary, summaryData);
+        adjustColumnWidths(wsCashFlow, directMovements.length > 0 ? directMovements : [{"Fecha": "", "Tipo": "", "Concepto / Detalle": "", "Monto ($ CLP)": 0}]);
+        adjustColumnWidths(wsQuotas, paidQuotasList.length > 0 ? paidQuotasList : [{"Nombre del Socio": "", "Mes Pagado": "", "Monto ($ CLP)": 0, "Estado": ""}]);
+
+        // Añadir las hojas al libro
+        XLSX.utils.book_append_sheet(wb, wsSummary, "Resumen General");
+        XLSX.utils.book_append_sheet(wb, wsCashFlow, "Movimientos de Caja");
+        XLSX.utils.book_append_sheet(wb, wsQuotas, "Detalle de Cuotas");
+
+        // Guardar y descargar archivo
+        const hoy = new Date();
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const yyyy = hoy.getFullYear();
+        const filename = `Informe_Contabilidad_${dd}_${mm}_${yyyy}.xlsx`;
+        
+        XLSX.writeFile(wb, filename);
+
+        showToast("🟢 Reporte Descargado", "Se ha generado el archivo Excel con éxito.");
+    } catch (error) {
+        console.error("🔴 Error exportando a Excel:", error);
+        showToast("⚠️ Error de Exportación", "Hubo un problema al generar el archivo Excel.");
+    }
+}
+
+// Exponer la función globalmente para depuración y otros usos
+window.exportAccountingToExcel = exportAccountingToExcel;
