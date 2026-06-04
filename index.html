@@ -652,6 +652,8 @@
                 </div>
             </div>
 
+
+
             <!-- Galería Dinámica de Fotos -->
             <div class="public-gallery-section" style="margin-top: 50px; margin-bottom: 50px; border-top: 1px solid var(--border-color); padding-top: 40px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 25px; gap: 15px;">
@@ -1559,6 +1561,38 @@
         </div>
         <div class="album-modal-grid" id="album-modal-grid">
             <!-- Dinámico -->
+        </div>
+    </div>
+
+    <!-- Modal de Google Drive (Carpeta Blur) -->
+    <div id="drive-modal" class="album-modal" style="display: none;">
+        <div class="album-modal-header">
+            <div>
+                <span class="album-modal-tag" style="background: rgba(255, 213, 79, 0.15); color: var(--accent); border-color: rgba(255, 213, 79, 0.3); padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700; border: 1px solid;"><i class="fa-solid fa-folder-open"></i> Google Drive</span>
+                <h3 style="margin-top: 5px;">Archivo Digital de Fotos</h3>
+            </div>
+            <span class="close-album-modal" id="close-drive-modal-btn">&times;</span>
+        </div>
+        <div style="max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; flex-grow: 1; height: calc(100% - 120px);">
+            <!-- Iframe Container -->
+            <div style="width: 100%; flex-grow: 1; min-height: 400px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); position: relative;">
+                <iframe 
+                    id="drive-modal-iframe"
+                    src="" 
+                    title="Carpeta de Fotos en Google Drive"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <!-- Outbound Link in case cookies are blocked -->
+            <div style="text-align: center; margin-top: 5px; flex-shrink: 0;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; margin-top: 0;">
+                    <i class="fa-solid fa-cookie-bite"></i> Si las fotos no se muestran debido a bloqueos de cookies de terceros de tu navegador, puedes abrir el enlace directo:
+                </p>
+                <a href="https://drive.google.com/drive/folders/1UMuyBjEUSGNnRWV4MGDNfgN8HmZXHdSk?usp=drive_link" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; padding: 8px 18px; border-radius: var(--radius-sm); text-decoration: none; font-weight: 600; min-width: auto; height: auto;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Carpeta en Google Drive
+                </a>
+            </div>
         </div>
     </div>
 

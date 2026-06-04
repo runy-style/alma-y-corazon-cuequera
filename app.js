@@ -361,6 +361,7 @@ function initGallery() {
 
     // Inicializar listeners del modal de álbum
     initAlbumModalClose();
+    initDriveModal();
 }
 
 // Estado global para navegación carrusel de Lightbox
@@ -3629,13 +3630,18 @@ function renderGalleryGrid(photosList = []) {
         });
 
     if (albumsToRender.length === 0) {
-        grid.innerHTML = `
-            <div class="gallery-empty-placeholder" id="gallery-empty-placeholder" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.08); border-radius: var(--radius-md); text-align: center; color: var(--text-muted); width: 100%;">
-                <i class="fa-solid fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
-                <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Álbum vacío</h4>
-                <p style="margin: 0; font-size: 0.9rem; max-width: 400px;">La directiva aún no ha subido imágenes en la categoría seleccionada.</p>
-            </div>
-        `;
+        if (categoryFilter === 'all') {
+            // Renderizar la carpeta de Google Drive en la pestaña "Todos"
+            renderGoogleDriveCard(grid);
+        } else {
+            grid.innerHTML = `
+                <div class="gallery-empty-placeholder" id="gallery-empty-placeholder" style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.08); border-radius: var(--radius-md); text-align: center; color: var(--text-muted); width: 100%;">
+                    <i class="fa-solid fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                    <h4 style="margin: 0 0 5px 0; color: var(--text-light); font-weight: 600;">Álbum vacío</h4>
+                    <p style="margin: 0; font-size: 0.9rem; max-width: 400px;">La directiva aún no ha subido imágenes en la categoría seleccionada.</p>
+                </div>
+            `;
+        }
         return;
     }
 
@@ -3678,6 +3684,44 @@ function renderGalleryGrid(photosList = []) {
 
         grid.appendChild(card);
     });
+
+    // Agregar la carpeta de Google Drive al final del grid en "Todos"
+    if (categoryFilter === 'all') {
+        renderGoogleDriveCard(grid);
+    }
+}
+
+// Renderizador dinámico de la tarjeta de Google Drive como una pila de fotos
+function renderGoogleDriveCard(grid) {
+    const driveCard = document.createElement('div');
+    driveCard.className = 'album-card-stack';
+    
+    // Imágenes representativas del campeonato y gala para la portada de Drive
+    const cover3 = "img/2 campeonato/campeonato/712430450_1452084606959287_3899583349411537116_n.jpg";
+    const cover2 = "img/expo/640302143_1131572123029484_5355877768243442583_n.jpg";
+    const cover1 = "img/2 campeonato/campeonato/706734809_1452079310293150_2403136708693615119_n.jpg";
+    
+    driveCard.innerHTML = `
+        <!-- Layer 1 (Bottom) -->
+        <img src="${cover1}" alt="Capa 1" class="album-card-photo layer-1">
+        <!-- Layer 2 (Middle) -->
+        <img src="${cover2}" alt="Capa 2" class="album-card-photo layer-2">
+        <!-- Layer 3 (Top/Cover) -->
+        <img src="${cover3}" alt="Google Drive" class="album-card-photo layer-3" style="border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(255, 213, 79, 0.45);">
+        
+        <div class="album-card-info">
+            <h4>Archivo Histórico (Drive)</h4>
+            <span class="album-count-badge" style="background: #f4b400; color: #fff;">
+                <i class="fa-brands fa-google-drive"></i> Google Drive
+            </span>
+        </div>
+    `;
+    
+    driveCard.addEventListener('click', () => {
+        openDriveModal();
+    });
+    
+    grid.appendChild(driveCard);
 }
 
 // 8. Dynamic Public News & Novedades Renderer
@@ -4139,6 +4183,40 @@ function initAlbumModalClose() {
                 document.body.style.overflow = '';
             }
         });
+    }
+}
+
+function initDriveModal() {
+    const closeBtn = document.getElementById('close-drive-modal-btn');
+    const modal = document.getElementById('drive-modal');
+    const iframe = document.getElementById('drive-modal-iframe');
+    
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            if (iframe) iframe.src = ''; // Clear source to stop background activity
+            document.body.style.overflow = ''; // Restore main scroll
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                if (iframe) iframe.src = '';
+                document.body.style.overflow = '';
+            }
+        });
+    }
+}
+
+function openDriveModal() {
+    const modal = document.getElementById('drive-modal');
+    const iframe = document.getElementById('drive-modal-iframe');
+    
+    if (modal && iframe) {
+        // Cargar iframe dinámicamente al abrir para optimizar la carga
+        iframe.src = 'https://drive.google.com/embeddedfolderview?id=1UMuyBjEUSGNnRWV4MGDNfgN8HmZXHdSk#grid';
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Lock main scroll
     }
 }
 
