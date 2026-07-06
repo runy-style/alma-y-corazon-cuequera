@@ -1589,7 +1589,7 @@ async function uploadFileToSupabase(fileInputId, progressCallback = null) {
         return urlData.publicUrl;
     } catch (err) {
         console.error("🔴 Error subiendo archivo a Supabase Storage:", err);
-        showToast("Error de Subida", "No se pudo subir la imagen a la nube.");
+        showToast("Error de Subida", "No se pudo subir la imagen a la nube.", "error");
         throw err;
     }
 }
@@ -1989,11 +1989,110 @@ function initPortal() {
         });
     }
 
-    // Initialize Administration panel tabs
+    // Helper to check member payment status for autocomplete badges
+    function getMemberStatusTextAndClass(member) {
+        if (!member || !member.quotas) {
+            return { text: 'Sin Datos', class: 'badge-advanced', icon: 'fa-triangle-exclamation' };
+        }
+        const hasOverdue = member.quotas.some(q => q.status === 'overdue');
+        if (hasOverdue) {
+            return { text: 'Con Retraso', class: 'badge-advanced', icon: 'fa-triangle-exclamation' };
+        }
+        return { text: 'Al Día', class: 'badge-active', icon: 'fa-circle-check' };
+    }
+
+    // Function to initialize member search autocomplete
+    function initAdminMemberAutocomplete() {
+        const searchInput = document.getElementById('admin-member-search-input');
+        const resultsDiv = document.getElementById('admin-member-search-results');
+        const memberSelect = document.getElementById('admin-member-select');
+
+        if (!searchInput || !resultsDiv || !memberSelect) return;
+
+        // Helper to render suggestions
+        function renderSuggestions(query = '') {
+            resultsDiv.innerHTML = '';
+            const filteredKeys = Object.keys(MEMBERS_DATABASE).filter(key => {
+                if (key === 'directiva2026') return false;
+                const member = MEMBERS_DATABASE[key];
+                if (!member) return false;
+                
+                const matchesName = member.name && member.name.toLowerCase().includes(query.toLowerCase());
+                const matchesUsername = key.toLowerCase().includes(query.toLowerCase());
+                return matchesName || matchesUsername;
+            });
+
+            if (filteredKeys.length === 0) {
+                const noResult = document.createElement('div');
+                noResult.className = 'autocomplete-item';
+                noResult.style.cursor = 'default';
+                noResult.innerHTML = `<span style="font-size: 0.82rem; color: var(--text-muted); padding: 10px 12px; display: block;">No se encontraron socios</span>`;
+                resultsDiv.appendChild(noResult);
+                resultsDiv.classList.remove('hidden');
+                return;
+            }
+
+            filteredKeys.forEach(key => {
+                const member = MEMBERS_DATABASE[key];
+                const statusInfo = getMemberStatusTextAndClass(member);
+                
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `
+                    <div class="autocomplete-item-info">
+                        <span class="autocomplete-item-name">${member.name}</span>
+                        <span class="autocomplete-item-role">${member.role}</span>
+                    </div>
+                    <span class="autocomplete-item-badge ${statusInfo.class}">
+                        <i class="fa-solid ${statusInfo.icon}"></i> ${statusInfo.text}
+                    </span>
+                `;
+
+                item.addEventListener('click', () => {
+                    memberSelect.value = key;
+                    memberSelect.dispatchEvent(new Event('change'));
+                    resultsDiv.classList.add('hidden');
+                });
+
+                resultsDiv.appendChild(item);
+            });
+            resultsDiv.classList.remove('hidden');
+        }
+
+        // Search input listeners
+        searchInput.addEventListener('input', () => {
+            renderSuggestions(searchInput.value.trim());
+        });
+
+        searchInput.addEventListener('focus', () => {
+            renderSuggestions(searchInput.value.trim());
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+                resultsDiv.classList.add('hidden');
+            }
+        });
+        
+        // Initial sync
+        const currentMember = MEMBERS_DATABASE[memberSelect.value];
+        if (currentMember) {
+            searchInput.value = currentMember.name;
+        }
+    }
+
+    // Initialize Administration panel sub-tabs (inner navigation)
     const adminTabs = document.querySelectorAll('.admin-tab-btn');
     adminTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            adminTabs.forEach(t => t.classList.remove('active'));
+            // Only update active state within the visible group
+            const parentGroup = tab.closest('.admin-sub-tabs');
+            if (parentGroup) {
+                parentGroup.querySelectorAll('.admin-tab-btn').forEach(t => t.classList.remove('active'));
+            } else {
+                adminTabs.forEach(t => t.classList.remove('active'));
+            }
             tab.classList.add('active');
 
             const targetTabContent = tab.getAttribute('data-tab');
@@ -2007,6 +2106,57 @@ function initPortal() {
         });
     });
 
+    // Initialize 2-level module navigation
+    const moduleCards = document.querySelectorAll('.admin-module-card');
+    moduleCards.forEach(card => {
+        card.addEventListener('click', () => {
+            moduleCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+
+            const targetModule = card.getAttribute('data-module');
+
+            // Hide all sub-tabs groups
+            document.querySelectorAll('.admin-sub-tabs').forEach(tabGroup => {
+                tabGroup.classList.add('hidden');
+                tabGroup.classList.remove('active');
+            });
+
+            if (targetModule === 'module-socios') {
+                const subTabs = document.getElementById('sub-tabs-socios');
+                subTabs.classList.remove('hidden');
+                subTabs.classList.add('active');
+                
+                // Click the currently active sub-tab or the first one
+                const activeTab = subTabs.querySelector('.admin-tab-btn.active') || subTabs.querySelector('.admin-tab-btn');
+                if (activeTab) {
+                    activeTab.click();
+                }
+            } else if (targetModule === 'module-contenido') {
+                const subTabs = document.getElementById('sub-tabs-contenido');
+                subTabs.classList.remove('hidden');
+                subTabs.classList.add('active');
+
+                const activeTab = subTabs.querySelector('.admin-tab-btn.active') || subTabs.querySelector('.admin-tab-btn');
+                if (activeTab) {
+                    activeTab.click();
+                }
+            } else if (targetModule === 'module-finanzas') {
+                // Direct unique view for contabilidad (Finanzas)
+                adminTabs.forEach(t => t.classList.remove('active'));
+                
+                document.querySelectorAll('.admin-sub-content').forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === 'admin-tab-contabilidad') {
+                        content.classList.add('active');
+                    }
+                });
+            }
+        });
+    });
+
+    // Initialize Autocomplete once on load
+    initAdminMemberAutocomplete();
+
     // Admin member dropdown selector
     const memberSelect = document.getElementById('admin-member-select');
     if (memberSelect) {
@@ -2016,6 +2166,12 @@ function initPortal() {
             const member = MEMBERS_DATABASE[activeUser.activeMemberKey];
             if (activeMemberNameLabel && member) {
                 activeMemberNameLabel.textContent = member.name;
+            }
+            
+            // Sync with search input value
+            const searchInput = document.getElementById('admin-member-search-input');
+            if (searchInput && member) {
+                searchInput.value = member.name;
             }
             
             // If logged in as socio, this changes their personal card instantly
@@ -2188,7 +2344,7 @@ function initPortal() {
                     }
                 } catch (err) {
                     console.error("🔴 Error actualizando perfil de socio por directiva en Supabase:", err);
-                    showToast("Error de Guardado", "No se pudo actualizar la ficha completa, pero los permisos del rol se actualizaron correctamente.");
+                    showToast("Error de Guardado", "No se pudo actualizar la ficha completa, pero los permisos del rol se actualizaron correctamente.", "error");
                 }
             }
 
@@ -2213,6 +2369,7 @@ function initPortal() {
                     }
                 });
                 select.value = memberKey;
+                select.dispatchEvent(new Event('change'));
             }
             
             showToast("Ficha Modificada", `Los datos de la ficha de ${MEMBERS_DATABASE[memberKey]?.name || memberKey} fueron actualizados.`);
@@ -2346,7 +2503,7 @@ function initPortal() {
             const password = document.getElementById('admin-new-member-pwd').value.trim();
 
             if (MEMBERS_DATABASE[username]) {
-                showToast("Error de Registro", "El nombre de usuario ya existe. Elige uno diferente.");
+                showToast("Error de Registro", "El nombre de usuario ya existe. Elige uno diferente.", "error");
                 return;
             }
 
@@ -2395,7 +2552,7 @@ function initPortal() {
                     await syncFromSupabase();
                 } catch (err) {
                     console.error("🔴 Error registrando socio en Supabase:", err);
-                    showToast("Error de Servidor", "No se pudo guardar el socio en la base de datos.");
+                    showToast("Error de Servidor", "No se pudo guardar el socio en la base de datos.", "error");
                     return;
                 }
             } else {
@@ -2419,6 +2576,8 @@ function initPortal() {
                 opt.value = username;
                 opt.textContent = `${name} (${role})`;
                 memberSelect.appendChild(opt);
+                memberSelect.value = username;
+                memberSelect.dispatchEvent(new Event('change'));
             }
 
             // Resetear formulario y dar feedback
@@ -2439,14 +2598,14 @@ function initPortal() {
             
             // Protect core accounts from deletion
             if (memberKey === 'directiva2026' || memberKey === 'admin' || memberKey === 'patricia') {
-                showToast("Acción Bloqueada", "No puedes eliminar las cuentas administrativas ni de socios históricos principales.");
+                showToast("Acción Bloqueada", "No puedes eliminar las cuentas administrativas ni de socios históricos principales.", "error");
                 return;
             }
             
             const member = MEMBERS_DATABASE[memberKey];
             if (!member) return;
             
-            const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar al socio ${member.name} (${member.role})? Esta acción es definitiva y borrará todo su historial de cuotas.`);
+            const confirmDelete = await showConfirm(`¿Estás seguro de que deseas eliminar al socio ${member.name} (${member.role})? Esta acción es definitiva y borrará todo su historial de cuotas.`);
             if (!confirmDelete) return;
             
             if (isSupabaseActive) {
@@ -2461,7 +2620,7 @@ function initPortal() {
                     await syncFromSupabase();
                 } catch (err) {
                     console.error("🔴 Error eliminando socio de Supabase:", err);
-                    showToast("Error de Servidor", "No se pudo eliminar el socio de la base de datos.");
+                    showToast("Error de Servidor", "No se pudo eliminar el socio de la base de datos.", "error");
                     return;
                 }
             } else {
@@ -2483,11 +2642,12 @@ function initPortal() {
                 // Select first available member
                 if (select.options.length > 0) {
                     select.selectedIndex = 0;
-                    activeUser.activeMemberKey = select.value;
-                    document.getElementById('admin-active-member-name').textContent = MEMBERS_DATABASE[select.value] ? MEMBERS_DATABASE[select.value].name : select.value;
+                    select.dispatchEvent(new Event('change'));
                 } else {
                     activeUser.activeMemberKey = '';
                     document.getElementById('admin-active-member-name').textContent = 'Ninguno';
+                    const searchInput = document.getElementById('admin-member-search-input');
+                    if (searchInput) searchInput.value = '';
                 }
             }
             
@@ -2531,7 +2691,7 @@ function initPortal() {
                 });
 
                 if (!imageUrl) {
-                    showToast("Error de Selección", "Selecciona una imagen válida.");
+                    showToast("Error de Selección", "Selecciona una imagen válida.", "error");
                     return;
                 }
 
@@ -2566,8 +2726,8 @@ function initPortal() {
 
                 showToast("¡Foto Subida!", "La foto ha sido agregada a la galería de la comunidad con éxito.");
             } catch (err) {
-                console.error("🔴 Error subiendo foto a la galería:", err);
-                showToast("Error de Servidor", "No se pudo completar la subida.");
+                    console.error("🔴 Error subiendo foto a la galería:", err);
+                    showToast("Error de Servidor", "No se pudo completar la subida.", "error");
             } finally {
                 if (progressContainer) {
                     setTimeout(() => {
@@ -2750,11 +2910,13 @@ async function loginSuccess(role, memberKey = null) {
             if (keys.length > 0) {
                 const defaultKey = keys.includes('patricia') ? 'patricia' : keys[0];
                 select.value = defaultKey;
-                activeUser.activeMemberKey = defaultKey;
-                document.getElementById('admin-active-member-name').textContent = MEMBERS_DATABASE[defaultKey] ? MEMBERS_DATABASE[defaultKey].name : defaultKey;
-                
-                // Renderizar la ficha de socio seleccionado para la directiva al entrar
-                renderAdminProfileCard(defaultKey);
+                select.dispatchEvent(new Event('change'));
+            }
+
+            // Activar por defecto el primer módulo (Socios) al iniciar sesión como directiva
+            const defaultCard = document.querySelector('.admin-module-card[data-module="module-socios"]');
+            if (defaultCard) {
+                defaultCard.click();
             }
         }
     } else {
@@ -3398,10 +3560,11 @@ window.hideChartTooltip = function() {
    ========================================================================== */
 let toastTimeout;
 
-function showToast(title, body) {
+function showToast(title, body, type = 'success') {
     const toast = document.getElementById('toast-success');
     const tTitle = document.getElementById('toast-title');
     const tBody = document.getElementById('toast-body');
+    const tIcon = toast ? toast.querySelector('.toast-content i') : null;
 
     if (!toast || !tTitle || !tBody) return;
 
@@ -3410,11 +3573,30 @@ function showToast(title, body) {
     tTitle.textContent = title;
     tBody.textContent = body;
 
+    // Reset classes
+    toast.className = 'toast';
+    toast.classList.add('toast-' + type);
+
+    // Set appropriate icon
+    if (tIcon) {
+        tIcon.className = '';
+        if (type === 'success') {
+            tIcon.className = 'fa-solid fa-circle-check text-green';
+            tIcon.style.color = '#00c853';
+        } else if (type === 'error') {
+            tIcon.className = 'fa-solid fa-circle-xmark text-red';
+            tIcon.style.color = '#ff5252';
+        } else {
+            tIcon.className = 'fa-solid fa-circle-info text-blue';
+            tIcon.style.color = '#2979ff';
+        }
+    }
+
     toast.classList.remove('hidden');
 
     toastTimeout = setTimeout(() => {
         closeToast();
-    }, 4500);
+    }, 3000);
 }
 
 function closeToast() {
@@ -3423,6 +3605,46 @@ function closeToast() {
         toast.classList.add('hidden');
     }
 }
+
+/* ==========================================================================
+   7b. CUSTOM CONFIRMATION MODAL SYSTEM
+   ========================================================================== */
+window.showConfirm = function(message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirm-modal');
+        const msgEl = document.getElementById('confirm-modal-message');
+        const btnAccept = document.getElementById('btn-confirm-accept');
+        const btnCancel = document.getElementById('btn-confirm-cancel');
+
+        if (!modal || !msgEl || !btnAccept || !btnCancel) {
+            // Fallback to native confirm
+            resolve(confirm(message));
+            return;
+        }
+
+        msgEl.textContent = message;
+        modal.style.display = 'flex';
+
+        const onAccept = () => {
+            cleanup();
+            resolve(true);
+        };
+
+        const onCancel = () => {
+            cleanup();
+            resolve(false);
+        };
+
+        const cleanup = () => {
+            modal.style.display = 'none';
+            btnAccept.removeEventListener('click', onAccept);
+            btnCancel.removeEventListener('click', onCancel);
+        };
+
+        btnAccept.addEventListener('click', onAccept);
+        btnCancel.addEventListener('click', onCancel);
+    });
+};
 
 /* ==========================================================================
    8. FEATURED EVENT CAROUSEL CONTROLLER
@@ -3813,7 +4035,7 @@ function renderPublicNewsGrid(newsList = []) {
 
 // 9. Global news & agreement deletion handler
 window.deleteAgreement = async function(id) {
-    const confirmDel = confirm("¿Estás seguro de que deseas eliminar permanentemente esta publicación (Noticia/Acuerdo) de la base de datos?");
+    const confirmDel = await showConfirm("¿Estás seguro de que deseas eliminar permanentemente esta publicación (Noticia/Acuerdo) de la base de datos?");
     if (!confirmDel) return;
 
     // Instantly remove from local memory array to ensure UI updates immediately
@@ -4065,8 +4287,8 @@ function renderAccountingTable() {
 }
 
 // Global action handler for transaction deletion
-window.deleteTransaction = function(id) {
-    const confirmDel = confirm("¿Estás seguro de que deseas eliminar permanentemente este movimiento de la contabilidad?");
+window.deleteTransaction = async function(id) {
+    const confirmDel = await showConfirm("¿Estás seguro de que deseas eliminar permanentemente este movimiento de la contabilidad?");
     if (!confirmDel) return;
     
     const tx = window.TRANSACTION_HISTORY.find(t => t.id === id);
@@ -4285,7 +4507,7 @@ function exportAccountingToExcel() {
     // 4. Generar el libro de Excel (Workbook)
     try {
         if (typeof XLSX === 'undefined') {
-            showToast("⚠️ Biblioteca Faltante", "La biblioteca de exportación a Excel no se ha cargado correctamente.");
+            showToast("⚠️ Biblioteca Faltante", "La biblioteca de exportación a Excel no se ha cargado correctamente.", "error");
             return;
         }
 
@@ -4342,7 +4564,7 @@ function exportAccountingToExcel() {
         showToast("🟢 Reporte Descargado", "Se ha generado el archivo Excel con éxito.");
     } catch (error) {
         console.error("🔴 Error exportando a Excel:", error);
-        showToast("⚠️ Error de Exportación", "Hubo un problema al generar el archivo Excel.");
+        showToast("⚠️ Error de Exportación", "Hubo un problema al generar el archivo Excel.", "error");
     }
 }
 

@@ -811,29 +811,61 @@
                                 asambleas y agenda pública</p>
                         </div>
 
-                        <!-- Tabs de Administración -->
-                        <div class="admin-control-tabs">
-                            <button class="admin-tab-btn active" data-tab="admin-tab-cuotas"><i
-                                    class="fa-solid fa-users-gear"></i> Gestión de Socios y Cuotas</button>
-                            <button class="admin-tab-btn" data-tab="admin-tab-bitacora"><i
-                                    class="fa-solid fa-file-signature"></i> Publicar Acuerdo/Noticia</button>
-                            <button class="admin-tab-btn" data-tab="admin-tab-eventos"><i
-                                    class="fa-solid fa-calendar-plus"></i> Añadir Evento Público</button>
-                            <button class="admin-tab-btn" data-tab="admin-tab-crear-socio"><i
-                                    class="fa-solid fa-user-plus"></i> Registrar Socio</button>
-                            <button class="admin-tab-btn" data-tab="admin-tab-subir-foto"><i
-                                    class="fa-solid fa-cloud-arrow-up"></i> Subir a Galería</button>
-                            <button class="admin-tab-btn" data-tab="admin-tab-contabilidad"><i
-                                    class="fa-solid fa-scale-balanced text-gold"></i> Contabilidad</button>
+                        <!-- Módulos de Administración (Nivel Superior) -->
+                        <div class="admin-modules-grid">
+                            <button type="button" class="admin-module-card active" data-module="module-socios">
+                                <i class="fa-solid fa-users"></i>
+                                <span>Socios</span>
+                                <small>Cuotas y Registro</small>
+                            </button>
+                            <button type="button" class="admin-module-card" data-module="module-contenido">
+                                <i class="fa-solid fa-bullhorn"></i>
+                                <span>Contenido Público</span>
+                                <small>Noticias, Eventos y Fotos</small>
+                            </button>
+                            <button type="button" class="admin-module-card" data-module="module-finanzas">
+                                <i class="fa-solid fa-scale-balanced text-gold"></i>
+                                <span>Finanzas</span>
+                                <small>Contabilidad General</small>
+                            </button>
+                        </div>
+
+                        <!-- Sub-Tabs de Cada Módulo -->
+                        <div class="admin-sub-tabs-container">
+                            <!-- Sub-Tabs para Socios -->
+                            <div class="admin-sub-tabs active" id="sub-tabs-socios">
+                                <button type="button" class="admin-tab-btn active" data-tab="admin-tab-cuotas"><i
+                                        class="fa-solid fa-users-gear"></i> Gestión de Socios y Cuotas</button>
+                                <button type="button" class="admin-tab-btn" data-tab="admin-tab-crear-socio"><i
+                                        class="fa-solid fa-user-plus"></i> Registrar Socio</button>
+                            </div>
+                            
+                            <!-- Sub-Tabs para Contenido Público -->
+                            <div class="admin-sub-tabs hidden" id="sub-tabs-contenido">
+                                <button type="button" class="admin-tab-btn" data-tab="admin-tab-bitacora"><i
+                                        class="fa-solid fa-file-signature"></i> Publicar Acuerdo/Noticia</button>
+                                <button type="button" class="admin-tab-btn" data-tab="admin-tab-eventos"><i
+                                        class="fa-solid fa-calendar-plus"></i> Añadir Evento Público</button>
+                                <button type="button" class="admin-tab-btn" data-tab="admin-tab-subir-foto"><i
+                                        class="fa-solid fa-cloud-arrow-up"></i> Subir a Galería</button>
+                            </div>
                         </div>
 
                         <!-- Subsección 1: Editor de Cuotas Interactivo -->
                         <div class="admin-sub-content active" id="admin-tab-cuotas">
                             <div class="admin-quota-section">
                                 <div class="form-group">
-                                    <label for="admin-member-select"><i class="fa-solid fa-users"></i> Seleccionar
-                                        Miembro</label>
-                                    <select id="admin-member-select">
+                                    <div class="search-autocomplete-container">
+                                        <label for="admin-member-search-input"><i class="fa-solid fa-users"></i> Buscar Miembro</label>
+                                        <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                                            <input type="text" id="admin-member-search-input" placeholder="Escribe nombre para buscar..." autocomplete="off" style="width: 100%; padding: 10px 35px 10px 12px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); font-size: 0.9rem;">
+                                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; color: var(--text-muted); font-size: 0.85rem;"></i>
+                                        </div>
+                                        <div id="admin-member-search-results" class="autocomplete-results hidden">
+                                            <!-- populated dynamically -->
+                                        </div>
+                                    </div>
+                                    <select id="admin-member-select" style="display: none;">
                                         <option value="patricia">Patricia Araya (Socio Activo)</option>
                                         <option value="juan">Juan Pérez Muñoz (Socio Inicial)</option>
                                         <option value="camila">Camila Toro Rojas (Bailarina Elenco)</option>
@@ -1592,6 +1624,20 @@
                 <a href="https://drive.google.com/drive/folders/1UMuyBjEUSGNnRWV4MGDNfgN8HmZXHdSk?usp=drive_link" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; padding: 8px 18px; border-radius: var(--radius-sm); text-decoration: none; font-weight: 600; min-width: auto; height: auto;">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Carpeta en Google Drive
                 </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRMATION MODAL -->
+    <div id="confirm-modal" class="enrollment-modal" style="display: none; justify-content: center; align-items: center; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
+        <div class="modal-card shadow-premium" style="max-width: 450px; border: 1px solid var(--accent); background: linear-gradient(135deg, rgba(34, 23, 17, 0.98), rgba(21, 15, 11, 0.99)); padding: 25px; border-radius: var(--radius-md);">
+            <div class="modal-header" style="text-align: center; margin-bottom: 20px;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.3rem; color: var(--text-light); margin: 0 0 10px 0;"><i class="fa-solid fa-circle-question text-gold"></i> Confirmación</h3>
+                <p id="confirm-modal-message" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;"></p>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+                <button type="button" id="btn-confirm-accept" class="btn btn-primary" style="flex: 1; padding: 8px 16px; font-size: 0.85rem;"><i class="fa-solid fa-check"></i> Confirmar</button>
+                <button type="button" id="btn-confirm-cancel" class="btn btn-outline" style="flex: 1; padding: 8px 16px; font-size: 0.85rem; border-color: rgba(255,255,255,0.25);">Cancelar</button>
             </div>
         </div>
     </div>
