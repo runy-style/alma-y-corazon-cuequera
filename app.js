@@ -5208,10 +5208,13 @@ window.exportAccountingToExcel = exportAccountingToExcel;
 
 // 1. Fetch Comments
 async function fetchCommentsForTarget(targetType, targetId) {
-    if (!isSupabaseActive) {
-        return COMMENTS_DATABASE.filter(c => c.target_type === targetType && c.target_id === targetId)
-            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-    }
+    // Normalize to string for consistent comparison regardless of source (Supabase returns numbers, local stores whatever was passed)
+    const targetIdStr = String(targetId);
+    const localFallback = () => COMMENTS_DATABASE
+        .filter(c => c.target_type === targetType && String(c.target_id) === targetIdStr)
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    if (!isSupabaseActive) return localFallback();
     try {
         const { data, error } = await supabaseClient
             .from('comments')
@@ -5221,18 +5224,16 @@ async function fetchCommentsForTarget(targetType, targetId) {
             .order('created_at', { ascending: true });
         
         if (error) {
-            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
-                console.warn("⚠️ Tabla 'comments' no existe en Supabase. Usando base de datos local para demostración.");
-                return COMMENTS_DATABASE.filter(c => c.target_type === targetType && c.target_id === targetId)
-                    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-            }
-            throw error;
+            console.warn("⚠️ Tabla 'comments' no disponible en Supabase. Usando datos locales.", error.message);
+            return localFallback();
         }
-        return data || [];
+        // Merge Supabase data with any local comments (for offline-first experience)
+        const supabaseIds = new Set((data || []).map(c => String(c.id)));
+        const localOnly = localFallback().filter(c => !supabaseIds.has(String(c.id)));
+        return [...(data || []), ...localOnly].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     } catch (err) {
-        console.warn("⚠️ Advertencia: No se pudieron cargar comentarios de Supabase para", targetType, targetId, err);
-        return COMMENTS_DATABASE.filter(c => c.target_type === targetType && c.target_id === targetId)
-            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        console.warn("⚠️ Error cargando comentarios desde Supabase. Usando datos locales.", err);
+        return localFallback();
     }
 }
 
@@ -5312,29 +5313,32 @@ async function deleteComment(commentId) {
 
 // 4. Fetch Reactions
 async function fetchReactionsForTarget(targetType, targetId) {
-    if (!isSupabaseActive) {
-        return REACTIONS_DATABASE.filter(r => r.target_type === targetType && r.target_id === targetId);
-    }
+    const targetIdStr = String(targetId);
+    const localFallback = () => REACTIONS_DATABASE
+        .filter(r => r.target_type === targetType && String(r.target_id) === targetIdStr);
+
+    if (!isSupabaseActive) return localFallback();
     try {
         const { data, error } = await supabaseClient
             .from('reactions')
             .select('*')
             .eq('target_type', targetType)
             .eq('target_id', targetId);
-        
+
         if (error) {
-            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
-                console.warn("⚠️ Tabla 'reactions' no existe en Supabase. Usando base de datos local temporal.");
-                return REACTIONS_DATABASE.filter(r => r.target_type === targetType && r.target_id === targetId);
-            }
-            throw error;
+            console.warn("⚠️ Tabla 'reactions' no disponible en Supabase. Usando datos locales.", error.message);
+            return localFallback();
         }
-        return data || [];
+        // Merge: Supabase + local-only entries (not yet synced)
+        const supabaseMembers = new Set((data || []).map(r => r.member_id));
+        const localOnly = localFallback().filter(r => !supabaseMembers.has(r.member_id));
+        return [...(data || []), ...localOnly];
     } catch (err) {
-        console.warn("⚠️ Advertencia: No se pudieron cargar reacciones de Supabase para", targetType, targetId, err);
-        return REACTIONS_DATABASE.filter(r => r.target_type === targetType && r.target_id === targetId);
+        console.warn("⚠️ Error cargando reacciones desde Supabase. Usando datos locales.", err);
+        return localFallback();
     }
 }
+
 
 // 5. Toggle Reaction
 async function toggleReaction(targetType, targetId) {
