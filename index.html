@@ -360,76 +360,13 @@
                 <h2 class="section-title">Eventos y Galería</h2>
             </div>
 
-             <!-- Evento Destacado: 2° Gran Campeonato de Cueca y Destrezas Huasas -->
-             <div class="featured-event-card shadow-premium" id="championship-featured-card" style="margin-bottom: 35px; border: 1px solid rgba(255, 213, 79, 0.3); background: linear-gradient(135deg, rgba(34, 23, 17, 0.9), rgba(21, 15, 11, 0.95)); border-radius: var(--radius-lg);">
-                 <div class="featured-event-info">
-                     <span class="badge badge-featured" style="background: rgba(255, 213, 79, 0.15); color: var(--accent); border-color: rgba(255, 213, 79, 0.3);"><i class="fa-solid fa-trophy"></i> ¡Éxito Rotundo en La Ligua!</span>
-                     <h3>2° Gran Campeonato de Cueca <br>& Destrezas Huasas</h3>
-                     <p class="event-meta"><i class="fa-solid fa-calendar-day"></i> Sábado, 30 de Mayo, 2026 · <i class="fa-solid fa-location-dot"></i> Gimnasio Municipal de La Ligua</p>
-                     <p class="event-desc">
-                         ¡Vivimos una jornada histórica e inolvidable para el folklore de nuestra comuna! Con la participación de más de 80 parejas competidoras de toda la región y un gimnasio municipal repleto, Alma y Corazón Cuequera coronó a los nuevos campeones. Revisa los mejores momentos, la destreza y pasión en nuestro carrusel interactivo y galería de fotos.
-                     </p>
-                     <div class="event-stats-row" style="flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-                         <div class="e-stat"><i class="fa-solid fa-award"></i> 80+ Parejas</div>
-                         <div class="e-stat"><i class="fa-solid fa-music"></i> Músicos en Vivo</div>
-                         <div class="e-stat"><i class="fa-solid fa-face-smile"></i> Gimnasio Completo</div>
-                     </div>
-                     <div class="featured-event-cta">
-                         <button class="btn btn-primary" onclick="const filterBtn = document.querySelector('.filter-btn[data-filter=\'campeonato\']'); if(filterBtn) { filterBtn.click(); switchSection('eventos-tab'); filterBtn.scrollIntoView({behavior: 'smooth'}); }" style="display: inline-flex; align-items: center; gap: 8px;">
-                             <i class="fa-solid fa-images"></i> Ver Galería Completa
-                         </button>
-                     </div>
+             <!-- Evento Destacado Dinámico (CMS) -->
+             <div class="featured-event-card shadow-premium hidden" id="championship-featured-card" style="margin-bottom: 35px; border: 1px solid rgba(255, 213, 79, 0.3); background: linear-gradient(135deg, rgba(34, 23, 17, 0.9), rgba(21, 15, 11, 0.95)); border-radius: var(--radius-lg);">
+                 <div class="featured-event-info" id="featured-event-info">
+                     <!-- Rellenado dinámicamente -->
                  </div>
-                 <div class="featured-event-carousel-wrapper">
-                     <div class="carousel-container" id="championship-carousel">
-                         <div class="carousel-slides">
-                             <div class="carousel-slide active" style="background-image: url('img/2 campeonato/campeonato/712430450_1452084606959287_3899583349411537116_n.jpg');">
-                                 <div class="carousel-caption">
-                                     <h4>Gran Cierre del Campeonato</h4>
-                                     <p>Gran marco de público y delegaciones reunidos en la gran premiación.</p>
-                                 </div>
-                             </div>
-                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/706734809_1452079310293150_2403136708693615119_n.jpg');">
-                                 <div class="carousel-caption">
-                                     <h4>Destrezas Huasas</h4>
-                                     <p>Zapateos y destrezas cuequeras por parejas destacadas de la región.</p>
-                                 </div>
-                             </div>
-                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/710079303_1452081310292950_6405778205627263753_n.jpg');">
-                                 <div class="carousel-caption">
-                                     <h4>Zapateo de Honor</h4>
-                                     <p>Los campeones oficiales deleitando al público y jurados en la ronda final.</p>
-                                 </div>
-                             </div>
-                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/710376509_1452079640293117_3639951452893859639_n.jpg');">
-                                 <div class="carousel-caption">
-                                     <h4>Convocatoria Masiva</h4>
-                                     <p>El Gimnasio Municipal de La Ligua repleto en apoyo a nuestras tradiciones chilenas.</p>
-                                 </div>
-                             </div>
-                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/712455032_1452084150292666_3229435056653166021_n.jpg');">
-                                 <div class="carousel-caption">
-                                     <h4>Presentación de Honor</h4>
-                                     <p>Espectacular cuadro artístico especial presentado por la directiva y elenco oficial.</p>
-                                 </div>
-                             </div>
-                             <div class="carousel-slide" style="background-image: url('img/2 campeonato/campeonato/712483619_1452084583625956_1456738820849495376_n.jpg');">
-                                 <div class="carousel-caption">
-                                     <h4>Abrazo Fraternal</h4>
-                                     <p>Espíritu de camaradería y alegría cuequera entre los ganadores coronados 2026.</p>
-                                 </div>
-                             </div>
-                         </div>
-                         
-                         <!-- Navigation Arrows -->
-                         <button class="carousel-btn btn-prev" id="championship-carousel-prev" aria-label="Anterior slide"><i class="fa-solid fa-chevron-left"></i></button>
-                         <button class="carousel-btn btn-next" id="championship-carousel-next" aria-label="Siguiente slide"><i class="fa-solid fa-chevron-right"></i></button>
-                         
-                         <!-- Dots Indicators -->
-                         <div class="carousel-dots" id="championship-carousel-dots">
-                             <!-- Generated dynamically by JS -->
-                         </div>
-                     </div>
+                 <div class="featured-event-media-wrapper" id="featured-event-media-wrapper" style="flex: 1; min-height: 320px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; position: relative;">
+                     <!-- Rellenado dinámicamente -->
                  </div>
              </div>
 
@@ -1002,6 +939,7 @@
                         <!-- Subsección 3: Agregar Evento Público -->
                         <div class="admin-sub-content" id="admin-tab-eventos">
                             <form id="admin-add-event-form" class="admin-form-inline">
+                                <input type="hidden" id="admin-event-id">
                                 <div class="admin-form-grid">
                                     <div class="form-group">
                                         <label for="admin-event-title">Nombre de la Actividad</label>
@@ -1026,6 +964,19 @@
                                             placeholder="Ej: Venta de empanadas, cuecas en vivo y grandes grupos de Petorca.">
                                     </div>
                                 </div>
+                                <div class="admin-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+                                    <div class="form-group">
+                                        <label for="admin-event-status">Estado de Publicación</label>
+                                        <select id="admin-event-status" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); cursor: pointer;">
+                                            <option value="published">🟢 Publicado (Visible en Agenda)</option>
+                                            <option value="draft">⏳ Borrador (Privado Directiva)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; user-select: none;">
+                                        <input type="checkbox" id="admin-event-featured" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent);">
+                                        <label for="admin-event-featured" style="margin: 0; cursor: pointer; font-size: 0.9rem; color: var(--text-light); font-weight: 600;"><i class="fa-solid fa-star text-gold"></i> Destacar Evento Principal (Solo uno)</label>
+                                    </div>
+                                </div>
                                 <div class="form-group" style="margin-top: 15px; width: 100%;">
                                     <label for="admin-event-image"><i class="fa-solid fa-image text-gold"></i> Afiche / Imagen del Evento (Opcional)</label>
                                     <input type="file" id="admin-event-image" accept="image/*" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 8px; border-radius: var(--radius-sm); color: var(--text); width: 100%; cursor: pointer;">
@@ -1034,10 +985,37 @@
                                         <button type="button" id="btn-clear-event-image" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-xmark"></i></button>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="align-self: flex-end; margin-top: 15px;">
-                                    <i class="fa-solid fa-calendar-plus"></i> Publicar en Agenda Pública
-                                </button>
+                                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; width: 100%;">
+                                    <button type="button" id="btn-cancel-edit-event" class="btn btn-outline" style="display: none; border-color: rgba(255,255,255,0.25);">Cancelar Edición</button>
+                                    <button type="submit" class="btn btn-primary" id="btn-submit-event">
+                                        <i class="fa-solid fa-calendar-plus"></i> Publicar en Agenda Pública
+                                    </button>
+                                </div>
                             </form>
+
+                            <!-- Listado de Eventos (CMS) -->
+                            <div class="db-card shadow-premium" style="margin-top: 30px; border-color: var(--border-color);">
+                                <div class="db-card-header">
+                                    <h3><i class="fa-solid fa-list text-gold"></i> Listado de Actividades / Eventos</h3>
+                                </div>
+                                <div class="acc-table-container" style="overflow-x: auto; margin-top: 15px;">
+                                    <table class="acc-table" id="admin-events-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Afiche</th>
+                                                <th>Título</th>
+                                                <th>Fecha / Hora</th>
+                                                <th style="text-align: center;">Estado</th>
+                                                <th style="text-align: center;">Destacado</th>
+                                                <th style="text-align: center;">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-events-list-body">
+                                            <!-- Rellenado dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Subsección 4: Registrar Nuevo Socio -->
@@ -1080,6 +1058,7 @@
                         <!-- Subsección 5: Subir Foto a Galería Pública -->
                         <div class="admin-sub-content" id="admin-tab-subir-foto">
                             <form id="admin-upload-photo-form" class="admin-form-inline" style="display: flex; flex-direction: column; gap: 15px;">
+                                <input type="hidden" id="admin-gallery-id">
                                 <div class="admin-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                     <div class="form-group">
                                         <label for="admin-gallery-image"><i class="fa-solid fa-image text-gold"></i> Seleccionar Imagen</label>
@@ -1105,6 +1084,19 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="admin-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; margin-top: 10px;">
+                                    <div class="form-group">
+                                        <label for="admin-gallery-status">Estado de Publicación</label>
+                                        <select id="admin-gallery-status" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text); cursor: pointer;">
+                                            <option value="published">🟢 Publicado (Visible en Galería)</option>
+                                            <option value="draft">⏳ Borrador (Privado Directiva)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; user-select: none;">
+                                        <input type="checkbox" id="admin-gallery-featured" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent);">
+                                        <label for="admin-gallery-featured" style="margin: 0; cursor: pointer; font-size: 0.9rem; color: var(--text-light); font-weight: 600;"><i class="fa-solid fa-star text-gold"></i> Destacar Foto Principal</label>
+                                    </div>
+                                </div>
                                 
                                 <!-- Indicador de progreso/carga animado -->
                                 <div id="upload-progress-container" style="display: none; width: 100%; margin-top: 15px; margin-bottom: 10px;">
@@ -1117,10 +1109,37 @@
                                     </div>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-primary" id="btn-submit-upload-gallery" style="align-self: flex-end; margin-top: 10px; min-width: 180px;">
-                                    <i class="fa-solid fa-cloud-arrow-up"></i> Subir Foto a Galería
-                                </button>
+                                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; width: 100%;">
+                                    <button type="button" id="btn-cancel-edit-photo" class="btn btn-outline" style="display: none; border-color: rgba(255,255,255,0.25);">Cancelar Edición</button>
+                                    <button type="submit" class="btn btn-primary" id="btn-submit-upload-gallery" style="min-width: 180px;">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i> Subir Foto a Galería
+                                    </button>
+                                </div>
                             </form>
+
+                            <!-- Listado de Fotos de Galería (CMS) -->
+                            <div class="db-card shadow-premium" style="margin-top: 30px; border-color: var(--border-color);">
+                                <div class="db-card-header">
+                                    <h3><i class="fa-solid fa-images text-gold"></i> Listado de Fotos en Galería</h3>
+                                </div>
+                                <div class="acc-table-container" style="overflow-x: auto; margin-top: 15px;">
+                                    <table class="acc-table" id="admin-photos-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Imagen</th>
+                                                <th>Descripción</th>
+                                                <th>Categoría</th>
+                                                <th style="text-align: center;">Estado</th>
+                                                <th style="text-align: center;">Destacada</th>
+                                                <th style="text-align: center;">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-photos-list-body">
+                                            <!-- Rellenado dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Subsección 6: Contabilidad (Ingresos y Egresos) -->

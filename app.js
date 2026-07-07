@@ -1492,6 +1492,13 @@ const CHAMPIONSHIP_PHOTOS = [
     { id: 228, url: "img/2 campeonato/campeonato/713903382_1452084166959331_4020842890568664108_n.jpg", caption: "El Brillo del Pañuelo de Honor", category: "campeonato", created_at: "2026-05-30T12:00:00Z" }
 ];
 
+// Base de datos local para eventos
+let EVENTS_DATABASE = [];
+
+// Base de datos local para comentarios y reacciones (Modo Demo)
+let COMMENTS_DATABASE = [];
+let REACTIONS_DATABASE = [];
+
 // Base de datos local para la galería (Pre-cargada con fotos de demostración)
 let GALLERY_PHOTOS_DATABASE = [
     {
@@ -1709,8 +1716,11 @@ async function syncFromSupabase() {
             MOCK_NEWS_AGREEMENTS = [];
         }
 
+        // Update local variables
+        EVENTS_DATABASE = timelineEvents || [];
+
         // Render dynamic timeline if events are present
-        if (timelineEvents && timelineEvents.length > 0) {
+        if (EVENTS_DATABASE && EVENTS_DATABASE.length > 0) {
             const timelineElement = document.querySelector('#noticias-tab .timeline');
             if (timelineElement) {
                 // Guardar la tarjeta enriquecida del campeonato si está presente en el HTML
@@ -1719,7 +1729,10 @@ async function syncFromSupabase() {
 
                 timelineElement.innerHTML = '';
                 
-                timelineEvents.forEach(evt => {
+                // Filter out drafts for public timeline
+                const publicEvents = EVENTS_DATABASE.filter(evt => evt.status !== 'draft');
+                
+                publicEvents.forEach(evt => {
                     // Evitar duplicar el campeonato si ya está registrado en Supabase
                     if (evt.title.includes("2° Gran Campeonato") || evt.title.includes("2do Campeonato")) {
                         return;
@@ -1742,14 +1755,21 @@ async function syncFromSupabase() {
                                 <p class="time-loc"><i class="fa-solid fa-clock"></i> ${evt.time}</p>
                                 <p>${evt.description}</p>
                                 ${eventMediaHtml}
+                                <div class="event-comments-container" data-id="${evt.id}" data-target-type="evento" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;"></div>
                             </div>
                         </div>
                     `;
                     timelineElement.insertAdjacentHTML('beforeend', newItemHtml);
                 });
 
-                // Re-inyectar la tarjeta del campeonato en su posición cronológica correcta
-                if (championshipHtml) {
+                // Render comments for timeline events
+                timelineElement.querySelectorAll('.event-comments-container').forEach(container => {
+                    const eventId = container.getAttribute('data-id');
+                    renderCommentsSection('evento', parseInt(eventId), container);
+                });
+
+                // Re-inyectar la tarjeta del campeonato en su posición cronológica correcta si no se ha inyectado ya
+                if (championshipHtml && !timelineElement.innerHTML.includes("championship-timeline-item")) {
                     let inserted = false;
                     const items = timelineElement.querySelectorAll('.timeline-item');
                     for (let item of items) {
@@ -1795,10 +1815,35 @@ async function syncFromSupabase() {
         // Renderizar las noticias en el grid público
         renderPublicNewsGrid(MOCK_NEWS_AGREEMENTS);
 
+        // Renderizar las listas del CMS de Administración
+        renderFeaturedEvent();
+        renderAdminEventsList();
+        renderAdminPhotosList();
+
         console.log("🟢 Sincronización con Supabase completada con éxito.");
     } catch (err) {
         console.error("🔴 Error sincronizando con Supabase, usando modo local:", err);
+        
+        // Fallback local databases
+        if (EVENTS_DATABASE.length === 0) {
+            EVENTS_DATABASE = [
+                {
+                    id: 1,
+                    date: "30 May",
+                    time: "10:00 | Gimnasio Municipal de La Ligua",
+                    title: "2° Gran Campeonato de Cueca y Destrezas Huasas",
+                    description: "Gran certamen cuequero y despliegue de destrezas huasas de la provincia. Parejas de toda la región competirán en distintas categorías (Mini Infantil, Infantil, Junior, Juvenil, Adulto y Destrezas Huasas damas/varones) por el gran trofeo. ¡Habrá música en vivo, empanadas y excelente ambiente familiar!",
+                    image_url: "img/2 campeonato/auspiciadores/667390153_1181483501371679_8202842901632095501_n.jpg",
+                    featured: true,
+                    status: "published"
+                }
+            ];
+        }
+
         renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+        renderFeaturedEvent();
+        renderAdminEventsList();
+        renderAdminPhotosList();
     }
 }
 
@@ -1849,11 +1894,43 @@ async function saveAgreementToSupabase(date, type, title, content, decisions, im
     }
 }
 
+// Helper to delete a file from Supabase Storage
+async function deleteFileFromSupabaseStorage(imageUrl) {
+    if (!isSupabaseActive || !imageUrl) return;
+    
+    // Check if it's a Supabase storage URL
+    if (imageUrl.includes('/storage/v1/object/public/gallery/')) {
+        const parts = imageUrl.split('/storage/v1/object/public/gallery/');
+        const filePath = parts[1]; // uploads/filename
+        if (filePath) {
+            try {
+                console.log(`🗑️ Eliminando archivo del Storage: ${filePath}`);
+                const { error } = await supabaseClient
+                    .storage
+                    .from('gallery')
+                    .remove([filePath]);
+                if (error) throw error;
+                console.log(`🟢 Archivo ${filePath} eliminado de Storage.`);
+            } catch (err) {
+                console.error("🔴 Error eliminando archivo de Storage:", err);
+            }
+        }
+    }
+}
+
 // 4. Save public event to Supabase
-async function saveEventToSupabase(date, time, title, description, imageUrl = null) {
+async function saveEventToSupabase(date, time, title, description, imageUrl = null, status = 'published', featured = false) {
     if (!isSupabaseActive) return;
 
     try {
+        if (featured) {
+            // Update other featured events to false
+            await supabaseClient
+                .from('timeline_events')
+                .update({ featured: false })
+                .eq('featured', true);
+        }
+
         const { error } = await supabaseClient
             .from('timeline_events')
             .insert([{
@@ -1861,7 +1938,9 @@ async function saveEventToSupabase(date, time, title, description, imageUrl = nu
                 time: time,
                 title: title,
                 description: description,
-                image_url: imageUrl
+                image_url: imageUrl,
+                status: status,
+                featured: featured
             }]);
 
         if (error) throw error;
@@ -1869,6 +1948,483 @@ async function saveEventToSupabase(date, time, title, description, imageUrl = nu
     } catch (err) {
         console.error("🔴 Error al guardar evento en Supabase:", err);
     }
+}
+
+async function updateEventInSupabase(id, date, time, title, description, imageUrl = null, status = 'published', featured = false) {
+    if (!isSupabaseActive) {
+        // Local update
+        const index = EVENTS_DATABASE.findIndex(evt => evt.id == id);
+        if (index !== -1) {
+            if (featured) {
+                EVENTS_DATABASE.forEach(evt => evt.featured = false);
+            }
+            EVENTS_DATABASE[index].date = date;
+            EVENTS_DATABASE[index].time = time;
+            EVENTS_DATABASE[index].title = title;
+            EVENTS_DATABASE[index].description = description;
+            if (imageUrl) EVENTS_DATABASE[index].image_url = imageUrl;
+            EVENTS_DATABASE[index].status = status;
+            EVENTS_DATABASE[index].featured = featured;
+            renderFeaturedEvent();
+            renderAdminEventsList();
+            syncFromSupabase();
+        }
+        return;
+    }
+
+    try {
+        if (featured) {
+            // Update other featured events to false
+            await supabaseClient
+                .from('timeline_events')
+                .update({ featured: false })
+                .eq('featured', true);
+        }
+
+        const updateData = {
+            date: date,
+            time: time,
+            title: title,
+            description: description,
+            status: status,
+            featured: featured
+        };
+        if (imageUrl) {
+            updateData.image_url = imageUrl;
+        }
+
+        const { error } = await supabaseClient
+            .from('timeline_events')
+            .update(updateData)
+            .eq('id', id);
+
+        if (error) throw error;
+        console.log(`🟢 Evento ID ${id} actualizado en Supabase.`);
+        await syncFromSupabase();
+    } catch (err) {
+        console.error("🔴 Error al actualizar evento en Supabase:", err);
+        showToast("Error de Servidor", "No se pudo actualizar el evento.", "error");
+    }
+}
+
+async function deleteEventFromSupabase(id) {
+    const event = EVENTS_DATABASE.find(e => e.id == id);
+    if (!event) return;
+
+    if (!isSupabaseActive) {
+        // Local delete
+        EVENTS_DATABASE = EVENTS_DATABASE.filter(e => e.id != id);
+        renderFeaturedEvent();
+        renderAdminEventsList();
+        showToast("Evento Eliminado", "El evento se ha eliminado localmente.");
+        return;
+    }
+
+    try {
+        // Delete image from storage
+        if (event.image_url) {
+            await deleteFileFromSupabaseStorage(event.image_url);
+        }
+
+        const { error } = await supabaseClient
+            .from('timeline_events')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        console.log(`🗑️ Evento ID ${id} eliminado de Supabase.`);
+        showToast("¡Evento Eliminado!", "El evento ha sido borrado con éxito.");
+        await syncFromSupabase();
+    } catch (err) {
+        console.error("🔴 Error al eliminar evento en Supabase:", err);
+        showToast("Error de Servidor", "No se pudo eliminar el evento.", "error");
+    }
+}
+
+// 5. Save photo to Supabase
+async function savePhotoToSupabase(url, caption, category, status = 'published', featured = false) {
+    if (!isSupabaseActive) return;
+
+    try {
+        if (featured) {
+            // Update other featured photos to false
+            await supabaseClient
+                .from('gallery_photos')
+                .update({ featured: false })
+                .eq('featured', true);
+        }
+
+        const { error } = await supabaseClient
+            .from('gallery_photos')
+            .insert([{
+                url: url,
+                caption: caption,
+                category: category,
+                status: status,
+                featured: featured
+            }]);
+
+        if (error) throw error;
+        console.log("💾 Foto de galería publicada en Supabase.");
+    } catch (err) {
+        console.error("🔴 Error al guardar foto en Supabase:", err);
+    }
+}
+
+async function updatePhotoInSupabase(id, url, caption, category, status = 'published', featured = false) {
+    if (!isSupabaseActive) {
+        // Local update
+        const index = GALLERY_PHOTOS_DATABASE.findIndex(p => p.id == id);
+        if (index !== -1) {
+            if (featured) {
+                GALLERY_PHOTOS_DATABASE.forEach(p => p.featured = false);
+            }
+            if (url) GALLERY_PHOTOS_DATABASE[index].url = url;
+            GALLERY_PHOTOS_DATABASE[index].caption = caption;
+            GALLERY_PHOTOS_DATABASE[index].category = category;
+            GALLERY_PHOTOS_DATABASE[index].status = status;
+            GALLERY_PHOTOS_DATABASE[index].featured = featured;
+            renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+            renderAdminPhotosList();
+        }
+        return;
+    }
+
+    try {
+        if (featured) {
+            // Update other featured photos to false
+            await supabaseClient
+                .from('gallery_photos')
+                .update({ featured: false })
+                .eq('featured', true);
+        }
+
+        const updateData = {
+            caption: caption,
+            category: category,
+            status: status,
+            featured: featured
+        };
+        if (url) {
+            updateData.url = url;
+        }
+
+        const { error } = await supabaseClient
+            .from('gallery_photos')
+            .update(updateData)
+            .eq('id', id);
+
+        if (error) throw error;
+        console.log(`🟢 Foto ID ${id} actualizada en Supabase.`);
+        await syncFromSupabase();
+    } catch (err) {
+        console.error("🔴 Error al actualizar foto en Supabase:", err);
+        showToast("Error de Servidor", "No se pudo actualizar la foto.", "error");
+    }
+}
+
+async function deletePhotoFromSupabase(id) {
+    const photo = GALLERY_PHOTOS_DATABASE.find(p => p.id == id);
+    if (!photo) return;
+
+    if (!isSupabaseActive) {
+        // Local delete
+        GALLERY_PHOTOS_DATABASE = GALLERY_PHOTOS_DATABASE.filter(p => p.id != id);
+        renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+        renderAdminPhotosList();
+        showToast("Foto Eliminada", "La foto se ha eliminado localmente.");
+        return;
+    }
+
+    try {
+        // Delete image from storage
+        if (photo.url) {
+            await deleteFileFromSupabaseStorage(photo.url);
+        }
+
+        const { error } = await supabaseClient
+            .from('gallery_photos')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        console.log(`🗑️ Foto ID ${id} eliminada de Supabase.`);
+        showToast("¡Foto Eliminada!", "La foto ha sido borrada con éxito.");
+        await syncFromSupabase();
+    } catch (err) {
+        console.error("🔴 Error al eliminar foto en Supabase:", err);
+        showToast("Error de Servidor", "No se pudo eliminar la foto.", "error");
+    }
+}
+
+// 6. Dynamic Featured Event Card Renderer
+function renderFeaturedEvent() {
+    const featuredCard = document.getElementById('championship-featured-card');
+    if (!featuredCard) return;
+
+    const featured = EVENTS_DATABASE.find(evt => evt.featured === true && evt.status === 'published');
+
+    if (!featured) {
+        featuredCard.classList.add('hidden');
+        return;
+    }
+
+    featuredCard.classList.remove('hidden');
+
+    // Populate left info
+    const infoContainer = document.getElementById('featured-event-info');
+    if (infoContainer) {
+        let statsHtml = '';
+        if (featured.title.includes("Campeonato") || featured.title.includes("Cueca")) {
+            statsHtml = `
+                <div class="event-stats-row" style="flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                    <div class="e-stat"><i class="fa-solid fa-award"></i> 80+ Parejas</div>
+                    <div class="e-stat"><i class="fa-solid fa-music"></i> Músicos en Vivo</div>
+                    <div class="e-stat"><i class="fa-solid fa-face-smile"></i> Gimnasio Completo</div>
+                </div>
+            `;
+        }
+
+        let ctaHtml = '';
+        if (featured.title.includes("Campeonato")) {
+            ctaHtml = `
+                <button class="btn btn-primary" onclick="const filterBtn = document.querySelector('.filter-btn[data-filter=\\'campeonato\\']'); if(filterBtn) { filterBtn.click(); switchSection('eventos-tab'); filterBtn.scrollIntoView({behavior: 'smooth'}); }" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-images"></i> Ver Galería Completa
+                </button>
+            `;
+        } else {
+            ctaHtml = `
+                <button class="btn btn-primary" onclick="switchSection('noticias-tab'); document.querySelector('.upcoming-events-panel')?.scrollIntoView({behavior: 'smooth'});" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-calendar-day"></i> Ver Agenda Completa
+                </button>
+            `;
+        }
+
+        infoContainer.innerHTML = `
+            <span class="badge badge-featured" style="background: rgba(255, 213, 79, 0.15); color: var(--accent); border-color: rgba(255, 213, 79, 0.3);"><i class="fa-solid fa-star spin-slow"></i> Evento Destacado</span>
+            <h3>${featured.title}</h3>
+            <p class="event-meta"><i class="fa-solid fa-calendar-day"></i> ${featured.date} · <i class="fa-solid fa-clock"></i> ${featured.time}</p>
+            <p class="event-desc">${featured.description}</p>
+            ${statsHtml}
+            <div class="featured-event-cta">
+                ${ctaHtml}
+            </div>
+        `;
+    }
+
+    // Populate right media
+    const mediaContainer = document.getElementById('featured-event-media-wrapper');
+    if (mediaContainer) {
+        if (featured.image_url) {
+            mediaContainer.innerHTML = `
+                <img id="featured-event-img" src="${featured.image_url}" alt="${featured.title}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="openLightbox('${featured.title}', '${featured.description}', '${featured.date}', 'evento', '', '', '${featured.image_url}')">
+            `;
+        } else {
+            mediaContainer.innerHTML = `
+                <div class="fallback-gradient-card" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(255,213,79,0.1), rgba(0,0,0,0.4)); padding: 40px; text-align: center; color: var(--text-muted);">
+                    <i class="fa-solid fa-trophy fallback-icon" style="font-size: 3.5rem; color: var(--accent); margin-bottom: 15px;"></i>
+                    <span class="fallback-title" style="font-size: 1.3rem; font-family: var(--font-heading); color: #fff;">${featured.title}</span>
+                </div>
+            `;
+        }
+    }
+
+    // Check and populate comments container for featured event
+    let commentsContainer = featuredCard.querySelector('.featured-comments-container');
+    if (!commentsContainer) {
+        commentsContainer = document.createElement('div');
+        commentsContainer.className = 'featured-comments-container';
+        commentsContainer.setAttribute('data-id', featured.id);
+        commentsContainer.setAttribute('data-target-type', 'evento');
+        commentsContainer.style.gridColumn = '1 / -1';
+        commentsContainer.style.padding = '25px 40px';
+        commentsContainer.style.borderTop = '1px solid rgba(255, 213, 79, 0.2)';
+        commentsContainer.style.background = 'rgba(0,0,0,0.15)';
+        featuredCard.appendChild(commentsContainer);
+    } else {
+        commentsContainer.setAttribute('data-id', featured.id);
+    }
+    
+    renderCommentsSection('evento', featured.id, commentsContainer);
+}
+
+// 7. Render Admin list of events (CMS)
+function renderAdminEventsList() {
+    const tbody = document.getElementById('admin-events-list-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    
+    if (EVENTS_DATABASE.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">No hay eventos registrados.</td></tr>`;
+        return;
+    }
+
+    EVENTS_DATABASE.forEach(evt => {
+        const hasThumb = evt.image_url ? `<img src="${evt.image_url}" class="admin-table-thumb" alt="Miniatura" onclick="openLightbox('${evt.title}', '${evt.description}', '${evt.date}', 'evento', '', '', '${evt.image_url}')">` : `<span style="color: var(--text-muted); font-size: 0.8rem;">Sin Imagen</span>`;
+        const featuredBadge = evt.featured ? `<span class="badge badge-yes">Sí</span>` : `<span class="badge badge-no">No</span>`;
+        
+        let statusBadge = '';
+        if (evt.status === 'draft') {
+            statusBadge = `<span class="badge badge-draft">Borrador</span>`;
+        } else {
+            statusBadge = `<span class="badge badge-published">Publicado</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${hasThumb}</td>
+            <td><strong style="color: var(--text-light);">${evt.title}</strong></td>
+            <td>${evt.date} <br> <span style="font-size: 0.8rem; color: var(--text-muted);">${evt.time}</span></td>
+            <td style="text-align: center;">${statusBadge}</td>
+            <td style="text-align: center;">${featuredBadge}</td>
+            <td style="text-align: center;">
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button type="button" class="btn btn-outline btn-edit-event" data-id="${evt.id}" style="padding: 4px 8px; font-size: 0.75rem; min-width: auto; height: auto;"><i class="fa-solid fa-pen"></i></button>
+                    <button type="button" class="btn btn-outline btn-delete-event" data-id="${evt.id}" style="padding: 4px 8px; font-size: 0.75rem; min-width: auto; height: auto; border-color: rgba(211,47,47,0.4); color: #ff5252;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Wire buttons
+    tbody.querySelectorAll('.btn-edit-event').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const event = EVENTS_DATABASE.find(e => e.id == id);
+            if (event) {
+                // Populate form
+                document.getElementById('admin-event-id').value = event.id;
+                document.getElementById('admin-event-title').value = event.title;
+                document.getElementById('admin-event-date').value = event.date;
+                document.getElementById('admin-event-time').value = event.time;
+                document.getElementById('admin-event-desc').value = event.description;
+                document.getElementById('admin-event-status').value = event.status || 'published';
+                document.getElementById('admin-event-featured').checked = event.featured || false;
+
+                // Handle image preview
+                const previewImg = document.getElementById('admin-event-image-preview');
+                const previewContainer = document.getElementById('admin-event-image-preview-container');
+                if (previewImg && previewContainer) {
+                    if (event.image_url) {
+                        previewImg.src = event.image_url;
+                        previewContainer.style.display = 'block';
+                    } else {
+                        previewImg.src = '';
+                        previewContainer.style.display = 'none';
+                    }
+                }
+
+                // Change form mode
+                document.getElementById('btn-cancel-edit-event').style.display = 'inline-block';
+                document.getElementById('btn-submit-event').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios`;
+                document.getElementById('admin-event-image').required = false;
+
+                // Scroll form into view
+                document.getElementById('admin-add-event-form').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    tbody.querySelectorAll('.btn-delete-event').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const event = EVENTS_DATABASE.find(e => e.id == id);
+            if (event) {
+                const confirmed = await window.showConfirm(`¿Estás seguro de que deseas eliminar el evento "${event.title}" de la agenda?`);
+                if (confirmed) {
+                    await deleteEventFromSupabase(id);
+                }
+            }
+        });
+    });
+}
+
+// 8. Render Admin list of photos (CMS)
+function renderAdminPhotosList() {
+    const tbody = document.getElementById('admin-photos-list-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    
+    if (GALLERY_PHOTOS_DATABASE.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">No hay fotos registradas.</td></tr>`;
+        return;
+    }
+
+    GALLERY_PHOTOS_DATABASE.forEach(photo => {
+        const hasThumb = `<img src="${photo.url}" class="admin-table-thumb" alt="Miniatura" onclick="openLightbox('${photo.caption || ''}', 'Galería de fotos de la comunidad.', '', 'foto', '', '', '${photo.url}')">`;
+        const featuredBadge = photo.featured ? `<span class="badge badge-yes">Sí</span>` : `<span class="badge badge-no">No</span>`;
+        
+        let statusBadge = '';
+        if (photo.status === 'draft') {
+            statusBadge = `<span class="badge badge-draft">Borrador</span>`;
+        } else {
+            statusBadge = `<span class="badge badge-published">Publicado</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${hasThumb}</td>
+            <td><strong style="color: var(--text-light);">${photo.caption || 'Sin pie de foto'}</strong></td>
+            <td>${photo.category}</td>
+            <td style="text-align: center;">${statusBadge}</td>
+            <td style="text-align: center;">${featuredBadge}</td>
+            <td style="text-align: center;">
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button type="button" class="btn btn-outline btn-edit-photo" data-id="${photo.id}" style="padding: 4px 8px; font-size: 0.75rem; min-width: auto; height: auto;"><i class="fa-solid fa-pen"></i></button>
+                    <button type="button" class="btn btn-outline btn-delete-photo" data-id="${photo.id}" style="padding: 4px 8px; font-size: 0.75rem; min-width: auto; height: auto; border-color: rgba(211,47,47,0.4); color: #ff5252;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Wire buttons
+    tbody.querySelectorAll('.btn-edit-photo').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const photo = GALLERY_PHOTOS_DATABASE.find(p => p.id == id);
+            if (photo) {
+                // Populate form
+                document.getElementById('admin-gallery-id').value = photo.id;
+                document.getElementById('admin-gallery-caption').value = photo.caption || '';
+                document.getElementById('admin-gallery-category').value = photo.category || 'presentaciones';
+                document.getElementById('admin-gallery-status').value = photo.status || 'published';
+                document.getElementById('admin-gallery-featured').checked = photo.featured || false;
+
+                // Handle image preview
+                const previewImg = document.getElementById('admin-gallery-image-preview');
+                const previewContainer = document.getElementById('admin-gallery-image-preview-container');
+                if (previewImg && previewContainer) {
+                    previewImg.src = photo.url;
+                    previewContainer.style.display = 'block';
+                }
+
+                // Change form mode
+                document.getElementById('btn-cancel-edit-photo').style.display = 'inline-block';
+                document.getElementById('btn-submit-upload-gallery').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios`;
+                document.getElementById('admin-gallery-image').required = false;
+
+                // Scroll form into view
+                document.getElementById('admin-upload-photo-form').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    tbody.querySelectorAll('.btn-delete-photo').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const photo = GALLERY_PHOTOS_DATABASE.find(p => p.id == id);
+            if (photo) {
+                const confirmed = await window.showConfirm(`¿Estás seguro de que deseas eliminar esta fotografía de la galería?`);
+                if (confirmed) {
+                    await deletePhotoFromSupabase(id);
+                }
+            }
+        });
+    });
 }
 
 function initPortal() {
@@ -2438,10 +2994,13 @@ function initPortal() {
     if (eventForm) {
         eventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const id = document.getElementById('admin-event-id').value;
             const title = document.getElementById('admin-event-title').value;
             const date = document.getElementById('admin-event-date').value;
             const time = document.getElementById('admin-event-time').value;
             const desc = document.getElementById('admin-event-desc').value;
+            const status = document.getElementById('admin-event-status').value;
+            const featured = document.getElementById('admin-event-featured').checked;
 
             // Previsualización y carga del afiche
             let imageUrl = null;
@@ -2454,42 +3013,63 @@ function initPortal() {
                 }
             }
 
-            if (isSupabaseActive) {
-                await saveEventToSupabase(date, time, title, desc, imageUrl);
-                await syncFromSupabase();
+            if (id) {
+                // Modo Edición
+                await updateEventInSupabase(id, date, time, title, desc, imageUrl, status, featured);
+                showToast("¡Evento Actualizado!", "Los cambios del evento se han guardado con éxito.");
             } else {
-                // Add new timeline element to the public Timeline inside eventos-tab localmente
-                const timelineElement = document.querySelector('#noticias-tab .timeline');
-                if (timelineElement) {
-                    let eventMediaHtml = '';
-                    if (imageUrl) {
-                        eventMediaHtml = `
-                            <div class="timeline-event-media" style="margin-top: 15px;">
-                                <img src="${imageUrl}" class="timeline-event-img" alt="${title}" style="max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); cursor: pointer;" onclick="openLightbox('${title}', '${desc}', '${date}', 'evento', '', '', '${imageUrl}')">
-                            </div>
-                        `;
+                // Modo Creación
+                if (isSupabaseActive) {
+                    await saveEventToSupabase(date, time, title, desc, imageUrl, status, featured);
+                    await syncFromSupabase();
+                } else {
+                    // Modo Demo Local
+                    const mockEvent = {
+                        id: Date.now(),
+                        date: date,
+                        time: time,
+                        title: title,
+                        description: desc,
+                        image_url: imageUrl || "img/logo.jpg",
+                        status: status,
+                        featured: featured
+                    };
+                    if (featured) {
+                        EVENTS_DATABASE.forEach(evt => evt.featured = false);
                     }
-                    const newItemHtml = `
-                        <div class="timeline-item">
-                            <div class="timeline-date">${date}</div>
-                            <div class="timeline-content">
-                                <h4>${title}</h4>
-                                <p class="time-loc"><i class="fa-solid fa-clock"></i> ${time}</p>
-                                <p>${desc}</p>
-                                ${eventMediaHtml}
-                            </div>
-                        </div>
-                    `;
-                    timelineElement.insertAdjacentHTML('afterbegin', newItemHtml);
+                    EVENTS_DATABASE.unshift(mockEvent);
+                    renderFeaturedEvent();
+                    renderAdminEventsList();
+                    syncFromSupabase();
                 }
+                showToast("¡Evento Creado!", "La actividad ha sido publicada en la agenda con éxito.");
             }
 
-            eventForm.reset();
-            const previewContainer = document.getElementById('admin-event-image-preview-container');
-            if (previewContainer) previewContainer.style.display = 'none';
-            
-            showToast("¡Evento Creado!", "La actividad ha sido publicada en la agenda pública de eventos.");
+            resetEventForm();
         });
+
+        const cancelBtn = document.getElementById('btn-cancel-edit-event');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                resetEventForm();
+            });
+        }
+    }
+
+    function resetEventForm() {
+        if (!eventForm) return;
+        eventForm.reset();
+        document.getElementById('admin-event-id').value = '';
+        const previewContainer = document.getElementById('admin-event-image-preview-container');
+        if (previewContainer) previewContainer.style.display = 'none';
+        
+        const cancelBtn = document.getElementById('btn-cancel-edit-event');
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        
+        const submitBtn = document.getElementById('btn-submit-event');
+        if (submitBtn) submitBtn.innerHTML = `<i class="fa-solid fa-calendar-plus"></i> Publicar en Agenda Pública`;
+        
+        document.getElementById('admin-event-image').required = false;
     }
 
     // Formulario de Creación de Nuevos Socios por la Directiva
@@ -2670,42 +3250,60 @@ function initPortal() {
     if (uploadPhotoForm) {
         uploadPhotoForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const id = document.getElementById('admin-gallery-id').value;
             const caption = document.getElementById('admin-gallery-caption').value.trim();
             const category = document.getElementById('admin-gallery-category').value;
-            const progressContainer = document.getElementById('upload-progress-container');
-            const progressBar = document.getElementById('upload-progress-bar');
-            const progressPercentage = document.getElementById('upload-percentage');
+            const status = document.getElementById('admin-gallery-status').value;
+            const featured = document.getElementById('admin-gallery-featured').checked;
+            
+            const fileInput = document.getElementById('admin-gallery-image');
+            const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+            
+            let imageUrl = null;
+            if (hasNewFile) {
+                const progressContainer = document.getElementById('upload-progress-container');
+                const progressBar = document.getElementById('upload-progress-bar');
+                const progressPercentage = document.getElementById('upload-percentage');
 
-            if (progressContainer && progressBar && progressPercentage) {
-                progressContainer.style.display = 'block';
-                progressBar.style.width = '0%';
-                progressPercentage.textContent = '0%';
-            }
-
-            try {
-                const imageUrl = await uploadFileToSupabase('admin-gallery-image', (progress) => {
-                    if (progressBar && progressPercentage) {
-                        progressBar.style.width = `${progress}%`;
-                        progressPercentage.textContent = `${progress}%`;
-                    }
-                });
-
-                if (!imageUrl) {
-                    showToast("Error de Selección", "Selecciona una imagen válida.", "error");
-                    return;
+                if (progressContainer && progressBar && progressPercentage) {
+                    progressContainer.style.display = 'block';
+                    progressBar.style.width = '0%';
+                    progressPercentage.textContent = '0%';
                 }
 
-                if (isSupabaseActive) {
-                    const { error } = await supabaseClient
-                        .from('gallery_photos')
-                        .insert([{
-                            url: imageUrl,
-                            caption: caption,
-                            category: category
-                        }]);
+                try {
+                    imageUrl = await uploadFileToSupabase('admin-gallery-image', (progress) => {
+                        if (progressBar && progressPercentage) {
+                            progressBar.style.width = `${progress}%`;
+                            progressPercentage.textContent = `${progress}%`;
+                        }
+                    });
+                } catch (err) {
+                    console.error("🔴 Error subiendo foto a la galería:", err);
+                    showToast("Error de Subida", "No se pudo subir la imagen.", "error");
+                    return;
+                } finally {
+                    if (progressContainer) {
+                        setTimeout(() => {
+                            progressContainer.style.display = 'none';
+                        }, 1000);
+                    }
+                }
+            }
 
-                    if (error) throw error;
-                    
+            if (id) {
+                // Modo Edición
+                await updatePhotoInSupabase(id, imageUrl, caption, category, status, featured);
+                showToast("¡Foto Actualizada!", "Los cambios se guardaron con éxito.");
+            } else {
+                // Modo Creación
+                if (!imageUrl) {
+                    showToast("Error de Selección", "Selecciona una imagen válida para subir.", "error");
+                    return;
+                }
+                
+                if (isSupabaseActive) {
+                    await savePhotoToSupabase(imageUrl, caption, category, status, featured);
                     await syncFromSupabase();
                 } else {
                     // Modo Demo Local
@@ -2714,28 +3312,45 @@ function initPortal() {
                         url: imageUrl,
                         caption: caption,
                         category: category,
+                        status: status,
+                        featured: featured,
                         created_at: new Date().toISOString()
                     };
+                    if (featured) {
+                        GALLERY_PHOTOS_DATABASE.forEach(p => p.featured = false);
+                    }
                     GALLERY_PHOTOS_DATABASE.unshift(mockPhoto);
                     renderGalleryGrid(GALLERY_PHOTOS_DATABASE);
+                    renderAdminPhotosList();
                 }
-
-                uploadPhotoForm.reset();
-                const previewContainer = document.getElementById('admin-gallery-image-preview-container');
-                if (previewContainer) previewContainer.style.display = 'none';
-
-                showToast("¡Foto Subida!", "La foto ha sido agregada a la galería de la comunidad con éxito.");
-            } catch (err) {
-                    console.error("🔴 Error subiendo foto a la galería:", err);
-                    showToast("Error de Servidor", "No se pudo completar la subida.", "error");
-            } finally {
-                if (progressContainer) {
-                    setTimeout(() => {
-                        progressContainer.style.display = 'none';
-                    }, 1000);
-                }
+                showToast("¡Foto Subida!", "La foto ha sido agregada a la galería pública.");
             }
+
+            resetPhotoForm();
         });
+
+        const cancelBtn = document.getElementById('btn-cancel-edit-photo');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                resetPhotoForm();
+            });
+        }
+    }
+
+    function resetPhotoForm() {
+        if (!uploadPhotoForm) return;
+        uploadPhotoForm.reset();
+        document.getElementById('admin-gallery-id').value = '';
+        const previewContainer = document.getElementById('admin-gallery-image-preview-container');
+        if (previewContainer) previewContainer.style.display = 'none';
+        
+        const cancelBtn = document.getElementById('btn-cancel-edit-photo');
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        
+        const submitBtn = document.getElementById('btn-submit-upload-gallery');
+        if (submitBtn) submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Subir Foto a Galería`;
+        
+        document.getElementById('admin-gallery-image').required = true;
     }
 
     // --- LOGICA DE RECUPERACION DE CONTRASEÑA ---
@@ -3053,6 +3668,7 @@ async function loginSuccess(role, memberKey = null) {
     }
     
     showToast("¡Bienvenido al Portal!", `Sesión iniciada como ${activeUser.memberName}.`);
+    refreshAllCommentsSections();
 }
 
 function renderProfileCard(memberKey) {
@@ -3120,6 +3736,7 @@ function performLogout() {
     activeUser = { username: "", role: "", memberName: "", activeMemberKey: "patricia" };
     
     showToast("Sesión Cerrada", "Has salido del portal de socios. Vuelve pronto.");
+    refreshAllCommentsSections();
 }
 
 /* ==========================================================================
@@ -3816,13 +4433,16 @@ function renderGalleryGrid(photosList = []) {
         },
         "campeonato": {
             title: "2° Campeonato de Cueca 🏆",
-            description: "Los mejores momentos del gran campeonato y destrezas huasas de La Ligua.",
+            description: "Los mejores momentos del gran campeonato and destrezas huasas de La Ligua.",
             photos: []
         }
     };
 
+    // Filter out drafts for public display
+    const publicPhotos = photosList.filter(photo => photo.status !== 'draft');
+
     // Distribute photos to their respective albums
-    photosList.forEach(photo => {
+    publicPhotos.forEach(photo => {
         const cat = photo.category || 'comunidad';
         if (albums[cat]) {
             albums[cat].photos.push(photo);
@@ -4030,6 +4650,17 @@ function renderPublicNewsGrid(newsList = []) {
         }
 
         list.appendChild(card);
+
+        // Append comments section for news cards
+        const commentsContainer = document.createElement('div');
+        commentsContainer.className = 'card-comments-section';
+        commentsContainer.setAttribute('data-id', news.id);
+        commentsContainer.setAttribute('data-target-type', 'noticia');
+        commentsContainer.style.marginTop = '20px';
+        commentsContainer.style.borderTop = '1px solid var(--border-color)';
+        commentsContainer.style.paddingTop = '15px';
+        card.appendChild(commentsContainer);
+        renderCommentsSection('noticia', news.id, commentsContainer);
     });
 }
 
@@ -4570,3 +5201,419 @@ function exportAccountingToExcel() {
 
 // Exponer la función globalmente para depuración y otros usos
 window.exportAccountingToExcel = exportAccountingToExcel;
+
+/* ==========================================================================
+   INTERACTIONS - COMMENTS AND REACTIONS API & RENDER ENGINE (FORUM STYLE)
+   ========================================================================== */
+
+// 1. Fetch Comments
+async function fetchCommentsForTarget(targetType, targetId) {
+    if (!isSupabaseActive) {
+        return COMMENTS_DATABASE.filter(c => c.target_type === targetType && c.target_id === targetId)
+            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    }
+    try {
+        const { data, error } = await supabaseClient
+            .from('comments')
+            .select('*')
+            .eq('target_type', targetType)
+            .eq('target_id', targetId)
+            .order('created_at', { ascending: true });
+        
+        if (error) {
+            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
+                console.warn("⚠️ Tabla 'comments' no existe en Supabase. Usando base de datos local para demostración.");
+                return COMMENTS_DATABASE.filter(c => c.target_type === targetType && c.target_id === targetId)
+                    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            }
+            throw error;
+        }
+        return data || [];
+    } catch (err) {
+        console.warn("⚠️ Advertencia: No se pudieron cargar comentarios de Supabase para", targetType, targetId, err);
+        return COMMENTS_DATABASE.filter(c => c.target_type === targetType && c.target_id === targetId)
+            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    }
+}
+
+// 2. Add Comment
+async function addComment(targetType, targetId, content) {
+    if (!activeUser || activeUser.username === "") return null;
+    const memberName = MEMBERS_DATABASE[activeUser.activeMemberKey]?.name || activeUser.memberName || activeUser.username;
+    
+    const localComment = {
+        id: Date.now(),
+        target_type: targetType,
+        target_id: targetId,
+        member_id: activeUser.activeMemberKey,
+        member_name: memberName,
+        content: content,
+        created_at: new Date().toISOString()
+    };
+
+    if (!isSupabaseActive) {
+        COMMENTS_DATABASE.push(localComment);
+        return localComment;
+    }
+    try {
+        const { data, error } = await supabaseClient
+            .from('comments')
+            .insert([{
+                target_type: targetType,
+                target_id: targetId,
+                member_id: activeUser.activeMemberKey,
+                member_name: memberName,
+                content: content
+            }])
+            .select();
+        
+        if (error) {
+            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
+                console.warn("⚠️ Tabla 'comments' no existe en Supabase. Guardando localmente en base de datos temporal.");
+                COMMENTS_DATABASE.push(localComment);
+                return localComment;
+            }
+            throw error;
+        }
+        return data ? data[0] : null;
+    } catch (err) {
+        console.warn("⚠️ Fallback local activo. Publicando comentario localmente:", err);
+        COMMENTS_DATABASE.push(localComment);
+        return localComment;
+    }
+}
+
+// 3. Delete Comment
+async function deleteComment(commentId) {
+    if (!isSupabaseActive) {
+        COMMENTS_DATABASE = COMMENTS_DATABASE.filter(c => c.id != commentId);
+        return true;
+    }
+    try {
+        const { error } = await supabaseClient
+            .from('comments')
+            .delete()
+            .eq('id', commentId);
+        
+        if (error) {
+            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
+                COMMENTS_DATABASE = COMMENTS_DATABASE.filter(c => c.id != commentId);
+                return true;
+            }
+            throw error;
+        }
+        return true;
+    } catch (err) {
+        console.warn("⚠️ Eliminando comentario de base de datos local:", err);
+        COMMENTS_DATABASE = COMMENTS_DATABASE.filter(c => c.id != commentId);
+        return true;
+    }
+}
+
+// 4. Fetch Reactions
+async function fetchReactionsForTarget(targetType, targetId) {
+    if (!isSupabaseActive) {
+        return REACTIONS_DATABASE.filter(r => r.target_type === targetType && r.target_id === targetId);
+    }
+    try {
+        const { data, error } = await supabaseClient
+            .from('reactions')
+            .select('*')
+            .eq('target_type', targetType)
+            .eq('target_id', targetId);
+        
+        if (error) {
+            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
+                console.warn("⚠️ Tabla 'reactions' no existe en Supabase. Usando base de datos local temporal.");
+                return REACTIONS_DATABASE.filter(r => r.target_type === targetType && r.target_id === targetId);
+            }
+            throw error;
+        }
+        return data || [];
+    } catch (err) {
+        console.warn("⚠️ Advertencia: No se pudieron cargar reacciones de Supabase para", targetType, targetId, err);
+        return REACTIONS_DATABASE.filter(r => r.target_type === targetType && r.target_id === targetId);
+    }
+}
+
+// 5. Toggle Reaction
+async function toggleReaction(targetType, targetId) {
+    if (!activeUser || activeUser.username === "") return null;
+    const memberId = activeUser.activeMemberKey;
+    
+    const handleLocalToggle = () => {
+        const existingIdx = REACTIONS_DATABASE.findIndex(
+            r => r.target_type === targetType && r.target_id === targetId && r.member_id === memberId
+        );
+        if (existingIdx !== -1) {
+            REACTIONS_DATABASE.splice(existingIdx, 1);
+            return false;
+        } else {
+            REACTIONS_DATABASE.push({
+                id: Date.now(),
+                target_type: targetType,
+                target_id: targetId,
+                member_id: memberId,
+                reaction_type: 'like'
+            });
+            return true;
+        }
+    };
+
+    if (!isSupabaseActive) {
+        return handleLocalToggle();
+    }
+    try {
+        const { data: existing, error: checkError } = await supabaseClient
+            .from('reactions')
+            .select('id')
+            .eq('target_type', targetType)
+            .eq('target_id', targetId)
+            .eq('member_id', memberId)
+            .maybeSingle();
+            
+        if (checkError) {
+            if (checkError.code === '42P01' || checkError.message?.includes('relation') || checkError.message?.includes('not found')) {
+                console.warn("⚠️ Tabla 'reactions' no existe en Supabase. Alternando reacción localmente.");
+                return handleLocalToggle();
+            }
+            throw checkError;
+        }
+        
+        if (existing) {
+            const { error: delError } = await supabaseClient
+                .from('reactions')
+                .delete()
+                .eq('id', existing.id);
+            if (delError) throw delError;
+            return false;
+        } else {
+            const { error: insError } = await supabaseClient
+                .from('reactions')
+                .insert([{
+                    target_type: targetType,
+                    target_id: targetId,
+                    member_id: memberId,
+                    reaction_type: 'like'
+                }]);
+            if (insError) throw insError;
+            return true;
+        }
+    } catch (err) {
+        console.warn("⚠️ Fallback local activo. Alternando reacción localmente:", err);
+        return handleLocalToggle();
+    }
+}
+
+// 6. Unified Comments & Reactions Section Renderer
+async function renderCommentsSection(targetType, targetId, containerEl) {
+    if (!containerEl) return;
+    
+    containerEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 10px;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando interacciones...</div>`;
+    
+    const comments = await fetchCommentsForTarget(targetType, targetId);
+    const reactions = await fetchReactionsForTarget(targetType, targetId);
+    
+    const likeCount = reactions.length;
+    const hasSession = activeUser && activeUser.username !== "";
+    const userHasLiked = hasSession ? reactions.some(r => r.member_id === activeUser.activeMemberKey) : false;
+    
+    // Reaction block
+    let reactionButtonHtml = '';
+    if (hasSession) {
+        reactionButtonHtml = `
+            <button type="button" class="btn-like-interaction ${userHasLiked ? 'active' : ''}" data-target-type="${targetType}" data-target-id="${targetId}" style="display: inline-flex; align-items: center; gap: 6px; background: ${userHasLiked ? 'rgba(255, 213, 79, 0.15)' : 'rgba(255,255,255,0.05)'}; color: ${userHasLiked ? 'var(--accent)' : 'var(--text-muted)'}; border: 1px solid ${userHasLiked ? 'rgba(255, 213, 79, 0.3)' : 'rgba(255,255,255,0.1)'}; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; cursor: pointer; font-weight: 600; transition: var(--transition);">
+                <i class="fa-solid fa-hands-clapping"></i> ¡Me gusta! <span class="like-count" style="background: rgba(0,0,0,0.2); padding: 1px 6px; border-radius: var(--radius-sm); font-size: 0.75rem; margin-left: 2px;">${likeCount}</span>
+            </button>
+        `;
+    } else {
+        reactionButtonHtml = `
+            <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.02); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 500;">
+                <i class="fa-solid fa-hands-clapping"></i> Reacciones: <span style="font-weight: 700; color: var(--text-light);">${likeCount}</span>
+            </span>
+        `;
+    }
+
+    // Comments list
+    let commentsListHtml = '';
+    if (comments.length === 0) {
+        commentsListHtml = `<div class="empty-comments-msg" style="color: var(--text-muted); font-size: 0.8rem; font-style: italic; margin: 10px 0;">No hay comentarios todavía. ¡Sé el primero en opinar!</div>`;
+    } else {
+        commentsListHtml = `
+            <div class="comments-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                ${comments.map(c => {
+                    const isAuthor = hasSession && activeUser.activeMemberKey === c.member_id;
+                    const isModerator = hasSession && activeUser.role === 'directiva';
+                    const deleteBtn = (isAuthor || isModerator) ? `
+                        <button type="button" class="btn-delete-comment" data-comment-id="${c.id}" style="background: none; border: none; color: #ff5252; cursor: pointer; font-size: 0.75rem; padding: 2px; opacity: 0.7; transition: var(--transition);" title="Eliminar Comentario"><i class="fa-solid fa-trash-can"></i></button>
+                    ` : '';
+                    
+                    const timeAgo = formatTimeAgo(c.created_at);
+                    const escapedContent = escapeHtml(c.content);
+                    
+                    return `
+                        <div class="comment-item" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-sm); padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; position: relative;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 3px;">
+                                <span style="font-weight: 700; color: var(--accent);"><i class="fa-solid fa-user-circle"></i> ${c.member_name}</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-muted);">${timeAgo}</span>
+                                    ${deleteBtn}
+                                </div>
+                            </div>
+                            <p style="margin: 0; font-size: 0.82rem; color: var(--text-light); line-height: 1.4; word-break: break-word;">${escapedContent}</p>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    // Comment box form
+    let commentBoxHtml = '';
+    if (hasSession) {
+        commentBoxHtml = `
+            <form class="comment-box-form" data-target-type="${targetType}" data-target-id="${targetId}" style="display: flex; gap: 8px; margin-top: 12px; width: 100%;">
+                <input type="text" placeholder="Escribe un comentario..." required style="flex-grow: 1; padding: 8px 12px; font-size: 0.82rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); color: var(--text); outline: none;">
+                <button type="submit" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.8rem; min-width: auto; height: auto;"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        `;
+    } else {
+        commentBoxHtml = `
+            <div style="background: rgba(255, 213, 79, 0.03); border: 1px dashed rgba(255, 213, 79, 0.2); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 12px; text-align: center; font-size: 0.78rem; color: var(--text-muted);">
+                <i class="fa-solid fa-circle-info text-gold"></i> Para participar de los comentarios y reaccionar, debes <a href="#" onclick="switchSection('portal-tab'); document.getElementById('username')?.focus(); return false;" style="color: var(--accent); text-decoration: underline;">iniciar sesión</a> como socio.
+            </div>
+        `;
+    }
+
+    containerEl.innerHTML = `
+        <div class="interaction-container" style="display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);"><i class="fa-solid fa-comments text-gold"></i> Comunidad (${comments.length})</span>
+                ${reactionButtonHtml}
+            </div>
+            ${commentsListHtml}
+            ${commentBoxHtml}
+        </div>
+    `;
+
+    // Bind Reaction Click
+    const likeBtn = containerEl.querySelector('.btn-like-interaction');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', async () => {
+            likeBtn.disabled = true;
+            const tType = likeBtn.getAttribute('data-target-type');
+            const tId = parseInt(likeBtn.getAttribute('data-target-id'));
+            
+            const wasAdded = await toggleReaction(tType, tId);
+            if (wasAdded !== null) {
+                await renderCommentsSection(tType, tId, containerEl);
+            } else {
+                likeBtn.disabled = false;
+            }
+        });
+    }
+
+    // Bind Comment Submit
+    const form = containerEl.querySelector('.comment-box-form');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = form.querySelector('input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            const submitBtn = form.querySelector('button');
+            submitBtn.disabled = true;
+            input.disabled = true;
+
+            const tType = form.getAttribute('data-target-type');
+            const tId = parseInt(form.getAttribute('data-target-id'));
+
+            const added = await addComment(tType, tId, content);
+            if (added) {
+                await renderCommentsSection(tType, tId, containerEl);
+            } else {
+                submitBtn.disabled = false;
+                input.disabled = false;
+            }
+        });
+    }
+
+    // Bind Comment Delete
+    containerEl.querySelectorAll('.btn-delete-comment').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const commentId = parseInt(btn.getAttribute('data-comment-id'));
+            const confirmed = await window.showConfirm("¿Estás seguro de que deseas eliminar permanentemente tu comentario?");
+            if (confirmed) {
+                const deleted = await deleteComment(commentId);
+                if (deleted) {
+                    await renderCommentsSection(targetType, targetId, containerEl);
+                    showToast("Comentario Eliminado", "Tu comentario ha sido borrado.");
+                }
+            }
+        });
+    });
+}
+
+// 7. Refresh all comment sections
+function refreshAllCommentsSections() {
+    document.querySelectorAll('.event-comments-container').forEach(container => {
+        const id = parseInt(container.getAttribute('data-id'));
+        if (id) {
+            renderCommentsSection('evento', id, container);
+        }
+    });
+    document.querySelectorAll('.featured-comments-container').forEach(container => {
+        const id = parseInt(container.getAttribute('data-id'));
+        if (id) {
+            renderCommentsSection('evento', id, container);
+        }
+    });
+    document.querySelectorAll('.card-comments-section').forEach(container => {
+        const id = parseInt(container.getAttribute('data-id'));
+        const type = container.getAttribute('data-target-type');
+        if (id && type) {
+            renderCommentsSection(type, id, container);
+        }
+    });
+}
+
+// 8. Sanitization & Date Formatting Helpers
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+function formatTimeAgo(dateString) {
+    try {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        
+        if (seconds < 60) return 'hace un momento';
+        
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `hace ${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
+        
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+        
+        const days = Math.floor(hours / 24);
+        if (days < 30) return `hace ${days} ${days === 1 ? 'día' : 'días'}`;
+        
+        return date.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch (e) {
+        return 'recientemente';
+    }
+}
+
+// Expose refresh function global
+window.refreshAllCommentsSections = refreshAllCommentsSections;
+window.renderCommentsSection = renderCommentsSection;
