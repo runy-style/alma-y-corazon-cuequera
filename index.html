@@ -44,6 +44,10 @@
                             Nosotros</a></li>
                     <li><a href="#" class="nav-link" data-target="talleres-tab"><i
                                 class="fa-solid fa-graduation-cap"></i> Talleres</a></li>
+                    <li style="position: relative;">
+                        <a href="#" class="nav-link" data-target="muro-tab" id="nav-muro-link"><i class="fa-solid fa-layer-group"></i> Muro</a>
+                        <span id="muro-notif-badge" style="display:none; position:absolute; top:-6px; right:-10px; background:#e53935; color:#fff; font-size:0.6rem; font-weight:700; min-width:17px; height:17px; border-radius:50%; display:none; align-items:center; justify-content:center; padding:0 4px; pointer-events:none; z-index:10;">0</span>
+                    </li>
                     <li><a href="#" class="nav-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
                             Eventos</a></li>
                     <li><a href="#" class="nav-link" data-target="noticias-tab"><i class="fa-solid fa-bullhorn"></i>
@@ -80,6 +84,10 @@
             </li>
             <li><a href="#" class="mob-link" data-target="talleres-tab"><i class="fa-solid fa-graduation-cap"></i>
                     Talleres</a></li>
+            <li style="position: relative;">
+                <a href="#" class="mob-link" data-target="muro-tab"><i class="fa-solid fa-layer-group"></i> Muro</a>
+                <span id="muro-notif-badge-mob" style="display:none; position:absolute; top:2px; left:75px; background:#e53935; color:#fff; font-size:0.6rem; font-weight:700; min-width:16px; height:16px; border-radius:50%; align-items:center; justify-content:center; padding:0 3px; pointer-events:none; z-index:10;">0</span>
+            </li>
             <li><a href="#" class="mob-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
                     Eventos</a></li>
             <li><a href="#" class="mob-link" data-target="noticias-tab"><i class="fa-solid fa-bullhorn"></i>
@@ -676,6 +684,32 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4.7 MURO UNIFICADO SECTION -->
+        <section id="muro-tab" class="app-section">
+            <div class="section-header">
+                <span class="section-tag">Comunidad</span>
+                <h2 class="section-title">Muro del Club</h2>
+                <div class="section-underline"></div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; align-items: center;">
+                <span style="font-size:0.82rem; color:var(--text-muted); margin-right:4px;"><i class="fa-solid fa-filter"></i> Filtrar:</span>
+                <button class="muro-pill-btn active" data-muro-filter="todo" id="muro-pill-todo"><i class="fa-solid fa-layer-group"></i> Todo</button>
+                <button class="muro-pill-btn" data-muro-filter="evento" id="muro-pill-evento"><i class="fa-solid fa-calendar-days"></i> Eventos</button>
+                <button class="muro-pill-btn" data-muro-filter="noticia" id="muro-pill-noticia"><i class="fa-solid fa-bullhorn"></i> Noticias</button>
+                <button class="muro-pill-btn" data-muro-filter="foto" id="muro-pill-foto"><i class="fa-solid fa-images"></i> Fotos</button>
+            </div>
+
+            <!-- Feed Container -->
+            <div id="muro-feed-container" style="display: flex; flex-direction: column; gap: 28px; min-height: 300px;">
+                <div style="text-align:center; color:var(--text-muted); padding:60px 20px;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;"></i>
+                    <p style="margin-top:12px;">Cargando muro...</p>
                 </div>
             </div>
         </section>
@@ -1394,6 +1428,7 @@
                     <li><a href="#" onclick="switchSection('hero-tab')">Inicio</a></li>
                     <li><a href="#" onclick="switchSection('nosotros-tab')">Quiénes Somos</a></li>
                     <li><a href="#" onclick="switchSection('talleres-tab')">Nuestros Talleres</a></li>
+                    <li><a href="#" onclick="switchSection('muro-tab')">Muro del Club</a></li>
                     <li><a href="#" onclick="switchSection('eventos-tab')">Galería de Eventos</a></li>
                     <li><a href="#" onclick="switchSection('noticias-tab')">Noticias y Novedades</a></li>
                 </ul>

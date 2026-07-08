@@ -146,6 +146,15 @@ function switchSection(sectionId) {
             portalTrigger.style.filter = '';
         }
     }
+
+    // Stage 4: Muro hooks
+    if (sectionId === 'muro-tab') {
+        renderMuroFeed();
+        markCommentsSeen();
+    }
+    if (sectionId === 'portal-tab') {
+        markCommentsSeen();
+    }
 }
 
 /* ==========================================================================
@@ -3669,6 +3678,9 @@ async function loginSuccess(role, memberKey = null) {
     
     showToast("¡Bienvenido al Portal!", `Sesión iniciada como ${activeUser.memberName}.`);
     refreshAllCommentsSections();
+    // Stage 4: update notification badge based on role
+    if (typeof updateNotifBadge === 'function') updateNotifBadge();
+    if (activeUser.role === 'directiva' && typeof markCommentsSeen === 'function') markCommentsSeen();
 }
 
 function renderProfileCard(memberKey) {
@@ -3737,6 +3749,8 @@ function performLogout() {
     
     showToast("Sesión Cerrada", "Has salido del portal de socios. Vuelve pronto.");
     refreshAllCommentsSections();
+    // Stage 4: hide badge on logout (non-directiva)
+    if (typeof updateNotifBadge === 'function') updateNotifBadge();
 }
 
 /* ==========================================================================
@@ -5621,3 +5635,213 @@ function formatTimeAgo(dateString) {
 // Expose refresh function global
 window.refreshAllCommentsSections = refreshAllCommentsSections;
 window.renderCommentsSection = renderCommentsSection;
+
+/* ==========================================================================
+   STAGE 4 — MURO UNIFICADO + NOTIFICATION SYSTEM
+   ========================================================================== */
+
+// ── A. DATA: Build unified chronological feed ────────────────────────────────
+function fetchMuroFeed() {
+    const feed = [];
+
+    // 1. Published events
+    (EVENTS_DATABASE || []).forEach(ev => {
+        if (ev.status && ev.status !== 'published') return;
+        // Parse date from event (could be ISO string or "DD Mon YYYY")
+        let sortDate = new Date(ev.date || 0);
+        if (isNaN(sortDate)) sortDate = new Date(0);
+        feed.push({
+            id: ev.id,
+            type: 'evento',
+            title: ev.title || ev.name || 'Evento',
+            description: ev.description || ev.content || '',
+            date: ev.date || '',
+            image_url: ev.image_url || ev.imageUrl || '',
+            _sortDate: sortDate,
+            _raw: ev
+        });
+    });
+
+    // 2. Published news/agreements (all public ones)
+    (MOCK_NEWS_AGREEMENTS || []).forEach(news => {
+        if (news.visibility === 'interna') return;
+        let sortDate = new Date(news.date || 0);
+        if (isNaN(sortDate)) sortDate = new Date(0);
+        feed.push({
+            id: news.id,
+            type: 'noticia',
+            title: news.title || 'Noticia',
+            description: news.content || '',
+            date: news.date || '',
+            image_url: news.image_url || '',
+            newsType: news.type,
+            _sortDate: sortDate,
+            _raw: news
+        });
+    });
+
+    // 3. Published gallery photos (only those with images)
+    (GALLERY_PHOTOS_DATABASE || []).forEach(photo => {
+        if (!photo.url) return;
+        if (photo.status && photo.status !== 'published') return;
+        let sortDate = new Date(photo.date || photo.created_at || 0);
+        if (isNaN(sortDate)) sortDate = new Date(0);
+        feed.push({
+            id: photo.id,
+            type: 'foto',
+            title: photo.caption || photo.title || 'Foto del Club',
+            description: photo.category ? `Categoría: ${photo.category}` : '',
+            date: photo.date || '',
+            image_url: photo.url || '',
+            _sortDate: sortDate,
+            _raw: photo
+        });
+    });
+
+    // Sort newest first
+    feed.sort((a, b) => b._sortDate - a._sortDate);
+    return feed;
+}
+
+// ── B. RENDER: Build muro cards ──────────────────────────────────────────────
+let _currentMuroFilter = 'todo';
+
+function renderMuroFeed(filter) {
+    if (filter !== undefined) _currentMuroFilter = filter;
+    const activeFilter = _currentMuroFilter;
+
+    const container = document.getElementById('muro-feed-container');
+    if (!container) return;
+
+    const feed = fetchMuroFeed();
+    const filtered = activeFilter === 'todo' ? feed : feed.filter(item => item.type === activeFilter);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="muro-empty-state">
+                <i class="fa-solid fa-layer-group" style="font-size:3rem; opacity:0.2;"></i>
+                <h4 style="margin:0; color:var(--text-light); font-weight:600;">Sin contenido publicado</h4>
+                <p style="max-width:380px;">Aún no hay ${activeFilter === 'todo' ? 'publicaciones' : activeFilter + 's'} para mostrar en el muro.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+
+    const TYPE_ICONS = { evento: 'fa-calendar-days', noticia: 'fa-bullhorn', foto: 'fa-images' };
+    const TYPE_LABELS = { evento: 'Evento', noticia: 'Noticia', foto: 'Foto' };
+
+    filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'muro-card';
+        card.setAttribute('data-muro-type', item.type);
+        card.setAttribute('data-muro-id', item.id);
+
+        const icon = TYPE_ICONS[item.type] || 'fa-circle';
+        const label = TYPE_LABELS[item.type] || item.type;
+        const dateStr = item.date ? `<span style="color:var(--text-muted); font-size:0.78rem;"><i class="fa-solid fa-calendar-day"></i> ${item.date}</span>` : '';
+        const imgHtml = item.image_url ? `<img class="muro-card-img" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" onerror="this.style.display='none'">` : '';
+        const descHtml = item.description ? `<p style="margin:0; font-size:0.88rem; color:var(--text-muted); line-height:1.55;">${escapeHtml(item.description)}</p>` : '';
+
+        // Noticias also show decisions block
+        let decisionsHtml = '';
+        if (item.type === 'noticia' && item._raw.decisions) {
+            decisionsHtml = `<div style="padding:10px 14px; background:rgba(41,182,246,0.06); border-left:3px solid #29b6f6; border-radius:var(--radius-sm); font-size:0.8rem; color:var(--text-light);"><span style="font-weight:700; color:#29b6f6;"><i class="fa-solid fa-circle-check"></i> Resolución:</span> ${escapeHtml(item._raw.decisions)}</div>`;
+        }
+
+        card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span class="muro-type-badge ${item.type}"><i class="fa-solid ${icon}"></i> ${label}</span>
+                ${dateStr}
+            </div>
+            <h3 style="margin:0; font-size:1.1rem; font-family:var(--font-header); font-weight:700; color:var(--text-light); line-height:1.3;">${escapeHtml(item.title)}</h3>
+            ${descHtml}
+            ${decisionsHtml}
+            ${imgHtml}
+        `;
+
+        // Comments section
+        const commentsEl = document.createElement('div');
+        commentsEl.className = 'card-comments-section';
+        commentsEl.setAttribute('data-id', item.id);
+        commentsEl.setAttribute('data-target-type', item.type);
+        commentsEl.style.marginTop = '14px';
+        commentsEl.style.paddingTop = '14px';
+        commentsEl.style.borderTop = '1px solid var(--border-color)';
+        card.appendChild(commentsEl);
+
+        container.appendChild(card);
+
+        // Async-mount comments section
+        renderCommentsSection(item.type, item.id, commentsEl);
+    });
+}
+
+// ── C. PILLS: wire filter buttons ────────────────────────────────────────────
+function initMuroPills() {
+    document.querySelectorAll('.muro-pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.muro-pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderMuroFeed(btn.getAttribute('data-muro-filter'));
+        });
+    });
+}
+
+// ── D. NOTIFICATIONS ─────────────────────────────────────────────────────────
+async function getUnreadCommentsCount() {
+    const lastSeen = localStorage.getItem('directiva-last-seen-comments') || '1970-01-01T00:00:00.000Z';
+
+    if (isSupabaseActive) {
+        try {
+            const { count, error } = await supabaseClient
+                .from('comments')
+                .select('id', { count: 'exact', head: true })
+                .gt('created_at', lastSeen);
+            if (!error) return count || 0;
+        } catch (_) { /* fallback */ }
+    }
+    // Local fallback
+    return (COMMENTS_DATABASE || []).filter(c => new Date(c.created_at) > new Date(lastSeen)).length;
+}
+
+async function updateNotifBadge() {
+    const badge = document.getElementById('muro-notif-badge');
+    const badgeMob = document.getElementById('muro-notif-badge-mob');
+    if (!badge && !badgeMob) return;
+
+    if (!activeUser || activeUser.role !== 'directiva') {
+        // Hide for non-directiva
+        [badge, badgeMob].forEach(b => { if (b) b.style.display = 'none'; });
+        return;
+    }
+
+    const count = await getUnreadCommentsCount();
+
+    [badge, badgeMob].forEach(b => {
+        if (!b) return;
+        if (count > 0) {
+            b.textContent = count > 99 ? '99+' : String(count);
+            b.style.display = 'flex';
+        } else {
+            b.style.display = 'none';
+        }
+    });
+}
+
+function markCommentsSeen() {
+    localStorage.setItem('directiva-last-seen-comments', new Date().toISOString());
+    updateNotifBadge();
+}
+
+// ── E. INITIALIZATION ────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    initMuroPills();
+    // Update badge on load (after a brief delay so activeUser can be set)
+    setTimeout(updateNotifBadge, 1200);
+});
+
+// Expose globals
+window.renderMuroFeed = renderMuroFeed;
+window.updateNotifBadge = updateNotifBadge;
+window.markCommentsSeen = markCommentsSeen;

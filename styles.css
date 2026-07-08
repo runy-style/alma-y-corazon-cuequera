@@ -3992,4 +3992,175 @@ body.light-theme .empty-comments-msg {
 }
 
 
+/* ==========================================================================
+   STAGE 4 — MURO UNIFICADO & NOTIFICATION BADGE STYLES
+   ========================================================================== */
 
+/* Pill filter buttons */
+.muro-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: var(--font-body);
+}
+
+.muro-pill-btn:hover {
+    background: rgba(255, 213, 79, 0.08);
+    border-color: rgba(255, 213, 79, 0.25);
+    color: var(--text-light);
+}
+
+.muro-pill-btn.active {
+    background: rgba(255, 213, 79, 0.15);
+    border-color: rgba(255, 213, 79, 0.4);
+    color: var(--accent);
+}
+
+/* Muro feed card */
+.muro-card {
+    background: var(--bg-surface-glass);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    border-left-width: 4px;
+}
+
+.muro-card:hover {
+    box-shadow: var(--shadow-premium);
+    transform: translateY(-2px);
+}
+
+.muro-card[data-muro-type="evento"] {
+    border-left-color: var(--accent);
+}
+
+.muro-card[data-muro-type="noticia"] {
+    border-left-color: #29b6f6;
+}
+
+.muro-card[data-muro-type="foto"] {
+    border-left-color: #ab47bc;
+}
+
+/* Type badge inside muro card */
+.muro-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.muro-type-badge.evento {
+    background: rgba(255, 213, 79, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(255, 213, 79, 0.25);
+}
+
+.muro-type-badge.noticia {
+    background: rgba(41, 182, 246, 0.12);
+    color: #29b6f6;
+    border: 1px solid rgba(41, 182, 246, 0.25);
+}
+
+.muro-type-badge.foto {
+    background: rgba(171, 71, 188, 0.12);
+    color: #ce93d8;
+    border: 1px solid rgba(171, 71, 188, 0.25);
+}
+
+/* Muro card thumbnail */
+.muro-card-img {
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.4s ease;
+}
+
+.muro-card:hover .muro-card-img {
+    transform: scale(1.01);
+}
+
+/* Notification badge (desktop & mobile) */
+#muro-notif-badge,
+#muro-notif-badge-mob {
+    position: absolute;
+    background: #e53935;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    min-width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    pointer-events: none;
+    z-index: 10;
+    animation: badgePulse 2s ease infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4); }
+    50%       { box-shadow: 0 0 0 5px rgba(229, 57, 53, 0); }
+}
+
+/* Muro empty state */
+.muro-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Light theme overrides */
+body.light-theme .muro-pill-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.12);
+    color: #666;
+}
+
+body.light-theme .muro-pill-btn.active {
+    background: rgba(255, 213, 79, 0.18);
+    border-color: rgba(200, 160, 0, 0.4);
+    color: #b8860b;
+}
+
+body.light-theme .muro-card {
+    background: #fff;
+    border-color: #e8e8e8;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* Responsive: mobile feed */
+@media (max-width: 600px) {
+    .muro-card {
+        padding: 16px;
+    }
+}
