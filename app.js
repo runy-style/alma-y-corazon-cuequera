@@ -147,13 +147,9 @@ function switchSection(sectionId) {
         }
     }
 
-    // Stage 4: Muro hooks
+    // Stage 5: Tablón Público hook
     if (sectionId === 'muro-tab') {
-        renderMuroFeed();
-        markCommentsSeen();
-    }
-    if (sectionId === 'portal-tab') {
-        markCommentsSeen();
+        initMuroPublico();
     }
 }
 
@@ -1504,11 +1500,7 @@ const CHAMPIONSHIP_PHOTOS = [
 // Base de datos local para eventos
 let EVENTS_DATABASE = [];
 
-// Base de datos local para comentarios y reacciones (Modo Demo)
-let COMMENTS_DATABASE = [];
-let REACTIONS_DATABASE = [];
-
-// Base de datos local para la galería (Pre-cargada con fotos de demostración)
+// Base de datos local para galería (pre-cargada con fotos de demostración)
 let GALLERY_PHOTOS_DATABASE = [
     {
         id: 101,
@@ -1764,17 +1756,10 @@ async function syncFromSupabase() {
                                 <p class="time-loc"><i class="fa-solid fa-clock"></i> ${evt.time}</p>
                                 <p>${evt.description}</p>
                                 ${eventMediaHtml}
-                                <div class="event-comments-container" data-id="${evt.id}" data-target-type="evento" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;"></div>
                             </div>
                         </div>
                     `;
                     timelineElement.insertAdjacentHTML('beforeend', newItemHtml);
-                });
-
-                // Render comments for timeline events
-                timelineElement.querySelectorAll('.event-comments-container').forEach(container => {
-                    const eventId = container.getAttribute('data-id');
-                    renderCommentsSection('evento', parseInt(eventId), container);
                 });
 
                 // Re-inyectar la tarjeta del campeonato en su posición cronológica correcta si no se ha inyectado ya
@@ -2238,24 +2223,8 @@ function renderFeaturedEvent() {
         }
     }
 
-    // Check and populate comments container for featured event
-    let commentsContainer = featuredCard.querySelector('.featured-comments-container');
-    if (!commentsContainer) {
-        commentsContainer = document.createElement('div');
-        commentsContainer.className = 'featured-comments-container';
-        commentsContainer.setAttribute('data-id', featured.id);
-        commentsContainer.setAttribute('data-target-type', 'evento');
-        commentsContainer.style.gridColumn = '1 / -1';
-        commentsContainer.style.padding = '25px 40px';
-        commentsContainer.style.borderTop = '1px solid rgba(255, 213, 79, 0.2)';
-        commentsContainer.style.background = 'rgba(0,0,0,0.15)';
-        featuredCard.appendChild(commentsContainer);
-    } else {
-        commentsContainer.setAttribute('data-id', featured.id);
-    }
-    
-    renderCommentsSection('evento', featured.id, commentsContainer);
 }
+
 
 // 7. Render Admin list of events (CMS)
 function renderAdminEventsList() {
@@ -3677,10 +3646,6 @@ async function loginSuccess(role, memberKey = null) {
     }
     
     showToast("¡Bienvenido al Portal!", `Sesión iniciada como ${activeUser.memberName}.`);
-    refreshAllCommentsSections();
-    // Stage 4: update notification badge based on role
-    if (typeof updateNotifBadge === 'function') updateNotifBadge();
-    if (activeUser.role === 'directiva' && typeof markCommentsSeen === 'function') markCommentsSeen();
 }
 
 function renderProfileCard(memberKey) {
@@ -3748,9 +3713,6 @@ function performLogout() {
     activeUser = { username: "", role: "", memberName: "", activeMemberKey: "patricia" };
     
     showToast("Sesión Cerrada", "Has salido del portal de socios. Vuelve pronto.");
-    refreshAllCommentsSections();
-    // Stage 4: hide badge on logout (non-directiva)
-    if (typeof updateNotifBadge === 'function') updateNotifBadge();
 }
 
 /* ==========================================================================
@@ -4664,17 +4626,6 @@ function renderPublicNewsGrid(newsList = []) {
         }
 
         list.appendChild(card);
-
-        // Append comments section for news cards
-        const commentsContainer = document.createElement('div');
-        commentsContainer.className = 'card-comments-section';
-        commentsContainer.setAttribute('data-id', news.id);
-        commentsContainer.setAttribute('data-target-type', 'noticia');
-        commentsContainer.style.marginTop = '20px';
-        commentsContainer.style.borderTop = '1px solid var(--border-color)';
-        commentsContainer.style.paddingTop = '15px';
-        card.appendChild(commentsContainer);
-        renderCommentsSection('noticia', news.id, commentsContainer);
     });
 }
 
@@ -5217,631 +5168,235 @@ function exportAccountingToExcel() {
 window.exportAccountingToExcel = exportAccountingToExcel;
 
 /* ==========================================================================
-   INTERACTIONS - COMMENTS AND REACTIONS API & RENDER ENGINE (FORUM STYLE)
+   TABLÓN PÚBLICO DE LA COMUNIDAD
+   Cualquier visitante puede dejar un comentario con solo su nombre.
+   Persistente en Supabase (tabla: public_comments).
    ========================================================================== */
 
-// 1. Fetch Comments
-async function fetchCommentsForTarget(targetType, targetId) {
-    // Normalize to string for consistent comparison regardless of source (Supabase returns numbers, local stores whatever was passed)
-    const targetIdStr = String(targetId);
-    const localFallback = () => COMMENTS_DATABASE
-        .filter(c => c.target_type === targetType && String(c.target_id) === targetIdStr)
-        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+// ── Local fallback database ──────────────────────────────────────────────────
+let PUBLIC_COMMENTS_DATABASE = [];
 
-    if (!isSupabaseActive) return localFallback();
-    try {
-        const { data, error } = await supabaseClient
-            .from('comments')
-            .select('*')
-            .eq('target_type', targetType)
-            .eq('target_id', targetId)
-            .order('created_at', { ascending: true });
-        
-        if (error) {
-            console.warn("⚠️ Tabla 'comments' no disponible en Supabase. Usando datos locales.", error.message);
-            return localFallback();
-        }
-        // Merge Supabase data with any local comments (for offline-first experience)
-        const supabaseIds = new Set((data || []).map(c => String(c.id)));
-        const localOnly = localFallback().filter(c => !supabaseIds.has(String(c.id)));
-        return [...(data || []), ...localOnly].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-    } catch (err) {
-        console.warn("⚠️ Error cargando comentarios desde Supabase. Usando datos locales.", err);
-        return localFallback();
-    }
-}
-
-// 2. Add Comment
-async function addComment(targetType, targetId, content) {
-    if (!activeUser || activeUser.username === "") return null;
-    const memberName = MEMBERS_DATABASE[activeUser.activeMemberKey]?.name || activeUser.memberName || activeUser.username;
-    
-    const localComment = {
-        id: Date.now(),
-        target_type: targetType,
-        target_id: targetId,
-        member_id: activeUser.activeMemberKey,
-        member_name: memberName,
-        content: content,
-        created_at: new Date().toISOString()
-    };
-
-    if (!isSupabaseActive) {
-        COMMENTS_DATABASE.push(localComment);
-        return localComment;
-    }
-    try {
-        const { data, error } = await supabaseClient
-            .from('comments')
-            .insert([{
-                target_type: targetType,
-                target_id: targetId,
-                member_id: activeUser.activeMemberKey,
-                member_name: memberName,
-                content: content
-            }])
-            .select();
-        
-        if (error) {
-            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
-                console.warn("⚠️ Tabla 'comments' no existe en Supabase. Guardando localmente en base de datos temporal.");
-                COMMENTS_DATABASE.push(localComment);
-                return localComment;
-            }
-            throw error;
-        }
-        return data ? data[0] : null;
-    } catch (err) {
-        console.warn("⚠️ Fallback local activo. Publicando comentario localmente:", err);
-        COMMENTS_DATABASE.push(localComment);
-        return localComment;
-    }
-}
-
-// 3. Delete Comment
-async function deleteComment(commentId) {
-    if (!isSupabaseActive) {
-        COMMENTS_DATABASE = COMMENTS_DATABASE.filter(c => c.id != commentId);
-        return true;
-    }
-    try {
-        const { error } = await supabaseClient
-            .from('comments')
-            .delete()
-            .eq('id', commentId);
-        
-        if (error) {
-            if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('not found')) {
-                COMMENTS_DATABASE = COMMENTS_DATABASE.filter(c => c.id != commentId);
-                return true;
-            }
-            throw error;
-        }
-        return true;
-    } catch (err) {
-        console.warn("⚠️ Eliminando comentario de base de datos local:", err);
-        COMMENTS_DATABASE = COMMENTS_DATABASE.filter(c => c.id != commentId);
-        return true;
-    }
-}
-
-// 4. Fetch Reactions
-async function fetchReactionsForTarget(targetType, targetId) {
-    const targetIdStr = String(targetId);
-    const localFallback = () => REACTIONS_DATABASE
-        .filter(r => r.target_type === targetType && String(r.target_id) === targetIdStr);
-
-    if (!isSupabaseActive) return localFallback();
-    try {
-        const { data, error } = await supabaseClient
-            .from('reactions')
-            .select('*')
-            .eq('target_type', targetType)
-            .eq('target_id', targetId);
-
-        if (error) {
-            console.warn("⚠️ Tabla 'reactions' no disponible en Supabase. Usando datos locales.", error.message);
-            return localFallback();
-        }
-        // Merge: Supabase + local-only entries (not yet synced)
-        const supabaseMembers = new Set((data || []).map(r => r.member_id));
-        const localOnly = localFallback().filter(r => !supabaseMembers.has(r.member_id));
-        return [...(data || []), ...localOnly];
-    } catch (err) {
-        console.warn("⚠️ Error cargando reacciones desde Supabase. Usando datos locales.", err);
-        return localFallback();
-    }
-}
-
-
-// 5. Toggle Reaction
-async function toggleReaction(targetType, targetId) {
-    if (!activeUser || activeUser.username === "") return null;
-    const memberId = activeUser.activeMemberKey;
-    
-    const handleLocalToggle = () => {
-        const existingIdx = REACTIONS_DATABASE.findIndex(
-            r => r.target_type === targetType && r.target_id === targetId && r.member_id === memberId
-        );
-        if (existingIdx !== -1) {
-            REACTIONS_DATABASE.splice(existingIdx, 1);
-            return false;
-        } else {
-            REACTIONS_DATABASE.push({
-                id: Date.now(),
-                target_type: targetType,
-                target_id: targetId,
-                member_id: memberId,
-                reaction_type: 'like'
-            });
-            return true;
-        }
-    };
-
-    if (!isSupabaseActive) {
-        return handleLocalToggle();
-    }
-    try {
-        const { data: existing, error: checkError } = await supabaseClient
-            .from('reactions')
-            .select('id')
-            .eq('target_type', targetType)
-            .eq('target_id', targetId)
-            .eq('member_id', memberId)
-            .maybeSingle();
-            
-        if (checkError) {
-            if (checkError.code === '42P01' || checkError.message?.includes('relation') || checkError.message?.includes('not found')) {
-                console.warn("⚠️ Tabla 'reactions' no existe en Supabase. Alternando reacción localmente.");
-                return handleLocalToggle();
-            }
-            throw checkError;
-        }
-        
-        if (existing) {
-            const { error: delError } = await supabaseClient
-                .from('reactions')
-                .delete()
-                .eq('id', existing.id);
-            if (delError) throw delError;
-            return false;
-        } else {
-            const { error: insError } = await supabaseClient
-                .from('reactions')
-                .insert([{
-                    target_type: targetType,
-                    target_id: targetId,
-                    member_id: memberId,
-                    reaction_type: 'like'
-                }]);
-            if (insError) throw insError;
-            return true;
-        }
-    } catch (err) {
-        console.warn("⚠️ Fallback local activo. Alternando reacción localmente:", err);
-        return handleLocalToggle();
-    }
-}
-
-// 6. Unified Comments & Reactions Section Renderer
-async function renderCommentsSection(targetType, targetId, containerEl) {
-    if (!containerEl) return;
-    
-    containerEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 10px;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando interacciones...</div>`;
-    
-    const comments = await fetchCommentsForTarget(targetType, targetId);
-    const reactions = await fetchReactionsForTarget(targetType, targetId);
-    
-    const likeCount = reactions.length;
-    const hasSession = activeUser && activeUser.username !== "";
-    const userHasLiked = hasSession ? reactions.some(r => r.member_id === activeUser.activeMemberKey) : false;
-    
-    // Reaction block
-    let reactionButtonHtml = '';
-    if (hasSession) {
-        reactionButtonHtml = `
-            <button type="button" class="btn-like-interaction ${userHasLiked ? 'active' : ''}" data-target-type="${targetType}" data-target-id="${targetId}" style="display: inline-flex; align-items: center; gap: 6px; background: ${userHasLiked ? 'rgba(255, 213, 79, 0.15)' : 'rgba(255,255,255,0.05)'}; color: ${userHasLiked ? 'var(--accent)' : 'var(--text-muted)'}; border: 1px solid ${userHasLiked ? 'rgba(255, 213, 79, 0.3)' : 'rgba(255,255,255,0.1)'}; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; cursor: pointer; font-weight: 600; transition: var(--transition);">
-                <i class="fa-solid fa-hands-clapping"></i> ¡Me gusta! <span class="like-count" style="background: rgba(0,0,0,0.2); padding: 1px 6px; border-radius: var(--radius-sm); font-size: 0.75rem; margin-left: 2px;">${likeCount}</span>
-            </button>
-        `;
-    } else {
-        reactionButtonHtml = `
-            <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.02); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 500;">
-                <i class="fa-solid fa-hands-clapping"></i> Reacciones: <span style="font-weight: 700; color: var(--text-light);">${likeCount}</span>
-            </span>
-        `;
-    }
-
-    // Comments list
-    let commentsListHtml = '';
-    if (comments.length === 0) {
-        commentsListHtml = `<div class="empty-comments-msg" style="color: var(--text-muted); font-size: 0.8rem; font-style: italic; margin: 10px 0;">No hay comentarios todavía. ¡Sé el primero en opinar!</div>`;
-    } else {
-        commentsListHtml = `
-            <div class="comments-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
-                ${comments.map(c => {
-                    const isAuthor = hasSession && activeUser.activeMemberKey === c.member_id;
-                    const isModerator = hasSession && activeUser.role === 'directiva';
-                    const deleteBtn = (isAuthor || isModerator) ? `
-                        <button type="button" class="btn-delete-comment" data-comment-id="${c.id}" style="background: none; border: none; color: #ff5252; cursor: pointer; font-size: 0.75rem; padding: 2px; opacity: 0.7; transition: var(--transition);" title="Eliminar Comentario"><i class="fa-solid fa-trash-can"></i></button>
-                    ` : '';
-                    
-                    const timeAgo = formatTimeAgo(c.created_at);
-                    const escapedContent = escapeHtml(c.content);
-                    
-                    return `
-                        <div class="comment-item" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-sm); padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; position: relative;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 3px;">
-                                <span style="font-weight: 700; color: var(--accent);"><i class="fa-solid fa-user-circle"></i> ${c.member_name}</span>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: var(--text-muted);">${timeAgo}</span>
-                                    ${deleteBtn}
-                                </div>
-                            </div>
-                            <p style="margin: 0; font-size: 0.82rem; color: var(--text-light); line-height: 1.4; word-break: break-word;">${escapedContent}</p>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-    }
-
-    // Comment box form
-    let commentBoxHtml = '';
-    if (hasSession) {
-        commentBoxHtml = `
-            <form class="comment-box-form" data-target-type="${targetType}" data-target-id="${targetId}" style="display: flex; gap: 8px; margin-top: 12px; width: 100%;">
-                <input type="text" placeholder="Escribe un comentario..." required style="flex-grow: 1; padding: 8px 12px; font-size: 0.82rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); color: var(--text); outline: none;">
-                <button type="submit" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.8rem; min-width: auto; height: auto;"><i class="fa-solid fa-paper-plane"></i></button>
-            </form>
-        `;
-    } else {
-        commentBoxHtml = `
-            <div style="background: rgba(255, 213, 79, 0.03); border: 1px dashed rgba(255, 213, 79, 0.2); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 12px; text-align: center; font-size: 0.78rem; color: var(--text-muted);">
-                <i class="fa-solid fa-circle-info text-gold"></i> Para participar de los comentarios y reaccionar, debes <a href="#" onclick="switchSection('portal-tab'); document.getElementById('username')?.focus(); return false;" style="color: var(--accent); text-decoration: underline;">iniciar sesión</a> como socio.
-            </div>
-        `;
-    }
-
-    containerEl.innerHTML = `
-        <div class="interaction-container" style="display: flex; flex-direction: column;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-light);"><i class="fa-solid fa-comments text-gold"></i> Comunidad (${comments.length})</span>
-                ${reactionButtonHtml}
-            </div>
-            ${commentsListHtml}
-            ${commentBoxHtml}
-        </div>
-    `;
-
-    // Bind Reaction Click
-    const likeBtn = containerEl.querySelector('.btn-like-interaction');
-    if (likeBtn) {
-        likeBtn.addEventListener('click', async () => {
-            likeBtn.disabled = true;
-            const tType = likeBtn.getAttribute('data-target-type');
-            const tId = parseInt(likeBtn.getAttribute('data-target-id'));
-            
-            const wasAdded = await toggleReaction(tType, tId);
-            if (wasAdded !== null) {
-                await renderCommentsSection(tType, tId, containerEl);
-            } else {
-                likeBtn.disabled = false;
-            }
-        });
-    }
-
-    // Bind Comment Submit
-    const form = containerEl.querySelector('.comment-box-form');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = form.querySelector('input');
-            const content = input.value.trim();
-            if (!content) return;
-
-            const submitBtn = form.querySelector('button');
-            submitBtn.disabled = true;
-            input.disabled = true;
-
-            const tType = form.getAttribute('data-target-type');
-            const tId = parseInt(form.getAttribute('data-target-id'));
-
-            const added = await addComment(tType, tId, content);
-            if (added) {
-                await renderCommentsSection(tType, tId, containerEl);
-            } else {
-                submitBtn.disabled = false;
-                input.disabled = false;
-            }
-        });
-    }
-
-    // Bind Comment Delete
-    containerEl.querySelectorAll('.btn-delete-comment').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const commentId = parseInt(btn.getAttribute('data-comment-id'));
-            const confirmed = await window.showConfirm("¿Estás seguro de que deseas eliminar permanentemente tu comentario?");
-            if (confirmed) {
-                const deleted = await deleteComment(commentId);
-                if (deleted) {
-                    await renderCommentsSection(targetType, targetId, containerEl);
-                    showToast("Comentario Eliminado", "Tu comentario ha sido borrado.");
-                }
-            }
-        });
-    });
-}
-
-// 7. Refresh all comment sections
-function refreshAllCommentsSections() {
-    document.querySelectorAll('.event-comments-container').forEach(container => {
-        const id = parseInt(container.getAttribute('data-id'));
-        if (id) {
-            renderCommentsSection('evento', id, container);
-        }
-    });
-    document.querySelectorAll('.featured-comments-container').forEach(container => {
-        const id = parseInt(container.getAttribute('data-id'));
-        if (id) {
-            renderCommentsSection('evento', id, container);
-        }
-    });
-    document.querySelectorAll('.card-comments-section').forEach(container => {
-        const id = parseInt(container.getAttribute('data-id'));
-        const type = container.getAttribute('data-target-type');
-        if (id && type) {
-            renderCommentsSection(type, id, container);
-        }
-    });
-}
-
-// 8. Sanitization & Date Formatting Helpers
+// ── Helper: escape HTML to prevent XSS ──────────────────────────────────────
 function escapeHtml(text) {
-    if (!text) return '';
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    if (typeof text !== 'string') return '';
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
+// ── Helper: relative time ────────────────────────────────────────────────────
 function formatTimeAgo(dateString) {
     try {
         const date = new Date(dateString);
-        const now = new Date();
-        const seconds = Math.floor((now - date) / 1000);
-        
+        const seconds = Math.floor((Date.now() - date) / 1000);
         if (seconds < 60) return 'hace un momento';
-        
         const minutes = Math.floor(seconds / 60);
         if (minutes < 60) return `hace ${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
-        
         const hours = Math.floor(minutes / 60);
         if (hours < 24) return `hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
-        
         const days = Math.floor(hours / 24);
         if (days < 30) return `hace ${days} ${days === 1 ? 'día' : 'días'}`;
-        
         return date.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
-    } catch (e) {
-        return 'recientemente';
+    } catch (e) { return 'recientemente'; }
+}
+
+// ── 1. FETCH ─────────────────────────────────────────────────────────────────
+async function fetchPublicComments() {
+    if (isSupabaseActive) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('public_comments')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(200);
+            if (!error && data) {
+                PUBLIC_COMMENTS_DATABASE = data;
+                return data;
+            }
+            console.warn('⚠️ No se pudo leer public_comments de Supabase:', error?.message);
+        } catch (err) {
+            console.warn('⚠️ Error conectando Supabase para tablón:', err);
+        }
     }
+    return [...PUBLIC_COMMENTS_DATABASE].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
-// Expose refresh function global
-window.refreshAllCommentsSections = refreshAllCommentsSections;
-window.renderCommentsSection = renderCommentsSection;
+// ── 2. ADD ───────────────────────────────────────────────────────────────────
+async function addPublicComment(visitorName, content) {
+    const newComment = {
+        id: Date.now(),
+        visitor_name: visitorName.trim(),
+        content: content.trim(),
+        created_at: new Date().toISOString()
+    };
 
-/* ==========================================================================
-   STAGE 4 — MURO UNIFICADO + NOTIFICATION SYSTEM
-   ========================================================================== */
-
-// ── A. DATA: Build unified chronological feed ────────────────────────────────
-function fetchMuroFeed() {
-    const feed = [];
-
-    // 1. Published events
-    (EVENTS_DATABASE || []).forEach(ev => {
-        if (ev.status && ev.status !== 'published') return;
-        // Parse date from event (could be ISO string or "DD Mon YYYY")
-        let sortDate = new Date(ev.date || 0);
-        if (isNaN(sortDate)) sortDate = new Date(0);
-        feed.push({
-            id: ev.id,
-            type: 'evento',
-            title: ev.title || ev.name || 'Evento',
-            description: ev.description || ev.content || '',
-            date: ev.date || '',
-            image_url: ev.image_url || ev.imageUrl || '',
-            _sortDate: sortDate,
-            _raw: ev
-        });
-    });
-
-    // 2. Published news/agreements (all public ones)
-    (MOCK_NEWS_AGREEMENTS || []).forEach(news => {
-        if (news.visibility === 'interna') return;
-        let sortDate = new Date(news.date || 0);
-        if (isNaN(sortDate)) sortDate = new Date(0);
-        feed.push({
-            id: news.id,
-            type: 'noticia',
-            title: news.title || 'Noticia',
-            description: news.content || '',
-            date: news.date || '',
-            image_url: news.image_url || '',
-            newsType: news.type,
-            _sortDate: sortDate,
-            _raw: news
-        });
-    });
-
-    // 3. Published gallery photos (only those with images)
-    (GALLERY_PHOTOS_DATABASE || []).forEach(photo => {
-        if (!photo.url) return;
-        if (photo.status && photo.status !== 'published') return;
-        let sortDate = new Date(photo.date || photo.created_at || 0);
-        if (isNaN(sortDate)) sortDate = new Date(0);
-        feed.push({
-            id: photo.id,
-            type: 'foto',
-            title: photo.caption || photo.title || 'Foto del Club',
-            description: photo.category ? `Categoría: ${photo.category}` : '',
-            date: photo.date || '',
-            image_url: photo.url || '',
-            _sortDate: sortDate,
-            _raw: photo
-        });
-    });
-
-    // Sort newest first
-    feed.sort((a, b) => b._sortDate - a._sortDate);
-    return feed;
+    if (isSupabaseActive) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('public_comments')
+                .insert([{ visitor_name: newComment.visitor_name, content: newComment.content }])
+                .select();
+            if (!error && data && data[0]) {
+                PUBLIC_COMMENTS_DATABASE.unshift(data[0]);
+                return data[0];
+            }
+            console.warn('⚠️ Error insertando en public_comments:', error?.message);
+        } catch (err) {
+            console.warn('⚠️ Fallback local activo para tablón:', err);
+        }
+    }
+    // Local fallback
+    PUBLIC_COMMENTS_DATABASE.unshift(newComment);
+    return newComment;
 }
 
-// ── B. RENDER: Build muro cards ──────────────────────────────────────────────
-let _currentMuroFilter = 'todo';
+// ── 3. DELETE (directiva only) ───────────────────────────────────────────────
+async function deletePublicComment(commentId) {
+    if (!activeUser || activeUser.role !== 'directiva') return false;
 
-function renderMuroFeed(filter) {
-    if (filter !== undefined) _currentMuroFilter = filter;
-    const activeFilter = _currentMuroFilter;
+    PUBLIC_COMMENTS_DATABASE = PUBLIC_COMMENTS_DATABASE.filter(c => String(c.id) !== String(commentId));
 
-    const container = document.getElementById('muro-feed-container');
-    if (!container) return;
+    if (isSupabaseActive) {
+        try {
+            const { error } = await supabaseClient
+                .from('public_comments')
+                .delete()
+                .eq('id', commentId);
+            if (error) console.warn('⚠️ Error eliminando comentario de Supabase:', error.message);
+        } catch (err) {
+            console.warn('⚠️ Error eliminando comentario:', err);
+        }
+    }
+    return true;
+}
 
-    const feed = fetchMuroFeed();
-    const filtered = activeFilter === 'todo' ? feed : feed.filter(item => item.type === activeFilter);
+// ── 4. RENDER ────────────────────────────────────────────────────────────────
+function renderPublicComments(comments) {
+    const list = document.getElementById('community-comments-list');
+    const countEl = document.getElementById('community-comment-count');
+    if (!list) return;
 
-    if (filtered.length === 0) {
-        container.innerHTML = `
-            <div class="muro-empty-state">
-                <i class="fa-solid fa-layer-group" style="font-size:3rem; opacity:0.2;"></i>
-                <h4 style="margin:0; color:var(--text-light); font-weight:600;">Sin contenido publicado</h4>
-                <p style="max-width:380px;">Aún no hay ${activeFilter === 'todo' ? 'publicaciones' : activeFilter + 's'} para mostrar en el muro.</p>
+    if (countEl) countEl.textContent = comments.length;
+
+    if (comments.length === 0) {
+        list.innerHTML = `
+            <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+                <i class="fa-solid fa-comments" style="font-size:2.5rem; opacity:0.25; margin-bottom:12px; display:block;"></i>
+                <p style="margin:0;">Sé el primero en dejar un mensaje en el tablón.</p>
             </div>`;
         return;
     }
 
-    container.innerHTML = '';
+    list.innerHTML = comments.map(c => {
+        const initial = (c.visitor_name || '?')[0].toUpperCase();
+        const colorIndex = initial.charCodeAt(0) % 6;
+        const colors = ['#e53935','#8e24aa','#1976d2','#00897b','#f57c00','#5e35b1'];
+        const avatarColor = colors[colorIndex];
+        const isDirectiva = activeUser && activeUser.role === 'directiva';
+        const deleteBtn = isDirectiva
+            ? `<button onclick="handleDeletePublicComment(${c.id})" title="Eliminar comentario" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.25);font-size:0.8rem;padding:2px 6px;border-radius:4px;transition:color 0.2s;" onmouseover="this.style.color='#ef5350'" onmouseout="this.style.color='rgba(255,255,255,0.25)'"><i class="fa-solid fa-trash"></i></button>`
+            : '';
 
-    const TYPE_ICONS = { evento: 'fa-calendar-days', noticia: 'fa-bullhorn', foto: 'fa-images' };
-    const TYPE_LABELS = { evento: 'Evento', noticia: 'Noticia', foto: 'Foto' };
-
-    filtered.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'muro-card';
-        card.setAttribute('data-muro-type', item.type);
-        card.setAttribute('data-muro-id', item.id);
-
-        const icon = TYPE_ICONS[item.type] || 'fa-circle';
-        const label = TYPE_LABELS[item.type] || item.type;
-        const dateStr = item.date ? `<span style="color:var(--text-muted); font-size:0.78rem;"><i class="fa-solid fa-calendar-day"></i> ${item.date}</span>` : '';
-        const imgHtml = item.image_url ? `<img class="muro-card-img" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" onerror="this.style.display='none'">` : '';
-        const descHtml = item.description ? `<p style="margin:0; font-size:0.88rem; color:var(--text-muted); line-height:1.55;">${escapeHtml(item.description)}</p>` : '';
-
-        // Noticias also show decisions block
-        let decisionsHtml = '';
-        if (item.type === 'noticia' && item._raw.decisions) {
-            decisionsHtml = `<div style="padding:10px 14px; background:rgba(41,182,246,0.06); border-left:3px solid #29b6f6; border-radius:var(--radius-sm); font-size:0.8rem; color:var(--text-light);"><span style="font-weight:700; color:#29b6f6;"><i class="fa-solid fa-circle-check"></i> Resolución:</span> ${escapeHtml(item._raw.decisions)}</div>`;
-        }
-
-        card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                <span class="muro-type-badge ${item.type}"><i class="fa-solid ${icon}"></i> ${label}</span>
-                ${dateStr}
-            </div>
-            <h3 style="margin:0; font-size:1.1rem; font-family:var(--font-header); font-weight:700; color:var(--text-light); line-height:1.3;">${escapeHtml(item.title)}</h3>
-            ${descHtml}
-            ${decisionsHtml}
-            ${imgHtml}
-        `;
-
-        // Comments section
-        const commentsEl = document.createElement('div');
-        commentsEl.className = 'card-comments-section';
-        commentsEl.setAttribute('data-id', item.id);
-        commentsEl.setAttribute('data-target-type', item.type);
-        commentsEl.style.marginTop = '14px';
-        commentsEl.style.paddingTop = '14px';
-        commentsEl.style.borderTop = '1px solid var(--border-color)';
-        card.appendChild(commentsEl);
-
-        container.appendChild(card);
-
-        // Async-mount comments section
-        renderCommentsSection(item.type, item.id, commentsEl);
-    });
+        return `
+            <div class="community-comment-card" data-comment-id="${c.id}">
+                <div class="community-avatar" style="background:${avatarColor};">${initial}</div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="font-weight:700; font-size:0.88rem; color:var(--text-light);">${escapeHtml(c.visitor_name)}</span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:0.72rem; color:var(--text-muted);">${formatTimeAgo(c.created_at)}</span>
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                    <p style="margin:6px 0 0 0; font-size:0.88rem; color:var(--text-muted); line-height:1.5; word-break:break-word;">${escapeHtml(c.content)}</p>
+                </div>
+            </div>`;
+    }).join('');
 }
 
-// ── C. PILLS: wire filter buttons ────────────────────────────────────────────
-function initMuroPills() {
-    document.querySelectorAll('.muro-pill-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.muro-pill-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderMuroFeed(btn.getAttribute('data-muro-filter'));
+// ── 5. DELETE HANDLER (global) ───────────────────────────────────────────────
+window.handleDeletePublicComment = async function(commentId) {
+    const confirmed = await showConfirm('¿Eliminar este comentario del tablón?');
+    if (!confirmed) return;
+    const ok = await deletePublicComment(commentId);
+    if (ok) {
+        const item = document.querySelector(`.community-comment-card[data-comment-id="${commentId}"]`);
+        if (item) {
+            item.style.transition = 'opacity 0.3s';
+            item.style.opacity = '0';
+            setTimeout(() => item.remove(), 300);
+        }
+        const countEl = document.getElementById('community-comment-count');
+        if (countEl) countEl.textContent = Math.max(0, parseInt(countEl.textContent || '0') - 1);
+        showToast('Comentario eliminado', 'El mensaje fue borrado del tablón.');
+    }
+};
+
+// ── 6. INIT (wire form + load comments) ─────────────────────────────────────
+let _muroInitialized = false;
+
+async function initMuroPublico() {
+    const form = document.getElementById('community-comment-form');
+    const loadingEl = document.getElementById('community-loading');
+
+    if (loadingEl) loadingEl.style.display = 'flex';
+
+    // Wire form only once
+    if (form && !_muroInitialized) {
+        _muroInitialized = true;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nameInput = document.getElementById('community-visitor-name');
+            const contentInput = document.getElementById('community-comment-content');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            const name = nameInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (!name || name.length < 2) {
+                nameInput.focus();
+                nameInput.style.borderColor = '#ef5350';
+                setTimeout(() => nameInput.style.borderColor = '', 2000);
+                return;
+            }
+            if (!content || content.length < 3) {
+                contentInput.focus();
+                contentInput.style.borderColor = '#ef5350';
+                setTimeout(() => contentInput.style.borderColor = '', 2000);
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publicando...';
+
+            const added = await addPublicComment(name, content);
+            if (added) {
+                nameInput.value = '';
+                contentInput.value = '';
+                showToast('¡Mensaje publicado!', 'Tu mensaje ya aparece en el tablón.');
+                // Re-render with updated list
+                renderPublicComments(PUBLIC_COMMENTS_DATABASE);
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar';
         });
-    });
-}
 
-// ── D. NOTIFICATIONS ─────────────────────────────────────────────────────────
-async function getUnreadCommentsCount() {
-    const lastSeen = localStorage.getItem('directiva-last-seen-comments') || '1970-01-01T00:00:00.000Z';
-
-    if (isSupabaseActive) {
-        try {
-            const { count, error } = await supabaseClient
-                .from('comments')
-                .select('id', { count: 'exact', head: true })
-                .gt('created_at', lastSeen);
-            if (!error) return count || 0;
-        } catch (_) { /* fallback */ }
-    }
-    // Local fallback
-    return (COMMENTS_DATABASE || []).filter(c => new Date(c.created_at) > new Date(lastSeen)).length;
-}
-
-async function updateNotifBadge() {
-    const badge = document.getElementById('muro-notif-badge');
-    const badgeMob = document.getElementById('muro-notif-badge-mob');
-    if (!badge && !badgeMob) return;
-
-    if (!activeUser || activeUser.role !== 'directiva') {
-        // Hide for non-directiva
-        [badge, badgeMob].forEach(b => { if (b) b.style.display = 'none'; });
-        return;
-    }
-
-    const count = await getUnreadCommentsCount();
-
-    [badge, badgeMob].forEach(b => {
-        if (!b) return;
-        if (count > 0) {
-            b.textContent = count > 99 ? '99+' : String(count);
-            b.style.display = 'flex';
-        } else {
-            b.style.display = 'none';
+        // Pre-fill name if logged in as socio
+        const nameInput = document.getElementById('community-visitor-name');
+        if (nameInput && activeUser && activeUser.memberName && activeUser.username) {
+            nameInput.value = activeUser.memberName || activeUser.username;
         }
-    });
+    }
+
+    // Load and render comments
+    const comments = await fetchPublicComments();
+    if (loadingEl) loadingEl.style.display = 'none';
+    renderPublicComments(comments);
 }
 
-function markCommentsSeen() {
-    localStorage.setItem('directiva-last-seen-comments', new Date().toISOString());
-    updateNotifBadge();
-}
 
-// ── E. INITIALIZATION ────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    initMuroPills();
-    // Update badge on load (after a brief delay so activeUser can be set)
-    setTimeout(updateNotifBadge, 1200);
-});
-
-// Expose globals
-window.renderMuroFeed = renderMuroFeed;
-window.updateNotifBadge = updateNotifBadge;
-window.markCommentsSeen = markCommentsSeen;
+window.initMuroPublico = initMuroPublico;

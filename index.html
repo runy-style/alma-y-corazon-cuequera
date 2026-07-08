@@ -44,10 +44,7 @@
                             Nosotros</a></li>
                     <li><a href="#" class="nav-link" data-target="talleres-tab"><i
                                 class="fa-solid fa-graduation-cap"></i> Talleres</a></li>
-                    <li style="position: relative;">
-                        <a href="#" class="nav-link" data-target="muro-tab" id="nav-muro-link"><i class="fa-solid fa-layer-group"></i> Muro</a>
-                        <span id="muro-notif-badge" style="display:none; position:absolute; top:-6px; right:-10px; background:#e53935; color:#fff; font-size:0.6rem; font-weight:700; min-width:17px; height:17px; border-radius:50%; display:none; align-items:center; justify-content:center; padding:0 4px; pointer-events:none; z-index:10;">0</span>
-                    </li>
+                    <li><a href="#" class="nav-link" data-target="muro-tab"><i class="fa-solid fa-comments"></i> Comunidad</a></li>
                     <li><a href="#" class="nav-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
                             Eventos</a></li>
                     <li><a href="#" class="nav-link" data-target="noticias-tab"><i class="fa-solid fa-bullhorn"></i>
@@ -84,10 +81,7 @@
             </li>
             <li><a href="#" class="mob-link" data-target="talleres-tab"><i class="fa-solid fa-graduation-cap"></i>
                     Talleres</a></li>
-            <li style="position: relative;">
-                <a href="#" class="mob-link" data-target="muro-tab"><i class="fa-solid fa-layer-group"></i> Muro</a>
-                <span id="muro-notif-badge-mob" style="display:none; position:absolute; top:2px; left:75px; background:#e53935; color:#fff; font-size:0.6rem; font-weight:700; min-width:16px; height:16px; border-radius:50%; align-items:center; justify-content:center; padding:0 3px; pointer-events:none; z-index:10;">0</span>
-            </li>
+            <li><a href="#" class="mob-link" data-target="muro-tab"><i class="fa-solid fa-comments"></i> Comunidad</a></li>
             <li><a href="#" class="mob-link" data-target="eventos-tab"><i class="fa-solid fa-calendar-days"></i>
                     Eventos</a></li>
             <li><a href="#" class="mob-link" data-target="noticias-tab"><i class="fa-solid fa-bullhorn"></i>
@@ -688,28 +682,59 @@
             </div>
         </section>
 
-        <!-- 4.7 MURO UNIFICADO SECTION -->
+        <!-- 5. COMUNIDAD — Tablón Público de Visitas -->
         <section id="muro-tab" class="app-section">
             <div class="section-header">
                 <span class="section-tag">Comunidad</span>
-                <h2 class="section-title">Muro del Club</h2>
+                <h2 class="section-title">Tablón de la Comunidad</h2>
                 <div class="section-underline"></div>
             </div>
 
-            <!-- Filter Pills -->
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; align-items: center;">
-                <span style="font-size:0.82rem; color:var(--text-muted); margin-right:4px;"><i class="fa-solid fa-filter"></i> Filtrar:</span>
-                <button class="muro-pill-btn active" data-muro-filter="todo" id="muro-pill-todo"><i class="fa-solid fa-layer-group"></i> Todo</button>
-                <button class="muro-pill-btn" data-muro-filter="evento" id="muro-pill-evento"><i class="fa-solid fa-calendar-days"></i> Eventos</button>
-                <button class="muro-pill-btn" data-muro-filter="noticia" id="muro-pill-noticia"><i class="fa-solid fa-bullhorn"></i> Noticias</button>
-                <button class="muro-pill-btn" data-muro-filter="foto" id="muro-pill-foto"><i class="fa-solid fa-images"></i> Fotos</button>
-            </div>
+            <div style="max-width:720px; margin:0 auto;">
 
-            <!-- Feed Container -->
-            <div id="muro-feed-container" style="display: flex; flex-direction: column; gap: 28px; min-height: 300px;">
-                <div style="text-align:center; color:var(--text-muted); padding:60px 20px;">
-                    <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;"></i>
-                    <p style="margin-top:12px;">Cargando muro...</p>
+                <!-- Intro -->
+                <p style="margin:0 0 28px 0; font-size:0.95rem; color:var(--text-muted); text-align:center; line-height:1.6;">
+                    <i class="fa-solid fa-comments text-gold"></i>
+                    ¿Tienes algo que decir? Deja tu mensaje en el tablón. No necesitas cuenta — solo escribe tu nombre y comentario.
+                </p>
+
+                <!-- Form -->
+                <form id="community-comment-form" class="community-form">
+                    <div style="display:flex; flex-direction:column; gap:14px;">
+                        <div>
+                            <label for="community-visitor-name" style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;"><i class="fa-solid fa-user"></i> Tu nombre</label>
+                            <input type="text" id="community-visitor-name" placeholder="Ej: María García" maxlength="60" autocomplete="name"
+                                style="width:100%; padding:11px 14px; font-size:0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); background:rgba(0,0,0,0.2); color:var(--text); outline:none; transition:border-color 0.2s; box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label for="community-comment-content" style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;"><i class="fa-solid fa-pen-to-square"></i> Tu mensaje</label>
+                            <textarea id="community-comment-content" placeholder="Escribe tu mensaje aquí..." maxlength="500" rows="3"
+                                style="width:100%; padding:11px 14px; font-size:0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); background:rgba(0,0,0,0.2); color:var(--text); outline:none; resize:vertical; min-height:90px; transition:border-color 0.2s; box-sizing:border-box; font-family:inherit;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="align-self:flex-end; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-paper-plane"></i> Publicar
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Divider -->
+                <div style="display:flex; align-items:center; gap:16px; margin:36px 0 24px 0;">
+                    <div style="flex:1; height:1px; background:var(--border-color);"></div>
+                    <span style="font-size:0.82rem; color:var(--text-muted); white-space:nowrap;">
+                        <i class="fa-solid fa-comments text-gold"></i>
+                        Mensajes de la comunidad (<span id="community-comment-count">0</span>)
+                    </span>
+                    <div style="flex:1; height:1px; background:var(--border-color);"></div>
+                </div>
+
+                <!-- Loading indicator -->
+                <div id="community-loading" style="display:none; justify-content:center; padding:30px; color:var(--text-muted);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;"></i>
+                </div>
+
+                <!-- Comments list -->
+                <div id="community-comments-list" style="display:flex; flex-direction:column; gap:14px;">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </section>
@@ -1428,7 +1453,7 @@
                     <li><a href="#" onclick="switchSection('hero-tab')">Inicio</a></li>
                     <li><a href="#" onclick="switchSection('nosotros-tab')">Quiénes Somos</a></li>
                     <li><a href="#" onclick="switchSection('talleres-tab')">Nuestros Talleres</a></li>
-                    <li><a href="#" onclick="switchSection('muro-tab')">Muro del Club</a></li>
+                    <li><a href="#" onclick="switchSection('muro-tab')">Comunidad</a></li>
                     <li><a href="#" onclick="switchSection('eventos-tab')">Galería de Eventos</a></li>
                     <li><a href="#" onclick="switchSection('noticias-tab')">Noticias y Novedades</a></li>
                 </ul>
