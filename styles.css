@@ -35,12 +35,38 @@
     --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 213, 79, 0.04);
     --shadow-glow: 0 0 30px var(--primary-glow);
     
-    /* Layout & Animation Tokens */
+    /* Layout, Radius & Animation Tokens */
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 24px;
     --radius-full: 9999px;
-    --transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    /* --- Motion Tokens (Emil Kowalski standards) --- */
+    /* Entering/exiting elements: starts fast, feels responsive */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    /* On-screen movement / morphing */
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    /* iOS-style drawer/sheet curve */
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    /* Spring-like overshoot for toasts and celebrations */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Duration budget (UI animations stay under 300ms) */
+    --dur-micro: 100ms;    /* button press, icon feedback */
+    --dur-small: 160ms;    /* tooltips, badges */
+    --dur-medium: 220ms;   /* dropdowns, small popovers */
+    --dur-large: 320ms;    /* modals, section entrances */
+    --dur-drawer: 380ms;   /* mobile drawer slide */
+
+    /* Compound token: default hover/color transitions */
+    --transition: color var(--dur-medium) var(--ease-out),
+                  background var(--dur-medium) var(--ease-out),
+                  border-color var(--dur-medium) var(--ease-out),
+                  box-shadow var(--dur-medium) var(--ease-out),
+                  transform var(--dur-medium) var(--ease-out),
+                  opacity var(--dur-medium) var(--ease-out),
+                  filter var(--dur-medium) var(--ease-out);
+
     --font-heading: 'Outfit', sans-serif;
     --font-serif: 'Playfair Display', serif;
     --font-body: 'Inter', sans-serif;
@@ -187,6 +213,11 @@ a {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px var(--primary-glow);
 }
+.btn-primary:active {
+    transform: translateY(0) scale(0.97);
+    transition: transform var(--dur-micro) var(--ease-out),
+                box-shadow var(--dur-micro) var(--ease-out);
+}
 
 .btn-outline {
     background: transparent;
@@ -197,6 +228,10 @@ a {
     background: var(--border-color);
     border-color: var(--accent);
     transform: translateY(-2px);
+}
+.btn-outline:active {
+    transform: scale(0.97);
+    transition: transform var(--dur-micro) var(--ease-out);
 }
 
 .btn-portal {
@@ -218,6 +253,10 @@ a {
     box-shadow: 0 6px 18px var(--secondary-glow), 0 0 10px var(--accent-glow);
     filter: brightness(1.1);
 }
+.btn-portal:active {
+    transform: scale(0.97);
+    transition: transform var(--dur-micro) var(--ease-out);
+}
 
 /* 5. MAIN HEADER & RESPONSIVE NAV */
 .main-header {
@@ -229,7 +268,9 @@ a {
     background: var(--bg-surface-glass);
     backdrop-filter: blur(16px) saturate(140%);
     border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.5s ease, border-color 0.5s ease, padding 0.3s ease;
+    transition: background-color var(--dur-large) var(--ease-out),
+                border-color var(--dur-large) var(--ease-out),
+                padding var(--dur-medium) var(--ease-out);
     padding: 15px 0;
 }
 
@@ -262,8 +303,8 @@ a {
     transition: var(--transition);
 }
 .logo-area:hover .header-logo-img {
-    transform: scale(1.08) rotate(5deg);
-    box-shadow: 0 0 15px var(--accent-glow);
+    transform: scale(1.06);
+    box-shadow: 0 0 18px var(--accent-glow);
 }
 
 .logo-text {
@@ -385,7 +426,8 @@ body.light-theme .theme-toggle-btn .icon-moon { display: none; }
     box-shadow: var(--shadow-lg);
     z-index: 95;
     padding: 100px 30px 40px 30px;
-    transition: var(--transition);
+    /* iOS-like drawer curve for sheets */
+    transition: right var(--dur-drawer) var(--ease-drawer);
     display: flex;
     flex-direction: column;
 }
@@ -432,13 +474,14 @@ body.light-theme .theme-toggle-btn .icon-moon { display: none; }
 .app-section {
     display: none;
     opacity: 0;
-    transform: translateY(15px);
-    transition: opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: translateY(12px) scale(0.99);
+    transition: opacity var(--dur-large) var(--ease-out),
+                transform var(--dur-large) var(--ease-out);
 }
 .app-section.active {
     display: block;
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 /* Common Section Header */
@@ -2316,12 +2359,12 @@ body.light-theme .admin-quota-btn {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     position: relative;
-    animation: modalSlide 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation: modalSlide var(--dur-large) var(--ease-out) both;
 }
 
 @keyframes modalSlide {
-    0% { transform: translateY(30px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0%   { transform: translateY(20px) scale(0.96); opacity: 0; }
+    100% { transform: translateY(0) scale(1);       opacity: 1; }
 }
 
 .close-modal {
@@ -2372,7 +2415,7 @@ body.light-theme .admin-quota-btn {
     align-items: center;
     gap: 16px;
     max-width: 380px;
-    animation: toastSlide 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: toastSlide var(--dur-medium) var(--ease-out) both;
     border-left: 4px solid #00c853;
 }
 .toast.hidden {
@@ -2391,8 +2434,8 @@ body.light-theme .admin-quota-btn {
 }
 
 @keyframes toastSlide {
-    0% { transform: translateX(50px) scale(0.9); opacity: 0; }
-    100% { transform: translateX(0) scale(1); opacity: 1; }
+    0%   { transform: translateY(-10px) scale(0.95); opacity: 0; }
+    100% { transform: translateY(0) scale(1);        opacity: 1; }
 }
 
 .toast-content {
@@ -3269,11 +3312,11 @@ body.light-theme .e-stat {
     gap: 6px;
 }
 .glow-pulse {
-    animation: glowPulse 2s infinite ease-in-out;
+    animation: glowPulse 3s ease-in-out infinite;
 }
 @keyframes glowPulse {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 213, 79, 0.4)); }
-    50% { transform: scale(1.06); filter: drop-shadow(0 0 15px rgba(255, 213, 79, 0.8)); }
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 213, 79, 0.35)); }
+    50%       { filter: drop-shadow(0 0 12px rgba(255, 213, 79, 0.7)); }
 }
 
 /* Right Details Section */
@@ -3435,14 +3478,16 @@ body.light-theme .e-stat {
 .public-news-img,
 .agreement-image-container img {
     cursor: zoom-in;
-    transition: var(--transition) !important;
+    transition: transform var(--dur-medium) var(--ease-out),
+                filter var(--dur-medium) var(--ease-out),
+                box-shadow var(--dur-medium) var(--ease-out) !important;
 }
 
 .timeline-event-img:hover,
 .promo-img:hover,
 .public-news-img:hover,
 .agreement-image-container img:hover {
-    filter: brightness(1.06);
+    filter: brightness(1.05);
     transform: scale(1.02);
     box-shadow: var(--shadow-md);
 }
@@ -3469,7 +3514,7 @@ body.light-theme .e-stat {
 .sponsors-carousel-track {
     display: flex;
     gap: 15px;
-    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: transform var(--dur-medium) var(--ease-in-out);
     width: 100%;
 }
 
@@ -3900,7 +3945,7 @@ body.light-theme .badge-no {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform var(--dur-large) var(--ease-in-out);
 }
 
 .featured-event-card:hover .featured-event-media-wrapper img {
@@ -4016,3 +4061,83 @@ body.light-theme .community-form textarea:focus {
 }
 
 
+/* ==========================================================================
+   MOTION POLISH — MISSED OPPORTUNITIES
+   ========================================================================== */
+
+/* Nav-link & mob-link press feedback */
+.nav-link:active {
+    transform: scale(0.96);
+    transition: transform var(--dur-micro) var(--ease-out);
+}
+.mob-link:active {
+    transform: scale(0.97);
+    transition: transform var(--dur-micro) var(--ease-out);
+}
+
+/* Gallery card image: reduce scale, add explicit transform-origin */
+@media (hover: hover) and (pointer: fine) {
+    .gallery-card .gallery-thumb:hover,
+    .photo-grid-item img:hover {
+        transform: scale(1.05);
+        transform-origin: center;
+    }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY — prefers-reduced-motion
+   Keeps opacity/color transitions (aid comprehension), removes position
+   and scale movement that causes vestibular discomfort.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    /* Kill all global transitions movement, preserve color/opacity */
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Re-enable opacity-only fades that aid comprehension */
+    .app-section {
+        transform: none !important;
+        transition: opacity 150ms ease !important;
+    }
+    .app-section.active {
+        transform: none !important;
+    }
+
+    .modal-card {
+        animation: modalFade 120ms ease both !important;
+    }
+    @keyframes modalFade {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .toast {
+        animation: toastFade 120ms ease both !important;
+    }
+    @keyframes toastFade {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    /* Kill decorative infinite animations */
+    .glow-pulse,
+    .pulse-indicator,
+    .spin-slow {
+        animation: none !important;
+    }
+
+    /* Keep press feedback — it aids comprehension, not decoration */
+    .btn-primary:active,
+    .btn-outline:active,
+    .btn-portal:active,
+    .nav-link:active,
+    .mob-link:active {
+        transform: scale(0.97) !important;
+    }
+}
